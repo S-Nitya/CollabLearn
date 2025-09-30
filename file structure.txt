@@ -1,17 +1,10 @@
 A. User Profiles
-
 Sign Up & Login: Simple registration via email, social media, or single sign-on (SSO) options (Google, Facebook, etc.).
-
 Personalized Profiles: Users can fill out their profile with:
-
 Skills they are offering to teach/share.
-
 Skills they are looking to learn.
-
 Experience level (Beginner, Intermediate, Advanced).
-
 Availability and preferred time for sessions.
-
 Ratings and reviews (based on past experiences).
 
 B. Skill Listings & Search
