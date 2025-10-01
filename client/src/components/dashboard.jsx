@@ -1,162 +1,313 @@
-import React, { useState } from "react";
-import { FaBell, FaStar, FaCalendarPlus } from "react-icons/fa";
+import React from 'react';
+import DashboardNavbar from './navbar'; // Assuming you save the new component here
 
-export default function CollablearnDashboard() {
-  const [notifications] = useState(2);
-
+const Dashboard = () => {
   return (
-    <div className="min-h-screen bg-[#0a0a3d] text-gray-900">
-      {/* Top Navbar */}
-      <header className="flex items-center justify-between px-8 py-4 bg-white shadow-md">
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="COLLABLEARN Logo" className="w-10 h-10" />
-          <h1 className="text-xl font-bold text-[#0a0a3d]">COLLABLEARN</h1>
-        </div>
-        <nav className="flex items-center gap-6 text-gray-600 font-medium">
-          <a href="#" className="text-[#0a0a3d]">Dashboard</a>
-          <a href="#">Browse Skills</a>
-          <a href="#">Calendar</a>
-          <a href="#">Messages</a>
-          <a href="#">Community</a>
-          <a href="#">Achievements</a>
-        </nav>
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <FaBell size={20} />
-            {notifications > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
-                {notifications}
-              </span>
-            )}
-          </div>
-          <button className="bg-[#0a0a3d] text-white px-4 py-2 rounded-lg flex items-center gap-2">
-            <FaCalendarPlus /> Schedule Session
-          </button>
-          <div className="w-10 h-10 rounded-full bg-gray-400"></div>
-        </div>
-      </header>
+    <div className="flex h-screen bg-gray-100 font-sans">
 
-      {/* Dashboard Body */}
-      <main className="p-8 bg-gray-50">
-        <h2 className="text-2xl font-semibold mb-6 text-[#0a0a3d]">
-          Welcome back, Alex Rodriguez! 👋
-        </h2>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-3xl font-bold text-[#0a0a3d]">156</p>
-            <p>Total Sessions</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-3xl font-bold text-[#0a0a3d]">4.9</p>
-            <p>Average Rating</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-3xl font-bold text-[#0a0a3d]">8</p>
-            <p>Skills Teaching</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-3xl font-bold text-[#0a0a3d]">12</p>
-            <p>Badges Earned</p>
-          </div>
-        </div>
-
-        {/* Grid Layout */}
-        <div className="grid grid-cols-3 gap-6">
-          {/* Upcoming Sessions */}
-          <div className="col-span-2">
-            <h3 className="font-bold mb-4">Upcoming Sessions</h3>
-            <div className="space-y-4">
-              <div className="bg-white shadow rounded-xl p-4 flex justify-between">
-                <p>JavaScript Fundamentals with Sarah Chen</p>
-                <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-md">Learning</span>
-              </div>
-              <div className="bg-white shadow rounded-xl p-4 flex justify-between">
-                <p>React Hooks Deep Dive with Marcus Johnson</p>
-                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md">Teaching</span>
-              </div>
-              <div className="bg-white shadow rounded-xl p-4 flex justify-between">
-                <p>Python Data Analysis with Dr. Emily Wang</p>
-                <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-md">Learning</span>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-auto">
+        
+        {/* Top Navbar Component */}
+        <DashboardNavbar />
+        
+        {/* Main Dashboard Content */}
+        <main className="flex-1 p-6 bg-gray-100">
+          {/* Welcome Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                Welcome back, Alex Rodriguez! 👋
+              </h1>
+              <div className="flex items-center space-x-4">
+                <button className="flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-200">
+                  <span className="material-icons-outlined text-xl mr-2">&#x1F514;</span> Notifications
+                </button>
+                <button className="flex items-center px-4 py-2 bg-[#2575FC] text-white rounded-lg shadow-md hover:bg-[#6a11cb] transition-colors duration-200"> {/* Blue button color */}
+                  <span className="material-icons-outlined text-xl mr-2">&#x2B;</span> Schedule Session
+                </button>
               </div>
             </div>
+            <p className="text-gray-600">
+              You have 3 upcoming sessions this week. Keep up the great work!
+            </p>
           </div>
 
-          {/* Learning Progress */}
-          <div>
-            <h3 className="font-bold mb-4">Learning Progress</h3>
-            <div className="bg-white shadow rounded-xl p-4 space-y-4">
-              <div>
-                <p className="text-sm font-medium">Python</p>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-purple-600 h-2 rounded-full w-[75%]"></div>
-                </div>
+          {/* Stat Cards Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Total Sessions Card */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center text-2xl">
+                &#128218; {/* Book icon */}
               </div>
               <div>
-                <p className="text-sm font-medium">Data Science</p>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-600 h-2 rounded-full w-[45%]"></div>
-                </div>
+                <p className="text-3xl font-bold text-gray-800">156</p>
+                <p className="text-gray-500">Total Sessions</p>
+              </div>
+            </div>
+
+            {/* Average Rating Card */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+              <div className="bg-yellow-100 text-yellow-600 rounded-full h-12 w-12 flex items-center justify-center text-2xl">
+                &#9733; {/* Star icon */}
               </div>
               <div>
-                <p className="text-sm font-medium">Machine Learning</p>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-600 h-2 rounded-full w-[20%]"></div>
+                <p className="text-3xl font-bold text-gray-800">4.9</p>
+                <p className="text-gray-500">Average Rating</p>
+              </div>
+            </div>
+
+            {/* Skills Teaching Card */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+              <div className="bg-pink-100 text-pink-600 rounded-full h-12 w-12 flex items-center justify-center text-2xl">
+                &#128107; {/* Users icon */}
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-gray-800">8</p>
+                <p className="text-gray-500">Skills Teaching</p>
+              </div>
+            </div>
+
+            {/* Badges Earned Card */}
+            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+              <div className="bg-green-100 text-green-600 rounded-full h-12 w-12 flex items-center justify-center text-2xl">
+                &#127942; {/* Trophy icon */}
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-gray-800">12</p>
+                <p className="text-gray-500">Badges Earned</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid for two main sections: Upcoming/Skills and Learning Progress/Activity/Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column (Upcoming Sessions & Skills I'm Teaching) */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Upcoming Sessions Card */}
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                    <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128197;</span> Upcoming Sessions
+                  </h3>
+                  <button className="text-[#2575FC] text-sm font-semibold hover:underline">
+                    View All
+                  </button>
+                </div>
+
+                {/* Session Item 1 */}
+                <div className="flex items-center justify-between py-4 border-t border-gray-200 first:border-none">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-blue-100 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center text-xl font-bold">
+                      JS
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">JavaScript Fundamentals</p>
+                      <p className="text-sm text-gray-500">with Sarah Chen</p>
+                      <p className="text-xs text-gray-400">Today <span className="font-bold">@ 2:00 PM</span></p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                      Learning
+                    </span>
+                    <button className="text-gray-500 hover:text-gray-800">&#128200;</button> {/* Stats icon */}
+                    <button className="text-gray-500 hover:text-gray-800">&#128197;</button> {/* Calendar icon */}
+                  </div>
+                </div>
+
+                {/* Session Item 2 */}
+                <div className="flex items-center justify-between py-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-4">
+                    <img src="https://i.pravatar.cc/32?img=6" alt="Alex Rodriguez" className="h-10 w-10 rounded-full" />
+                    <div>
+                      <p className="font-semibold text-gray-800">React Hooks Deep Dive</p>
+                      <p className="text-sm text-gray-500">teaching Marcus Johnson</p>
+                      <p className="text-xs text-gray-400">Tomorrow <span className="font-bold">@ 10:00 AM</span></p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                      Teaching
+                    </span>
+                    <button className="text-gray-500 hover:text-gray-800">&#128200;</button> {/* Stats icon */}
+                    <button className="text-gray-500 hover:text-gray-800">&#128197;</button> {/* Calendar icon */}
+                  </div>
+                </div>
+
+                {/* Session Item 3 */}
+                <div className="flex items-center justify-between py-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-4">
+                    <img src="https://i.pravatar.cc/32?img=7" alt="Alex Rodriguez" className="h-10 w-10 rounded-full" />
+                    <div>
+                      <p className="font-semibold text-gray-800">Python Data Analysis</p>
+                      <p className="text-sm text-gray-500">with Dr. Emily Wang</p>
+                      <p className="text-xs text-gray-400">Dec 19 <span className="font-bold">@ 4:30 PM</span></p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
+                      Learning
+                    </span>
+                    <button className="text-gray-500 hover:text-gray-800">&#128200;</button> {/* Stats icon */}
+                    <button className="text-gray-500 hover:text-gray-800">&#128197;</button> {/* Calendar icon */}
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills I'm Teaching Card */}
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
+                  <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#127891;</span> Skills I'm Teaching
+                </h3>
+                
+                {/* Skill Item 1 */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-200 first:border-none">
+                  <div>
+                    <p className="font-semibold text-gray-800">JavaScript</p>
+                    <p className="text-sm text-gray-500">Level: Expert <span className="font-medium text-gray-600">45 sessions</span> <span className="text-yellow-500">&#9733; 4.9</span></p>
+                  </div>
+                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                </div>
+                
+                {/* Skill Item 2 */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                  <div>
+                    <p className="font-semibold text-gray-800">React</p>
+                    <p className="text-sm text-gray-500">Level: Expert <span className="font-medium text-gray-600">38 sessions</span> <span className="text-yellow-500">&#9733; 4.8</span></p>
+                  </div>
+                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                </div>
+
+                {/* Skill Item 3 */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                  <div>
+                    <p className="font-semibold text-gray-800">CSS/SCSS</p>
+                    <p className="text-sm text-gray-500">Level: Advanced <span className="font-medium text-gray-600">29 sessions</span> <span className="text-yellow-500">&#9733; 4.9</span></p>
+                  </div>
+                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                </div>
+
+                {/* Skill Item 4 */}
+                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                  <div>
+                    <p className="font-semibold text-gray-800">Node.js</p>
+                    <p className="text-sm text-gray-500">Level: Intermediate <span className="font-medium text-gray-600">22 sessions</span> <span className="text-yellow-500">&#9733; 4.7</span></p>
+                  </div>
+                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (Learning Progress, Recent Activity, Quick Actions) */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Learning Progress Card */}
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
+                  <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128200;</span> Learning Progress
+                </h3>
+                
+                {/* Progress Item 1 */}
+                <div className="mb-4">
+                  <p className="text-gray-700 font-medium mb-1">Python</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-blue-500 h-2.5 rounded-full" style={{width: '75%'}}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">75%</p>
+                  <p className="text-xs text-gray-400">Next: Today, 2:00 PM</p>
+                </div>
+
+                {/* Progress Item 2 */}
+                <div className="mb-4">
+                  <p className="text-gray-700 font-medium mb-1">Data Science</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-green-500 h-2.5 rounded-full" style={{width: '45%'}}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">45%</p>
+                  <p className="text-xs text-gray-400">Next: Dec 20, 3:00 PM</p>
+                </div>
+                
+                {/* Progress Item 3 */}
+                <div className="mb-4">
+                  <p className="text-gray-700 font-medium mb-1">Machine Learning</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="bg-red-500 h-2.5 rounded-full" style={{width: '20%'}}></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">20%</p>
+                  <p className="text-xs text-gray-400">Next: Not scheduled</p>
+                </div>
+              </div>
+
+              {/* Recent Activity Card */}
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
+                  <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128221;</span> Recent Activity
+                </h3>
+                
+                {/* Activity Item 1 */}
+                <div className="flex items-start mb-3">
+                  <span className="material-icons-outlined text-green-500 text-lg mr-3 mt-1">&#10003;</span> {/* Checkmark icon */}
+                  <div>
+                    <p className="text-gray-700">Completed session: <span className="font-semibold">Advanced CSS Grid</span></p>
+                    <p className="text-xs text-gray-500">2 hours ago</p>
+                  </div>
+                </div>
+
+                {/* Activity Item 2 */}
+                <div className="flex items-start mb-3">
+                  <span className="material-icons-outlined text-yellow-500 text-lg mr-3 mt-1">&#9733;</span> {/* Star icon */}
+                  <div>
+                    <p className="text-gray-700">Received 5-star review from <span className="font-semibold">Emma Wilson</span></p>
+                    <p className="text-xs text-gray-500">4 hours ago</p>
+                  </div>
+                </div>
+                
+                {/* Activity Item 3 */}
+                <div className="flex items-start mb-3">
+                  <span className="material-icons-outlined text-purple-500 text-lg mr-3 mt-1">&#127942;</span> {/* Trophy icon */}
+                  <div>
+                    <p className="text-gray-700">Earned badge: <span className="font-semibold">CSS Master</span></p>
+                    <p className="text-xs text-gray-500">Yesterday</p>
+                  </div>
+                </div>
+
+                {/* Activity Item 4 */}
+                <div className="flex items-start">
+                  <span className="material-icons-outlined text-blue-500 text-lg mr-3 mt-1">&#128218;</span> {/* Book icon */}
+                  <div>
+                    <p className="text-gray-700">New booking request for <span className="font-semibold">React Tutorial</span></p>
+                    <p className="text-xs text-gray-500">2 days ago</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions Card */}
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
+                  <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128200;</span> Quick Actions
+                </h3>
+                
+                <div className="space-y-3">
+                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                    <span className="material-icons-outlined text-xl mr-3">&#x2B;</span> Add New Skill
+                  </button>
+                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                    <span className="material-icons-outlined text-xl mr-3">&#128197;</span> Set Availability
+                  </button>
+                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                    <span className="material-icons-outlined text-xl mr-3">&#128101;</span> Message Center
+                  </button>
+                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                    <span className="material-icons-outlined text-xl mr-3">&#127942;</span> View Achievements
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Skills I'm Teaching + Right Column */}
-        <div className="grid grid-cols-3 gap-6 mt-8">
-          {/* Skills Teaching */}
-          <div className="col-span-2">
-            <h3 className="font-bold mb-4">Skills I'm Teaching</h3>
-            <div className="bg-white shadow rounded-xl p-4 space-y-3">
-              <div className="flex justify-between">
-                <p>JavaScript (Expert) - 45 sessions</p>
-                <span className="flex items-center gap-1 text-yellow-500"><FaStar /> 4.9</span>
-              </div>
-              <div className="flex justify-between">
-                <p>React (Expert) - 38 sessions</p>
-                <span className="flex items-center gap-1 text-yellow-500"><FaStar /> 4.8</span>
-              </div>
-              <div className="flex justify-between">
-                <p>CSS/SCSS (Advanced) - 29 sessions</p>
-                <span className="flex items-center gap-1 text-yellow-500"><FaStar /> 4.9</span>
-              </div>
-              <div className="flex justify-between">
-                <p>Node.js (Intermediate) - 22 sessions</p>
-                <span className="flex items-center gap-1 text-yellow-500"><FaStar /> 4.7</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent + Quick Actions */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-bold mb-4">Recent Activity</h3>
-              <div className="bg-white shadow rounded-xl p-4 space-y-2 text-sm">
-                <p>✅ Completed: Advanced CSS Grid (2h ago)</p>
-                <p>⭐ Received 5-star review (4h ago)</p>
-                <p>🏅 Earned badge: CSS Master (Yesterday)</p>
-                <p>📌 New booking for React Tutorial (2d ago)</p>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">Quick Actions</h3>
-              <div className="bg-white shadow rounded-xl p-4 space-y-2 text-sm">
-                <button className="w-full bg-[#0a0a3d] text-white py-2 rounded-lg">+ Add New Skill</button>
-                <button className="w-full border py-2 rounded-lg">Set Availability</button>
-                <button className="w-full border py-2 rounded-lg">Message Center</button>
-                <button className="w-full border py-2 rounded-lg">View Achievements</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
