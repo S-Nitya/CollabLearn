@@ -23,7 +23,9 @@ const Dashboard = () => {
                 <button className="flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-200">
                   <span className="material-icons-outlined text-xl mr-2">&#x1F514;</span> Notifications
                 </button>
-                <button className="flex items-center px-4 py-2 bg-[#2575FC] text-white rounded-lg shadow-md hover:bg-[#6a11cb] transition-colors duration-200"> {/* Blue button color */}
+                
+                {/* 1. SCHEDULE SESSION BUTTON - GRADIENT ADDED */}
+                <button className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-lg font-semibold shadow-lg hover:from-indigo-700 hover:to-blue-600 transition-all duration-300">
                   <span className="material-icons-outlined text-xl mr-2">&#x2B;</span> Schedule Session
                 </button>
               </div>
@@ -82,15 +84,17 @@ const Dashboard = () => {
 
           {/* Grid for two main sections: Upcoming/Skills and Learning Progress/Activity/Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
             {/* Left Column (Upcoming Sessions & Skills I'm Teaching) */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Upcoming Sessions Card */}
+              
+              {/* Upcoming Sessions Card (No change needed) */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold text-gray-800 flex items-center">
                     <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128197;</span> Upcoming Sessions
                   </h3>
-                  <button className="text-[#2575FC] text-sm font-semibold hover:underline">
+                  <button className="text-indigo-600 text-sm font-semibold hover:underline">
                     View All
                   </button>
                 </div>
@@ -155,53 +159,54 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Skills I'm Teaching Card */}
+              {/* 2. SKILLS I'M TEACHING CARD - STYLED AS TABS */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#127891;</span> Skills I'm Teaching
                 </h3>
                 
-                {/* Skill Item 1 */}
-                <div className="flex items-center justify-between py-3 border-t border-gray-200 first:border-none">
+                {/* Skill Item 1 - Tab Styling */}
+                <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg mb-2 shadow-sm hover:bg-gray-100 transition duration-150">
                   <div>
                     <p className="font-semibold text-gray-800">JavaScript</p>
                     <p className="text-sm text-gray-500">Level: Expert <span className="font-medium text-gray-600">45 sessions</span> <span className="text-yellow-500">&#9733; 4.9</span></p>
                   </div>
-                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                  <button className="px-3 py-1 text-sm bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-200">Manage</button>
                 </div>
                 
-                {/* Skill Item 2 */}
-                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                {/* Skill Item 2 - Tab Styling */}
+                <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg mb-2 shadow-sm hover:bg-gray-100 transition duration-150">
                   <div>
                     <p className="font-semibold text-gray-800">React</p>
                     <p className="text-sm text-gray-500">Level: Expert <span className="font-medium text-gray-600">38 sessions</span> <span className="text-yellow-500">&#9733; 4.8</span></p>
                   </div>
-                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                  <button className="px-3 py-1 text-sm bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-200">Manage</button>
                 </div>
 
-                {/* Skill Item 3 */}
-                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                {/* Skill Item 3 - Tab Styling */}
+                <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg mb-2 shadow-sm hover:bg-gray-100 transition duration-150">
                   <div>
                     <p className="font-semibold text-gray-800">CSS/SCSS</p>
                     <p className="text-sm text-gray-500">Level: Advanced <span className="font-medium text-gray-600">29 sessions</span> <span className="text-yellow-500">&#9733; 4.9</span></p>
                   </div>
-                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                  <button className="px-3 py-1 text-sm bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-200">Manage</button>
                 </div>
 
-                {/* Skill Item 4 */}
-                <div className="flex items-center justify-between py-3 border-t border-gray-200">
+                {/* Skill Item 4 - Tab Styling */}
+                <div className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg mb-2 shadow-sm hover:bg-gray-100 transition duration-150">
                   <div>
                     <p className="font-semibold text-gray-800">Node.js</p>
                     <p className="text-sm text-gray-500">Level: Intermediate <span className="font-medium text-gray-600">22 sessions</span> <span className="text-yellow-500">&#9733; 4.7</span></p>
                   </div>
-                  <button className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200">Manage</button>
+                  <button className="px-3 py-1 text-sm bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-colors duration-200">Manage</button>
                 </div>
               </div>
             </div>
 
             {/* Right Column (Learning Progress, Recent Activity, Quick Actions) */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Learning Progress Card */}
+              
+              {/* Learning Progress Card (No change needed) */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128200;</span> Learning Progress
@@ -238,7 +243,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Recent Activity Card */}
+              {/* Recent Activity Card (No change needed) */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128221;</span> Recent Activity
@@ -281,23 +286,27 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Quick Actions Card */}
+              {/* 3. QUICK ACTIONS CARD - STYLED AS TABS */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-4">
                   <span className="material-icons-outlined text-2xl text-gray-500 mr-2">&#128200;</span> Quick Actions
                 </h3>
                 
-                <div className="space-y-3">
-                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                <div className="space-y-2">
+                  {/* Action Item 1 - Tab Styling */}
+                  <button className="flex items-center px-4 py-3 text-indigo-600 font-semibold bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-150 w-full text-left shadow-sm">
                     <span className="material-icons-outlined text-xl mr-3">&#x2B;</span> Add New Skill
                   </button>
-                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                  {/* Action Item 2 - Tab Styling */}
+                  <button className="flex items-center px-4 py-3 text-indigo-600 font-semibold bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-150 w-full text-left shadow-sm">
                     <span className="material-icons-outlined text-xl mr-3">&#128197;</span> Set Availability
                   </button>
-                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                  {/* Action Item 3 - Tab Styling */}
+                  <button className="flex items-center px-4 py-3 text-indigo-600 font-semibold bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-150 w-full text-left shadow-sm">
                     <span className="material-icons-outlined text-xl mr-3">&#128101;</span> Message Center
                   </button>
-                  <button className="flex items-center text-blue-600 hover:text-[#6a11cb] transition-colors duration-200 w-full text-left">
+                  {/* Action Item 4 - Tab Styling */}
+                  <button className="flex items-center px-4 py-3 text-indigo-600 font-semibold bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-150 w-full text-left shadow-sm">
                     <span className="material-icons-outlined text-xl mr-3">&#127942;</span> View Achievements
                   </button>
                 </div>
