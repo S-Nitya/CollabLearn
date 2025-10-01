@@ -1,50 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiSearch, FiFilter, FiPlus, FiMessageCircle, FiEye, FiThumbsUp, FiUpload, FiBookmark, FiX } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import MainNavbar from '../navbar/mainNavbar';
 
-// --- INITIAL MOCK DATA ---
-const initialPosts = [
-  {
-    id: 1,
-    author: 'Sarah Chen',
-    avatar: 'https://i.pravatar.cc/150?u=sarah',
-    title: 'Best practices for teaching JavaScript to complete beginners?',
-    excerpt: 'I\'m starting to teach JavaScript and wondering what are the most effective approaches for complete beginners. Should I start with ES6 syntax or stick to basic `var` declarations first?',
-    tags: ['JavaScript', 'Teaching', 'Beginners'],
-    stats: { comments: 23, views: 256, likes: 47 },
-    timestamp: '2 hours ago',
-    isHot: true,
-    authorRole: 'Expert Teacher',
-    category: 'Teaching Tips',
-  },
-  {
-    id: 2,
-    author: 'Marcus Johnson',
-    avatar: 'https://i.pravatar.cc/150?u=marcus',
-    title: 'How to handle difficult students in online sessions?',
-    excerpt: 'Recently had a few challenging sessions where students were distracted or unprepared. Any tips on how to maintain engagement and make sessions productive?',
-    tags: ['Online Teaching', 'Student Management'],
-    stats: { comments: 15, views: 189, likes: 32 },
-    timestamp: '4 hours ago',
-    isHot: false,
-    authorRole: 'Community Star',
-    category: 'Teaching Tips',
-  },
-  {
-    id: 3,
-    author: 'Dr. Emily Wang',
-    avatar: 'https://i.pravatar.cc/150?u=emily',
-    title: 'Amazing Python learning resource I discovered!',
-    excerpt: 'Just found this interactive Python tutorial that\'s perfect for visual learners. The way it explains concepts with real-time code visualization is incredible. Highly recommend checking it out!',
-    tags: ['Python', 'Learning Resources', 'Visual Learning'],
-    stats: { comments: 8, views: 145, likes: 28 },
-    timestamp: '6 hours ago',
-    isHot: false,
-    authorRole: 'Data Science Pro',
-    category: 'Resources',
-  },
-];
+
 
 const categories = [
   { name: 'All Posts', count: 234, color: 'bg-blue-500' },
@@ -71,7 +30,7 @@ const trendingTopics = [
 
 // --- SUB-COMPONENTS ---
 
-const PostCard = ({ post }) => (
+const PostCard = ({ post, handleDeletePost, currentUserId }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
     <div className="flex items-start space-x-4">
       <img src={post.avatar} alt={post.author} className="w-11 h-11 rounded-full object-cover" />
@@ -79,14 +38,21 @@ const PostCard = ({ post }) => (
         <div className="flex items-center justify-between">
             <div>
                 <span className="font-semibold text-gray-900">{post.author}</span>
-                <span className="text-sm text-gray-500 ml-2">· {post.timestamp}</span>
+                <span className="text-sm text-gray-500 ml-2">· {new Date(post.timestamp).toLocaleString()}</span>
             </div>
-            {post.isHot && (
-                <div className="flex items-center space-x-1 text-orange-500">
-                    <FaFire />
-                    <span className="text-sm font-semibold">Hot</span>
-                </div>
-            )}
+            <div className="flex items-center space-x-2">
+              {post.isHot && (
+                  <div className="flex items-center space-x-1 text-orange-500">
+                      <FaFire />
+                      <span className="text-sm font-semibold">Hot</span>
+                  </div>
+              )}
+              {post.userId === currentUserId && (
+                <button onClick={() => handleDeletePost(post._id)} className="text-gray-400 hover:text-red-500 cursor-pointer">
+                  <FiX size={18} />
+                </button>
+              )}
+            </div>
         </div>
         <div className="text-sm text-gray-500 mb-2">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${post.authorRole === 'Expert Teacher' ? 'bg-cyan-100 text-cyan-800' : post.authorRole === 'Community Star' ? 'bg-blue-100 text-blue-800' : post.authorRole === 'New Contributor' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}`}>{post.authorRole}</span>
@@ -135,7 +101,7 @@ const SidebarCard = ({ title, children }) => (
     </div>
 )
 
-const NewPostModal = ({ onAddPost, onClose }) => {
+const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
     const [title, setTitle] = useState('');
     const [excerpt, setExcerpt] = useState('');
     const [tags, setTags] = useState('');
@@ -148,17 +114,14 @@ const NewPostModal = ({ onAddPost, onClose }) => {
         }
 
         const newPost = {
-            id: Date.now(),
-            author: 'Alex Rodriguez',
-            avatar: 'https://i.pravatar.cc/150?u=alex',
+            author: currentUser.name,
+            avatar: currentUser.avatar,
             title,
             excerpt,
             tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            stats: { comments: 0, views: 0, likes: 0 },
-            timestamp: 'Just now',
-            isHot: false,
-            authorRole: 'New Contributor',
-            category: 'General Discussion',
+            authorRole: 'New Contributor', // This could be dynamic based on user roles
+            category: 'General Discussion', // This could be a dropdown in the form
+            userId: currentUser.id,
         };
 
         onAddPost(newPost);
@@ -228,13 +191,69 @@ const NewPostModal = ({ onAddPost, onClose }) => {
 
 const CommunityPage = () => {
   const [activeTab, setActiveTab] = useState('Recent');
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabs = ['Recent', 'Popular', 'Trending', 'Unanswered'];
 
-  const handleAddPost = (newPost) => {
-      setPosts([newPost, ...posts]);
-      setIsModalOpen(false);
+  // TODO: Replace this with your actual authentication context or state management
+  const currentUser = {
+    id: 'some-hardcoded-user-id',
+    name: 'Shubham Upadhyay',
+    avatar: 'https://i.pravatar.cc/150?u=shubham',
+  };
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/posts');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      console.error("Failed to fetch posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const handleAddPost = async (newPostData) => {
+      try {
+        const response = await fetch('http://localhost:5000/api/posts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newPostData),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        fetchPosts(); // Refetch posts to include the new one
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Failed to add post:", error);
+        alert("Failed to add post. Please try again.");
+      }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        fetchPosts(); // Refetch posts to update the list
+      } catch (error) {
+        console.error('Failed to delete post:', error);
+        alert('Failed to delete post. Please try again.');
+      }
+    }
   };
 
   return (
@@ -278,7 +297,7 @@ const CommunityPage = () => {
               </div>
 
               <div className="space-y-4">
-                {posts.map(post => <PostCard key={post.id} post={post} />)}
+                {posts.map(post => <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} />)}
               </div>
             </main>
 
@@ -318,7 +337,7 @@ const CommunityPage = () => {
         </div>
       </div>
       
-      {isModalOpen && <NewPostModal onAddPost={handleAddPost} onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && <NewPostModal onAddPost={handleAddPost} onClose={() => setIsModalOpen(false)} currentUser={currentUser} />}
     </>
   );
 };

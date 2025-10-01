@@ -45,6 +45,7 @@ mongoose.connection.on('disconnected', () => {
 // ============= ROUTES =============
 // Authentication routes (login, register)
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/posts', require('./routes/posts'));
 
 // ============= ROOT ROUTE =============
 // Test route to check if server is running
@@ -53,7 +54,9 @@ app.get('/', (req, res) => {
     message: 'CollabLearn API Server Running!',
     endpoints: {
       register: 'POST /api/auth/register',
-      login: 'POST /api/auth/login'
+      login: 'POST /api/auth/login',
+      getPosts: 'GET /api/posts',
+      createPost: 'POST /api/posts'
     }
   });
 });
