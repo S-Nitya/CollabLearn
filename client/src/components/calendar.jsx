@@ -14,7 +14,7 @@ import {
     addWeeks,
     subWeeks
 } from 'date-fns';
-import DashboardNavbar from './navbar'; 
+import DashboardNavbar from '../navbar/landingNavbar'; 
 
 const CalendarPage = () => {
   // --- STATE MANAGEMENT ---

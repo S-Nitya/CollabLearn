@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Code, GraduationCap, Music, Palette, Users, Calendar, Trophy, Shield, Star } from 'lucide-react';
 
 export default function CollabLearnLanding() {
@@ -27,12 +28,12 @@ export default function CollabLearnLanding() {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-4">
-            <button className="text-gray-600 hover:text-indigo-600 transition font-medium">
+            <Link to="/login" className="text-gray-600 hover:text-indigo-600 transition font-medium">
               Sign In
-            </button>
-            <button className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
+            </Link>
+            <Link to="/signup" className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -70,9 +71,9 @@ export default function CollabLearnLanding() {
               placeholder="Enter your email to get started"
               className="w-full px-6 py-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <button className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
               Join Free
-            </button>
+            </Link>
           </div>
 
           {/* Features */}
@@ -294,9 +295,9 @@ export default function CollabLearnLanding() {
             Join thousands of learners and teachers who are already growing their
             skills together.
           </p>
-          <button className="px-10 py-4 bg-white text-indigo-600 rounded-lg font-bold text-lg hover:bg-gray-50 transition shadow-lg">
+          <Link to="/signup" className="px-10 py-4 bg-white text-indigo-600 rounded-lg font-bold text-lg hover:bg-gray-50 transition shadow-lg">
             Get Started for Free
-          </button>
+          </Link>
         </div>
       </section>
 

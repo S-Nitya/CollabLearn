@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardNavbar from './navbar'; // Assuming you save the new component here
+import DashboardNavbar from '../navbar/landingNavbar'; // Assuming you save the new component here
 
 const Dashboard = () => {
   return (

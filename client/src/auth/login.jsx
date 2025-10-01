@@ -1,14 +1,36 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Logic for handling login (e.g., API call) would go here
-    console.log('Login attempt with:', { email, password });
-    alert(`Attempting to log in with Email: ${email}`);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        toast.success('Login successful!');
+        navigate('/');
+      } else {
+        toast.error(data.message || 'Login failed. Please check your credentials.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('An error occurred during login. Please try again later.');
+    }
   };
 
   // The 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc]' class mimics the purple/blue gradient from the footer.
@@ -16,10 +38,14 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#6a11cb] to-[#2575fc] p-4">
       
       {/* Login Card: White background, rounded corners, and shadow, similar to testimonials */}
-      <div className="bg-white p-10 rounded-xl shadow-2xl max-w-md w-full text-center">
-        
+      <div className="bg-white p-10 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="text-left mb-8">
+          <Link to="/" className="text-sm text-gray-600 hover:text-indigo-600 transition">
+            &larr; Back to Home
+          </Link>
+        </div>
         {/* Heading: Bold and large, matching the overall design feel */}
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">Welcome Back!</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Welcome Back!</h2>
         
         <form onSubmit={handleLogin}>
           
@@ -69,22 +95,21 @@ const LoginPage = () => {
           {/* Forgot Password Link: Uses the darker purple color for contrast */}
           <a 
             href="#" 
-            className="block mt-4 text-sm text-[#6a11cb] hover:underline"
+            className="block mt-4 text-sm text-[#6a11cb] hover:underline text-center"
             onClick={(e) => { e.preventDefault(); alert('Forgot Password functionality TBD'); }}
           >
             Forgot Password?
           </a>
           
           {/* Sign Up Link */}
-          <p className="mt-6 text-gray-600 text-sm">
+          <p className="mt-6 text-gray-600 text-sm text-center">
             Don't have an account? 
-            <a 
-                href="#" 
+            <Link 
+                to="/signup" 
                 className="text-[#2575fc] font-semibold hover:underline ml-1"
-                onClick={(e) => { e.preventDefault(); alert('Sign Up functionality TBD'); }}
             >
                 Sign Up
-            </a>
+            </Link>
           </p>
         </form>
       </div>

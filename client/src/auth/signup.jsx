@@ -1,22 +1,42 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const SignupPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    // Basic client-side validation
     if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
       return;
     }
-    // Logic for handling signup (e.g., API call) would go here
-    console.log('Signup attempt with:', { username, email, password });
-    alert(`Attempting to sign up with Username: ${username}, Email: ${email}`);
-    // You would typically redirect the user or show a success message here
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Signup successful! Please log in.');
+        navigate('/login');
+      } else {
+        toast.error(data.message || 'Signup failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error('An error occurred during signup. Please try again later.');
+    }
   };
 
   // The 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc]' class mimics the purple/blue gradient from the footer.
@@ -24,10 +44,14 @@ const SignupPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#6a11cb] to-[#2575fc] p-4">
       
       {/* Signup Card: White background, rounded corners, and shadow, similar to testimonials */}
-      <div className="bg-white p-10 rounded-xl shadow-2xl max-w-md w-full text-center">
-        
+      <div className="bg-white p-10 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="text-left mb-8">
+          <Link to="/" className="text-sm text-gray-600 hover:text-indigo-600 transition">
+            &larr; Back to Home
+          </Link>
+        </div>
         {/* Heading: Bold and large, matching the overall design feel */}
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">Create Your Account</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Create Your Account</h2>
         
         <form onSubmit={handleSignup}>
           
@@ -104,15 +128,14 @@ const SignupPage = () => {
           </button>
 
           {/* Already have an account? Link */}
-          <p className="mt-6 text-gray-600 text-sm">
+          <p className="mt-6 text-gray-600 text-sm text-center">
             Already have an account? 
-            <a 
-                href="#" 
+            <Link 
+                to="/login" 
                 className="text-[#2575fc] font-semibold hover:underline ml-1"
-                onClick={(e) => { e.preventDefault(); alert('Redirect to Login page'); }}
             >
                 Log In
-            </a>
+            </Link>
           </p>
         </form>
       </div>
