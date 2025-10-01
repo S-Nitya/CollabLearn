@@ -1,7 +1,7 @@
 import React from 'react';
 import { Code, GraduationCap, Music, Palette, Users, Calendar, Trophy, Shield, Star } from 'lucide-react';
 
-export default function SkillSwapLanding() {
+export default function CollabLearnLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       {/* Navigation Bar */}
@@ -9,10 +9,13 @@ export default function SkillSwapLanding() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">📚</span>
-            </div>
-            <span className="text-2xl font-bold text-indigo-600">SkillSwap</span>
+            {/* 🔽 Replace src with your custom logo image */}
+            <img 
+              src="client/src/assets/Collablearn Logo.png" 
+              alt="CollabLearn Logo" 
+              className="w-12 h-12 rounded-xl object-cover" 
+            />
+            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
           </div>
 
           {/* Navigation Links */}
@@ -152,7 +155,7 @@ export default function SkillSwapLanding() {
       <section className="px-6 py-20">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">
-            Why Choose SkillSwap?
+            Why Choose CollabLearn?
           </h2>
           <p className="text-xl text-gray-600 text-center mb-16 max-w-3xl mx-auto">
             We've built the perfect platform for peer-to-peer learning with features that
@@ -302,10 +305,13 @@ export default function SkillSwapLanding() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
             <div className="flex items-center gap-3">
-              <div className="bg-indigo-600 w-10 h-10 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">📚</span>
-              </div>
-              <span className="text-2xl font-bold text-indigo-600">SkillSwap</span>
+              {/* 🔽 Replace src with your custom logo image */}
+              <img 
+                src="/your-logo.png" 
+                alt="CollabLearn Logo" 
+                className="w-10 h-10 rounded-lg object-cover" 
+              />
+              <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
             </div>
             <div className="flex gap-8 text-gray-600">
               <a href="#" className="hover:text-indigo-600 transition">Privacy</a>
@@ -314,7 +320,7 @@ export default function SkillSwapLanding() {
             </div>
           </div>
           <div className="text-center text-gray-600">
-            © 2024 SkillSwap. All rights reserved. Made with{' '}
+            © 2024 CollabLearn. All rights reserved. Made with{' '}
             <span className="text-red-500">❤️</span> for the learning community.
           </div>
         </div>
