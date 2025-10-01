@@ -270,7 +270,7 @@ export default function SkillSwapBrowse() {
       <MainNavbar />
 
       {/* Main Content */}
-      <div className="pt-16">
+      <div className="pt-24">
         <div className="max-w-[1400px] mx-auto px-6 py-12">
           {/* Header Section */}
           <div className="mb-8 animate-fadeInUp">

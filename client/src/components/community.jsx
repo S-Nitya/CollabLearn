@@ -240,7 +240,7 @@ const CommunityPage = () => {
   return (
     <>
       <MainNavbar />
-      <div className="bg-gray-50 min-h-screen font-sans pt-16">
+      <div className="bg-gray-50 min-h-screen font-sans pt-24">
         <div className="container mx-auto px-4 py-8">
           
           <header className="mb-6">

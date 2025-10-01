@@ -95,7 +95,7 @@ const CalendarPage = () => {
         <MainNavbar />
         
         {/* Main Calendar Content */}
-        <main className="flex-1 p-6 bg-gray-100">
+        <main className="flex-1 p-6 bg-gray-100 pt-24">
           
           {/* Header Section */}
           <div className="flex justify-between items-center mb-6">

@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MainNavbar from '../navbar/mainNavbar'; // Assuming you save the new component here
 
 const Dashboard = () => {
+  const [username, setUsername] = useState('Guest');
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
 
@@ -12,12 +21,12 @@ const Dashboard = () => {
         <MainNavbar />
         
         {/* Main Dashboard Content */}
-        <main className="flex-1 p-6 bg-gray-100">
+        <main className="flex-1 p-6 bg-gray-100 pt-24">
           {/* Welcome Section */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                Welcome back, Alex Rodriguez! 👋
+                Welcome back, {username}! 👋
               </h1>
               <div className="flex items-center space-x-4">
                 <button className="flex items-center px-4 py-2 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-200">
