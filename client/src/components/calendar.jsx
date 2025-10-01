@@ -14,7 +14,7 @@ import {
     addWeeks,
     subWeeks
 } from 'date-fns';
-import DashboardNavbar from '../navbar/landingNavbar'; 
+import MainNavbar from '../navbar/mainNavbar'; 
 
 const CalendarPage = () => {
   // --- STATE MANAGEMENT ---
@@ -92,7 +92,7 @@ const CalendarPage = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-auto">
         
-        <DashboardNavbar />
+        <MainNavbar />
         
         {/* Main Calendar Content */}
         <main className="flex-1 p-6 bg-gray-100">

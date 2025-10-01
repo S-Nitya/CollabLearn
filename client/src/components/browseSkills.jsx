@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus } from 'lucide-react';
+import MainNavbar from '../navbar/mainNavbar';
 
 export default function SkillSwapBrowse() {
   const [visibleSkills, setVisibleSkills] = useState(6);
@@ -265,63 +267,7 @@ export default function SkillSwapBrowse() {
         }
       `}</style>
 
-      {/* Fixed Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 shadow-sm">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-2 animate-slideIn">
-              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 cursor-pointer hover:scale-110">
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-gray-900">SkillSwap</span>
-            </div>
-
-            {/* Navigation Items */}
-            <div className="flex items-center gap-1">
-              <button className="nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50">
-                <Home size={20} />
-                <span className="font-medium">Dashboard</span>
-              </button>
-              <button className="nav-item flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                <Search size={20} />
-                <span className="font-medium">Browse Skills</span>
-              </button>
-              <button className="nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50">
-                <Calendar size={20} />
-                <span className="font-medium">Calendar</span>
-              </button>
-              <button className="nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50">
-                <MessageSquare size={20} />
-                <span className="font-medium">Messages</span>
-              </button>
-              <button className="nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50">
-                <Users size={20} />
-                <span className="font-medium">Community</span>
-              </button>
-              <button className="nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50">
-                <Trophy size={20} />
-                <span className="font-medium">Achievements</span>
-              </button>
-            </div>
-
-            {/* User Section */}
-            <div className="flex items-center gap-4">
-              <div className="relative cursor-pointer">
-                <Bell size={20} className="text-gray-600 hover:text-gray-900 transition-colors" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center bell-notification">3</span>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 transition-all">
-                <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                <span className="text-sm font-medium text-gray-900">Alex Rodriguez</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNavbar />
 
       {/* Main Content */}
       <div className="pt-16">

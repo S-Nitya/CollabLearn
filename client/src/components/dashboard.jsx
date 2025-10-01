@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardNavbar from '../navbar/landingNavbar'; // Assuming you save the new component here
+import MainNavbar from '../navbar/mainNavbar'; // Assuming you save the new component here
 
 const Dashboard = () => {
   return (
@@ -9,7 +9,7 @@ const Dashboard = () => {
       <div className="flex-1 flex flex-col overflow-auto">
         
         {/* Top Navbar Component */}
-        <DashboardNavbar />
+        <MainNavbar />
         
         {/* Main Dashboard Content */}
         <main className="flex-1 p-6 bg-gray-100">

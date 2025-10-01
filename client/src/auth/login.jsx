@@ -23,7 +23,7 @@ const LoginPage = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         toast.success('Login successful!');
-        navigate('/');
+        navigate('/dashboard');
       } else {
         toast.error(data.message || 'Login failed. Please check your credentials.');
       }
@@ -35,21 +35,18 @@ const LoginPage = () => {
 
   // The 'bg-gradient-to-r from-[#6a11cb] to-[#2575fc]' class mimics the purple/blue gradient from the footer.
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#6a11cb] to-[#2575fc] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-white p-4">
       
-      {/* Login Card: White background, rounded corners, and shadow, similar to testimonials */}
-      <div className="bg-white p-10 rounded-xl shadow-2xl max-w-md w-full">
+      <div className="bg-white p-10 rounded-xl shadow-lg border border-gray-200 max-w-md w-full">
         <div className="text-left mb-8">
           <Link to="/" className="text-sm text-gray-600 hover:text-indigo-600 transition">
             &larr; Back to Home
           </Link>
         </div>
-        {/* Heading: Bold and large, matching the overall design feel */}
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Welcome Back!</h2>
         
         <form onSubmit={handleLogin}>
           
-          {/* Email Input Group */}
           <div className="mb-6 text-left">
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
               Email
@@ -61,12 +58,10 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              // Clean input styling: focus-ring to match blue/purple
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2575fc] transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
             />
           </div>
 
-          {/* Password Input Group */}
           <div className="mb-8 text-left">
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
               Password
@@ -78,35 +73,30 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              // Clean input styling
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2575fc] transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
             />
           </div>
 
-          {/* Login Button: Matches the "Get Started for Free" button style and color */}
           <button 
             type="submit" 
-            // Button style uses the blue color from the gradient for vibrancy
-            className="w-full py-3 bg-[#2575fc] text-white font-bold text-lg rounded-lg shadow-md hover:bg-[#6a11cb] transition duration-300 transform hover:scale-[1.01]"
+            className="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01]"
           >
             Log In
           </button>
 
-          {/* Forgot Password Link: Uses the darker purple color for contrast */}
           <a 
             href="#" 
-            className="block mt-4 text-sm text-[#6a11cb] hover:underline text-center"
+            className="block mt-4 text-sm text-indigo-600 hover:underline text-center"
             onClick={(e) => { e.preventDefault(); alert('Forgot Password functionality TBD'); }}
           >
             Forgot Password?
           </a>
           
-          {/* Sign Up Link */}
           <p className="mt-6 text-gray-600 text-sm text-center">
             Don't have an account? 
             <Link 
                 to="/signup" 
-                className="text-[#2575fc] font-semibold hover:underline ml-1"
+                className="text-indigo-600 font-semibold hover:underline ml-1"
             >
                 Sign Up
             </Link>

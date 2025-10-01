@@ -4,6 +4,13 @@ import { Toaster } from 'react-hot-toast';
 import CollabLearnLanding from './components/landingPage';
 import LoginPage from './auth/login';
 import SignupPage from './auth/signup';
+import Dashboard from './components/dashboard';
+import BrowseSkills from './components/browseSkills';
+import CalendarPage from './components/calendar';
+import CommunityPage from './components/community';
+import Messages from './components/Messages';
+import Achievements from './components/Achievements';
+import ProtectedRoute from './auth/ProtectedRoute';
 
 function App() {
   return (
@@ -13,6 +20,12 @@ function App() {
         <Route path="/" element={<CollabLearnLanding />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/browse-skills" element={<ProtectedRoute><BrowseSkills /></ProtectedRoute>} />
+        <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+        <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+        <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+        <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       </Routes>
     </div>
   );

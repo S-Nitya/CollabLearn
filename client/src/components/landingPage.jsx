@@ -1,42 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Code, GraduationCap, Music, Palette, Users, Calendar, Trophy, Shield, Star } from 'lucide-react';
+import LandingNavbar from '../navbar/landingNavbar';
 
 export default function CollabLearnLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
-      {/* Navigation Bar */}
-      <nav className="px-6 py-4 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            {/* 🔽 Replace src with your custom logo image */}
-            <img 
-              src="client/src/assets/Collablearn Logo.png" 
-              alt="CollabLearn Logo" 
-              className="w-12 h-12 rounded-xl object-cover" 
-            />
-            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition">Browse Skills</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition">How it Works</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-600 transition">Community</a>
-          </div>
-
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-4">
-            <Link to="/login" className="text-gray-600 hover:text-indigo-600 transition font-medium">
-              Sign In
-            </Link>
-            <Link to="/signup" className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition">
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <LandingNavbar />
 
       {/* Hero Section */}
       <section className="relative px-6 py-20 md:py-32">

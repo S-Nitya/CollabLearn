@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiSearch, FiFilter, FiPlus, FiMessageCircle, FiEye, FiThumbsUp, FiUpload, FiBookmark, FiX } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
+import MainNavbar from '../navbar/mainNavbar';
 
 // --- INITIAL MOCK DATA ---
 const initialPosts = [
@@ -238,7 +239,8 @@ const CommunityPage = () => {
 
   return (
     <>
-      <div className="bg-gray-50 min-h-screen font-sans">
+      <MainNavbar />
+      <div className="bg-gray-50 min-h-screen font-sans pt-16">
         <div className="container mx-auto px-4 py-8">
           
           <header className="mb-6">
