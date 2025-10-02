@@ -23,53 +23,22 @@ const userSchema = new mongoose.Schema({
     minlength: [6, 'Password must be at least 6 characters']
   },
 
-  // ===== PROFILE INFO (Optional - to be implemented later) =====
+  // ===== PROFILE INFO =====
   avatar: {
     type: String,
-    default: ''
+    default: 'default' // Changed from URL to 'default' to indicate no custom avatar
   },
   bio: {
     type: String,
-    maxlength: [500, 'Bio cannot exceed 500 characters']
+    maxlength: [500, 'Bio cannot exceed 500 characters'],
+    default: ''
   },
 
-  // ===== SKILLS (To be implemented later) =====
-  skillsOffering: [{
-    skill: String,
-    category: {
-      type: String,
-      enum: ['coding', 'academics', 'other']
-    },
-    experienceLevel: {
-      type: String,
-      enum: ['beginner', 'intermediate', 'advanced']
-    },
-    tags: [String]
-  }],
-  
-  skillsLearning: [{
-    skill: String,
-    category: {
-      type: String,
-      enum: ['coding', 'academics', 'other']
-    },
-    desiredLevel: {
-      type: String,
-      enum: ['beginner', 'intermediate', 'advanced']
-    }
-  }],
+  // ===== SKILLS REFERENCE =====
+  // Skills are now stored in separate Skill model
+  // Use virtual populate to access user's skills
 
-  // ===== AVAILABILITY (To be implemented later) =====
-  availability: [{
-    day: {
-      type: String,
-      enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-    },
-    startTime: String,
-    endTime: String
-  }],
-
-  // ===== RATINGS & REPUTATION (To be implemented later) =====
+  // ===== RATINGS & STATISTICS =====
   rating: {
     average: {
       type: Number,
@@ -81,6 +50,11 @@ const userSchema = new mongoose.Schema({
       type: Number,
       default: 0
     }
+  },
+  totalSessions: {
+    type: Number,
+    default: 0,
+    min: 0
   },
   badges: [String],
 
@@ -95,8 +69,33 @@ const userSchema = new mongoose.Schema({
 
 // ============= INDEXES FOR PERFORMANCE =============
 userSchema.index({ email: 1 });
-userSchema.index({ 'skillsOffering.skill': 1 });
-userSchema.index({ 'skillsOffering.category': 1 });
+userSchema.index({ 'rating.average': -1 });
+
+// ============= VIRTUAL POPULATE FOR SKILLS =============
+userSchema.virtual('skillsOffering', {
+  ref: 'Skill',
+  localField: '_id',
+  foreignField: 'user',
+  match: { isOffering: true, isActive: true }
+});
+
+userSchema.virtual('skillsSeeking', {
+  ref: 'Skill',
+  localField: '_id',
+  foreignField: 'user',
+  match: { isSeeking: true, isActive: true }
+});
+
+userSchema.virtual('allSkills', {
+  ref: 'Skill',
+  localField: '_id',
+  foreignField: 'user',
+  match: { isActive: true }
+});
+
+// Ensure virtual fields are serialized
+userSchema.set('toJSON', { virtuals: true });
+userSchema.set('toObject', { virtuals: true });
 
 // ============= EXPORT MODEL =============
 module.exports = mongoose.model('User', userSchema);

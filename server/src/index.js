@@ -16,10 +16,11 @@ app.use(cors());
 // Why? Your React app (port 3000) needs to talk to your server (port 5000)
 // Without CORS, browsers block these cross-origin requests for security
 
-// 2. JSON Parser
-app.use(express.json());
+// 2. JSON Parser with increased limit for base64 images
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Why? Converts incoming JSON data to JavaScript objects
-// So when someone sends {"name": "John"}, you can access req.body.name
+// Increased limit to handle base64 encoded images
 
 // ============= DATABASE CONNECTION =============
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Shubham:12345@collablearn.kppefxo.mongodb.net/collablearn?retryWrites=true&w=majority&appName=CollabLearn';
@@ -46,6 +47,7 @@ mongoose.connection.on('disconnected', () => {
 // Authentication routes (login, register)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
+app.use('/api/skills', require('./routes/skills'));
 
 // ============= ROOT ROUTE =============
 // Test route to check if server is running

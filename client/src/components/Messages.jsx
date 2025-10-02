@@ -76,9 +76,7 @@ const MessagesPage = () => {
             <div className="flex-1 flex flex-col overflow-auto">
                 <MainNavbar />
                 
-                <main className="flex-1 p-6 bg-gray-100">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-6">Messages</h1>
-                    
+                <main className="flex-1 p-6 bg-gray-100 mt-20">                    
                     {/* Main Messaging Grid */}
                     <div className="flex h-[calc(100vh-160px)] rounded-xl shadow-lg overflow-hidden">
                         

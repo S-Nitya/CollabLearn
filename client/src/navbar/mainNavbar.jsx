@@ -21,6 +21,23 @@ export default function MainNavbar() {
       setEmail(storedEmail);
     }
 
+    // Listen for profile updates
+    const handleProfileUpdate = (event) => {
+      if (event.detail.name) {
+        setUsername(event.detail.name);
+      }
+    };
+
+    // Listen for storage changes (in case of updates from other tabs)
+    const handleStorageChange = (event) => {
+      if (event.key === 'username' && event.newValue) {
+        setUsername(event.newValue);
+      }
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener('storage', handleStorageChange);
+
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
@@ -30,6 +47,8 @@ export default function MainNavbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -170,7 +189,7 @@ export default function MainNavbar() {
         </div>
       </nav>
 
-      <style jsx>{`
+      <style>{`
         @keyframes dropdown {
           from {
             opacity: 0;
