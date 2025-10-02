@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { FiSearch, FiFilter, FiPlus, FiMessageCircle, FiEye, FiThumbsUp, FiUpload, FiBookmark, FiX } from 'react-icons/fi';
+import { 
+  FiSearch, FiFilter, FiPlus, FiMessageCircle, 
+  FiEye, FiThumbsUp, FiUpload, FiBookmark, FiX 
+} from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
+import { formatDistanceToNow } from 'date-fns';
 import MainNavbar from '../navbar/mainNavbar';
 
-
-
-const categories = [
-  { name: 'All Posts', count: 234, color: 'bg-blue-500' },
-  { name: 'Teaching Tips', count: 67, color: 'bg-cyan-500' },
-  { name: 'Learning Partners', count: 43, color: 'bg-green-500' },
-  { name: 'Resources', count: 89, color: 'bg-purple-500' },
-  { name: 'Success Stories', count: 35, color: 'bg-yellow-500' },
+// --- Static Data ---
+const initialCategories = [
+  { name: 'C/C++', count: 120, color: 'bg-blue-500' },
+  { name: 'Python', count: 95, color: 'bg-green-500' },
+  { name: 'Java', count: 80, color: 'bg-red-500' },
+  { name: 'React', count: 70, color: 'bg-purple-500' },
 ];
 
 const topContributors = [
@@ -20,202 +22,273 @@ const topContributors = [
 ];
 
 const trendingTopics = [
-    { name: 'React Hooks', count: 23 },
-    { name: 'Python Basics', count: 18 },
-    { name: 'Online Teaching', count: 15 },
-    { name: 'Career Change', count: 12 },
-    { name: 'JavaScript ES6', count: 11 },
+  { name: 'React Hooks', count: 23 },
+  { name: 'Python Basics', count: 18 },
+  { name: 'Online Teaching', count: 15 },
+  { name: 'Career Change', count: 12 },
+  { name: 'JavaScript ES6', count: 11 },
 ];
 
 
 // --- SUB-COMPONENTS ---
 
-const PostCard = ({ post, handleDeletePost, currentUserId }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-    <div className="flex items-start space-x-4">
-      <img src={post.avatar} alt={post.author} className="w-11 h-11 rounded-full object-cover" />
-      <div className="flex-1">
-        <div className="flex items-center justify-between">
+const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUser }) => {
+  const [commentText, setCommentText] = useState("");
+  const [isCommentVisible, setIsCommentVisible] = useState(false);
+
+  const handleLike = async () => {
+    await fetch(`http://localhost:5000/api/posts/${post._id}/like`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: currentUserId }),
+    });
+    fetchPosts();
+  };
+
+  const handleAddComment = async (e) => {
+    if (e.key === "Enter" && commentText.trim()) {
+      await fetch(`http://localhost:5000/api/posts/${post._id}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUserId,
+          author: currentUser.name,
+          text: commentText,
+        }),
+      });
+      setCommentText("");
+      fetchPosts();
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-fade-in-up">
+      <div className="flex items-start space-x-4">
+        <img src={post.avatar} alt={post.author} className="w-11 h-11 rounded-full object-cover" />
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
             <div>
-                <span className="font-semibold text-gray-900">{post.author}</span>
-                <span className="text-sm text-gray-500 ml-2">· {new Date(post.timestamp).toLocaleString()}</span>
+              <span className="font-semibold text-gray-900">{post.author}</span>
+              <span className="text-sm text-gray-500 ml-2">
+                · {formatDistanceToNow(new Date(post.timestamp), { addSuffix: true })}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               {post.isHot && (
-                  <div className="flex items-center space-x-1 text-orange-500">
-                      <FaFire />
-                      <span className="text-sm font-semibold">Hot</span>
-                  </div>
+                <div className="flex items-center space-x-1 text-orange-500">
+                  <FaFire />
+                  <span className="text-sm font-semibold">Hot</span>
+                </div>
               )}
               {post.userId === currentUserId && (
-                <button onClick={() => handleDeletePost(post._id)} className="text-gray-400 hover:text-red-500 cursor-pointer">
+                <button 
+                  onClick={() => handleDeletePost(post._id)} 
+                  className="text-gray-400 hover:text-red-500 cursor-pointer"
+                >
                   <FiX size={18} />
                 </button>
               )}
             </div>
-        </div>
-        <div className="text-sm text-gray-500 mb-2">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${post.authorRole === 'Expert Teacher' ? 'bg-cyan-100 text-cyan-800' : post.authorRole === 'Community Star' ? 'bg-blue-100 text-blue-800' : post.authorRole === 'New Contributor' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'}`}>{post.authorRole}</span>
-            <span className='mx-1'>in</span>
-            <a href="#" className="font-medium text-gray-700 hover:text-indigo-600">{post.category}</a>
-        </div>
-        
-        <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-700">{post.title}</h3>
-        <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
-        
-        <div className="mt-4 flex items-center space-x-2">
-          {post.tags.map(tag => (
-            <span key={tag} className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">{tag}</span>
-          ))}
-        </div>
+          </div>
 
-        <div className="mt-4 flex items-center justify-between text-gray-500">
+          <div className="text-sm text-gray-500 mb-2 flex items-center flex-wrap gap-2">
+            <span
+              className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                post.authorRole === "Expert Teacher" ? "bg-cyan-100 text-cyan-800"
+                : post.authorRole === "Community Star" ? "bg-blue-100 text-blue-800"
+                : post.authorRole === "New Contributor" ? "bg-green-100 text-green-800"
+                : "bg-purple-100 text-purple-800"
+              }`}
+            >
+              {post.authorRole}
+            </span>
+            <span className="bg-blue-100 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+              #{post.category}
+            </span>
+          </div>
+
+          <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-700">
+            {post.title}
+          </h3>
+          <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
+
+          <div className="mt-4 flex items-center flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <span key={tag} className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between text-gray-500">
             <div className="flex items-center space-x-5">
-                <span className="flex items-center space-x-1.5 cursor-pointer hover:text-indigo-600">
-                    <FiMessageCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.stats.comments}</span>
-                </span>
-                <span className="flex items-center space-x-1.5">
-                    <FiEye className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.stats.views}</span>
-                </span>
+              <button
+                onClick={() => setIsCommentVisible(!isCommentVisible)}
+                className="flex items-center space-x-1.5 cursor-pointer hover:text-indigo-600"
+              >
+                <FiMessageCircle className="w-4 h-4" />
+                <span className="text-sm font-medium">{post.stats.comments}</span>
+              </button>
+              <span className="flex items-center space-x-1.5">
+                <FiEye className="w-4 h-4" />
+                <span className="text-sm font-medium">{post.stats.views}</span>
+              </span>
             </div>
             <div className="flex items-center space-x-4">
-                <button className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer">
-                    <FiThumbsUp className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.stats.likes}</span>
-                </button>
-                <button className="hover:text-indigo-600 cursor-pointer"><FiUpload className="w-4 h-4" /></button>
-                <button className="hover:text-indigo-600 cursor-pointer"><FiBookmark className="w-4 h-4" /></button>
+              <button
+                onClick={handleLike}
+                className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer"
+              >
+                <FiThumbsUp className="w-4 h-4" />
+                <span className="text-sm font-medium">{post.stats.likes}</span>
+              </button>
+              <button className="hover:text-indigo-600 cursor-pointer">
+                <FiUpload className="w-4 h-4" />
+              </button>
+              <button className="hover:text-indigo-600 cursor-pointer">
+                <FiBookmark className="w-4 h-4" />
+              </button>
             </div>
+          </div>
+
+          {isCommentVisible && (
+            <div className="mt-3">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={handleAddComment}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <div className="mt-2 text-sm text-gray-700 space-y-1">
+                {post.comments && post.comments.slice(-2).map((c, idx) => (
+                  <div key={idx}><b>{c.author}</b>: {c.text}</div>
+                ))}
+                {post.stats.comments > 2 && (
+                  <div className="text-xs text-gray-500">
+                    ...and {post.stats.comments - 2} more
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
+  );
+};
+
+const SidebarCard = ({ title, children }) => (
+  <div className="bg-white p-5 rounded-lg shadow-sm">
+    <h3 className="font-bold text-gray-800 text-md mb-4">{title}</h3>
+    <div className="space-y-2">{children}</div>
   </div>
 );
 
-const SidebarCard = ({ title, children }) => (
-    <div className="bg-white p-5 rounded-lg shadow-sm">
-        <h3 className="font-bold text-gray-800 text-md mb-4">{title}</h3>
-        <div className="space-y-3">{children}</div>
-    </div>
-)
-
 const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
-    const [title, setTitle] = useState('');
-    const [excerpt, setExcerpt] = useState('');
-    const [tags, setTags] = useState('');
+  const [title, setTitle] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [tags, setTags] = useState('');
+  const [category, setCategory] = useState('');
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!title.trim() || !excerpt.trim()) {
-            alert("Please fill in both title and content.");
-            return;
-        }
+  const availableCategories = ["C/C++", "Java", "Python", "React", "General Discussion"];
 
-        const newPost = {
-            author: currentUser.name,
-            avatar: currentUser.avatar,
-            title,
-            excerpt,
-            tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            authorRole: 'New Contributor', // This could be dynamic based on user roles
-            category: 'General Discussion', // This could be a dropdown in the form
-            userId: currentUser.id,
-        };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title.trim() || !excerpt.trim() || !category) {
+      alert("Please fill in the title, content, and select a category.");
+      return;
+    }
+    onAddPost({
+      author: currentUser.name,
+      avatar: currentUser.avatar,
+      title,
+      excerpt,
+      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      authorRole: 'New Contributor',
+      category,
+      userId: currentUser.id,
+    });
+  };
 
-        onAddPost(newPost);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
-                <div className="flex justify-between items-center p-5 border-b">
-                    <h3 className="text-xl font-semibold text-gray-800">Create a New Post</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 cursor-pointer">
-                        <FiX size={24} />
-                    </button>
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="p-6 space-y-4">
-                        <div>
-                            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                                type="text"
-                                id="title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="What's on your mind?"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                            <textarea
-                                id="excerpt"
-                                value={excerpt}
-                                onChange={(e) => setExcerpt(e.target.value)}
-                                rows="5"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Elaborate on your topic..."
-                            ></textarea>
-                        </div>
-                        <div>
-                            <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-                            <input
-                                type="text"
-                                id="tags"
-                                value={tags}
-                                onChange={(e) => setTags(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Add tags, separated by commas (e.g., react, tailwind, webdev)"
-                            />
-                        </div>
-                    </div>
-                    <div className="flex justify-end items-center p-5 border-t space-x-3">
-                        <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-gray-50 cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm cursor-pointer">
-                            Publish Post
-                        </button>
-                    </div>
-                </form>
-            </div>
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center p-5 border-b">
+          <h3 className="text-xl font-semibold text-gray-800">Create a New Post</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <FiX size={24} />
+          </button>
         </div>
-    );
+        <form onSubmit={handleSubmit}>
+          <div className="p-6 space-y-4">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="What's on your mind?" />
+            </div>
+            <div>
+              <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+              <textarea id="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Elaborate on your topic..."></textarea>
+            </div>
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">Tags (Optional)</label>
+              <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="e.g., react, tailwind, webdev" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category (Required)</label>
+              {category && (
+                <div className="mb-2">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                    {category}
+                    <button type="button" onClick={() => setCategory('')} className="ml-2 text-indigo-500 hover:text-indigo-700">
+                      <FiX size={16} />
+                    </button>
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {availableCategories.map(cat => (
+                  <button key={cat} type="button" onClick={() => setCategory(cat)} disabled={!!category} className={`px-3 py-1 border rounded-full text-sm font-medium transition-colors ${category === cat ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'}`}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end items-center p-5 border-t space-x-3">
+            <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-gray-50">Cancel</button>
+            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm">Publish Post</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
-
 // --- MAIN COMPONENT ---
-
 const CommunityPage = () => {
   const [activeTab, setActiveTab] = useState('Recent');
-  const [posts, setPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]); // Holds all posts from the server
+  const [filteredPosts, setFilteredPosts] = useState([]); // Holds posts to be displayed
+  const [selectedCategory, setSelectedCategory] = useState('All Posts'); // For filtering
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabs = ['Recent', 'Popular', 'Trending', 'Unanswered'];
+  
+  // Create a dynamic list of categories including "All Posts"
+  const categoriesForFilter = [
+      { name: 'All Posts', count: allPosts.length, color: 'bg-indigo-500' },
+      ...initialCategories
+  ];
 
-  // Get current user info from localStorage
   const getCurrentUser = () => {
     const username = localStorage.getItem('username');
     const userId = localStorage.getItem('userId');
     const userAvatar = localStorage.getItem('userAvatar');
-    
-    // If no user is logged in, return a default user (this shouldn't happen due to ProtectedRoute)
     if (!username || !userId) {
-      console.warn('No user information found in localStorage');
-      return {
-        id: 'anonymous',
-        name: 'Anonymous User',
-        avatar: 'https://i.pravatar.cc/150?u=default',
-      };
+      return { id: 'anonymous', name: 'Anonymous User', avatar: 'https://i.pravatar.cc/150?u=default' };
     }
-    
-    return {
-      id: userId,
-      name: username,
-      avatar: userAvatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(username)}`,
-    };
+    return { id: userId, name: username, avatar: userAvatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(username)}` };
   };
 
   const currentUser = getCurrentUser();
@@ -223,11 +296,9 @@ const CommunityPage = () => {
   const fetchPosts = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/posts');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      setPosts(data);
+      setAllPosts(data);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     }
@@ -236,37 +307,38 @@ const CommunityPage = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+  
+  // NEW useEffect for filtering posts when selectedCategory or allPosts changes
+  useEffect(() => {
+    if (selectedCategory === 'All Posts') {
+      setFilteredPosts(allPosts);
+    } else {
+      setFilteredPosts(allPosts.filter(post => post.category === selectedCategory));
+    }
+  }, [selectedCategory, allPosts]);
 
   const handleAddPost = async (newPostData) => {
-      try {
-        const response = await fetch('http://localhost:5000/api/posts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newPostData),
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        fetchPosts(); // Refetch posts to include the new one
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Failed to add post:", error);
-        alert("Failed to add post. Please try again.");
-      }
+    try {
+      const response = await fetch('http://localhost:5000/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPostData),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      fetchPosts();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to add post:", error);
+      alert("Failed to add post. Please try again.");
+    }
   };
 
   const handleDeletePost = async (postId) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        fetchPosts(); // Refetch posts to update the list
+        const response = await fetch(`http://localhost:5000/api/posts/${postId}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        fetchPosts();
       } catch (error) {
         console.error('Failed to delete post:', error);
         alert('Failed to delete post. Please try again.');
@@ -276,6 +348,23 @@ const CommunityPage = () => {
 
   return (
     <>
+      {/* Add animation styles */}
+      <style>{`
+        @keyframes fade-in-up {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.5s ease-out forwards;
+        }
+      `}</style>
+
       <MainNavbar />
       <div className="bg-gray-50 min-h-screen font-sans pt-17">
         <div className="container mx-auto px-4 py-8">
@@ -290,14 +379,14 @@ const CommunityPage = () => {
               <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
                 <div className="relative w-full sm:w-auto flex-grow">
                   <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" placeholder="Search discussions, topics, or users..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
+                  <input type="text" placeholder="Search discussions..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
-                  <button className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition cursor-pointer">
+                  <button className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 transition">
                     <FiFilter className="text-gray-600" />
                     <span className="text-gray-700 font-medium">Filter</span>
                   </button>
-                  <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm cursor-pointer">
+                  <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">
                     <FiPlus />
                     <span className="font-medium">New Post</span>
                   </button>
@@ -307,55 +396,78 @@ const CommunityPage = () => {
               <div className="border-b border-gray-200 mb-6">
                 <nav className="-mb-px flex space-x-6">
                   {tabs.map(tab => (
-                    <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 text-sm font-semibold transition-colors duration-200 cursor-pointer ${activeTab === tab ? 'border-b-2 border-indigo-600 text-indigo-600' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                    <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 text-sm font-semibold transition-colors duration-200 ${activeTab === tab ? 'border-b-2 border-indigo-600 text-indigo-600' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
                       {tab}
                     </button>
                   ))}
                 </nav>
               </div>
 
-              <div className="space-y-4">
-                {posts.map(post => <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} />)}
+              <div className="space-y-6">
+                {filteredPosts.map((post) => (
+                  <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} fetchPosts={fetchPosts} currentUser={currentUser} />
+                ))}
               </div>
             </main>
 
             <aside className="space-y-6">
               <SidebarCard title="Categories">
-                {categories.map(cat => (
-                  <a href="#" key={cat.name} className="flex justify-between items-center text-sm text-gray-600 hover:text-indigo-600 group cursor-pointer">
-                    <div className="flex items-center"><span className={`w-2 h-2 rounded-full mr-3 ${cat.color}`}></span><span className="group-hover:font-semibold">{cat.name}</span></div>
-                    <span className="bg-gray-100 group-hover:bg-indigo-100 text-gray-600 group-hover:text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded-full">{cat.count}</span>
-                  </a>
+                {categoriesForFilter.map(cat => (
+                  <button 
+                    key={cat.name}
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className={`w-full flex justify-between items-center text-sm p-2 rounded-md transition-all duration-200 ${selectedCategory === cat.name ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                  >
+                    <div className="flex items-center">
+                      <span className={`w-2 h-2 rounded-full mr-3 ${cat.color}`}></span>
+                      <span className={`${selectedCategory === cat.name ? 'font-semibold' : 'font-normal'}`}>{cat.name}</span>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedCategory === cat.name ? 'bg-indigo-200 text-indigo-800' : 'bg-gray-200 text-gray-700'}`}>
+                        {cat.name === 'All Posts' ? allPosts.length : allPosts.filter(p => p.category === cat.name).length}
+                    </span>
+                  </button>
                 ))}
               </SidebarCard>
-              
+
               <SidebarCard title="Top Contributors">
-                  {topContributors.map((user, index) => (
-                      <div key={user.id} className="flex items-center space-x-3">
-                          <span className="font-bold text-lg text-gray-400 w-4">{index + 1}</span>
-                          <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
-                          <div>
-                              <p className="font-semibold text-sm text-gray-800">{user.name}</p>
-                              <p className="text-xs text-gray-500">{user.contributions} contributions</p>
-                          </div>
+                {topContributors.map(user => (
+                  <div key={user.id} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
+                      <div>
+                        <p className="font-medium text-gray-800">{user.name}</p>
+                        <div className="flex flex-wrap gap-1">
+                          {user.roles.map((role, i) => (
+                            <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{role}</span>
+                          ))}
+                        </div>
                       </div>
-                  ))}
+                    </div>
+                    <span className="text-sm font-semibold text-indigo-600">{user.contributions}</span>
+                  </div>
+                ))}
               </SidebarCard>
 
               <SidebarCard title="Trending Topics">
-                  {trendingTopics.map(topic => (
-                      <a href="#" key={topic.name} className="flex justify-between items-center text-sm text-gray-600 hover:text-indigo-600 group cursor-pointer">
-                          <span className="group-hover:font-semibold">{topic.name}</span>
-                          <span className="bg-gray-100 group-hover:bg-indigo-100 text-gray-600 group-hover:text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded-full">{topic.count}</span>
-                      </a>
-                  ))}
+                {trendingTopics.map((topic, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span className="text-gray-700">#{topic.name}</span>
+                    <span className="text-sm text-gray-500">{topic.count}</span>
+                  </div>
+                ))}
               </SidebarCard>
             </aside>
           </div>
         </div>
       </div>
-      
-      {isModalOpen && <NewPostModal onAddPost={handleAddPost} onClose={() => setIsModalOpen(false)} currentUser={currentUser} />}
+
+      {isModalOpen && (
+        <NewPostModal 
+          onAddPost={handleAddPost} 
+          onClose={() => setIsModalOpen(false)} 
+          currentUser={currentUser} 
+        />
+      )}
     </>
   );
 };

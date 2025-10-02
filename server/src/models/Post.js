@@ -38,6 +38,16 @@ const postSchema = new mongoose.Schema({
   category: {
     type: String,
   },
+  likedBy: [{ type: String }], // track userIds who liked
+  comments: [
+    {
+      userId: String,
+      author: String,
+      text: String,
+      createdAt: { type: Date, default: Date.now }
+    }
+  ],
+
   userId: {
     type: String, // In a real app, this would be mongoose.Schema.Types.ObjectId and ref: 'User'
     required: true,
