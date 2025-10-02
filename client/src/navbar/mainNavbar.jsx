@@ -10,33 +10,121 @@ export default function MainNavbar() {
   const [username, setUsername] = useState('Guest');
   const [email, setEmail] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUsername = localStorage.getItem('username');
-    const storedEmail = localStorage.getItem('email') || 'alex@example.com';
-    if (token && storedUsername) {
-      setUsername(storedUsername);
-      setEmail(storedEmail);
+  // Fetch user data from database
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      console.log('MainNavbar: Token exists:', !!token);
+      
+      if (!token) {
+        console.log('MainNavbar: No token found, using localStorage fallback');
+        // Fallback to localStorage if no token
+        const storedUsername = localStorage.getItem('username');
+        const storedEmail = localStorage.getItem('email');
+        if (storedUsername) {
+          setUsername(storedUsername);
+          setEmail(storedEmail || '');
+        }
+        setLoading(false);
+        return;
+      }
+
+      console.log('MainNavbar: Fetching user data...');
+      const response = await fetch('http://localhost:5000/api/auth/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('MainNavbar: Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('MainNavbar: Response data:', data);
+        
+        if (data.success && data.user) {
+          console.log('MainNavbar: Setting username to:', data.user.name);
+          setUsername(data.user.name || 'Guest');
+          setEmail(data.user.email || '');
+          
+          // Update localStorage for future fallback
+          if (data.user.name) {
+            localStorage.setItem('username', data.user.name);
+          }
+          if (data.user.email) {
+            localStorage.setItem('email', data.user.email);
+          }
+        } else {
+          console.log('MainNavbar: API returned success=false or no user data, using localStorage fallback');
+          // Fallback to localStorage
+          const storedUsername = localStorage.getItem('username');
+          const storedEmail = localStorage.getItem('email');
+          if (storedUsername) {
+            setUsername(storedUsername);
+            setEmail(storedEmail || '');
+          }
+        }
+      } else {
+        console.log('MainNavbar: API request failed with status:', response.status);
+        const errorText = await response.text();
+        console.log('MainNavbar: Error response:', errorText);
+        
+        // Fallback to localStorage
+        const storedUsername = localStorage.getItem('username');
+        const storedEmail = localStorage.getItem('email');
+        if (storedUsername) {
+          setUsername(storedUsername);
+          setEmail(storedEmail || '');
+        }
+      }
+    } catch (error) {
+      console.error('MainNavbar: Error fetching user data:', error);
+      
+      // Fallback to localStorage
+      const storedUsername = localStorage.getItem('username');
+      const storedEmail = localStorage.getItem('email');
+      if (storedUsername) {
+        setUsername(storedUsername);
+        setEmail(storedEmail || '');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    // Debug localStorage contents
+    console.log('MainNavbar: localStorage contents:');
+    console.log('- token:', localStorage.getItem('token'));
+    console.log('- username:', localStorage.getItem('username'));
+    console.log('- email:', localStorage.getItem('email'));
+    console.log('- userId:', localStorage.getItem('userId'));
+    
+    // Immediately set from localStorage if available (for instant display)
+    const storedUsername = localStorage.getItem('username');
+    const storedEmail = localStorage.getItem('email');
+    if (storedUsername) {
+      setUsername(storedUsername);
+      setEmail(storedEmail || '');
+    }
+    
+    // Then fetch fresh data from API
+    fetchUserData();
 
     // Listen for profile updates
     const handleProfileUpdate = (event) => {
       if (event.detail.name) {
         setUsername(event.detail.name);
       }
-    };
-
-    // Listen for storage changes (in case of updates from other tabs)
-    const handleStorageChange = (event) => {
-      if (event.key === 'username' && event.newValue) {
-        setUsername(event.newValue);
+      if (event.detail.email) {
+        setEmail(event.detail.email);
       }
     };
-
-    window.addEventListener('profileUpdated', handleProfileUpdate);
-    window.addEventListener('storage', handleStorageChange);
 
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -44,11 +132,12 @@ export default function MainNavbar() {
       }
     }
 
+    window.addEventListener('profileUpdated', handleProfileUpdate);
     document.addEventListener("mousedown", handleClickOutside);
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener('profileUpdated', handleProfileUpdate);
-      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -141,8 +230,12 @@ export default function MainNavbar() {
                         <User size={20} className="text-gray-600" />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">{username}</p>
-                        <p className="text-sm text-gray-500">{email}</p>
+                        <p className="font-semibold text-gray-900">
+                          {loading ? 'Loading...' : username}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {loading ? '' : email}
+                        </p>
                       </div>
                     </div>
                   </div>

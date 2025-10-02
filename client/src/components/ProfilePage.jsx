@@ -264,7 +264,11 @@ export default function ProfilePage() {
         
         // Dispatch custom event to notify navbar of changes
         window.dispatchEvent(new CustomEvent('profileUpdated', {
-          detail: { name: data.user.name, avatar: data.user.avatar }
+          detail: { 
+            name: data.user.name, 
+            email: data.user.email,
+            avatar: data.user.avatar 
+          }
         }));
         
         console.log('Profile updated successfully');
