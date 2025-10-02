@@ -97,10 +97,10 @@ export default function ProfilePage() {
 
   const tabs = [
     { id: 'skills', label: 'Skills' },
-    { id: 'reviews', label: 'Reviews' },
-    { id: 'achievements', label: 'Achievements' },
+    // { id: 'reviews', label: 'Reviews' },
+    // { id: 'achievements', label: 'Achievements' },
     { id: 'availability', label: 'Availability' },
-    { id: 'settings', label: 'Settings' }
+    // { id: 'settings', label: 'Settings' }
   ];
 
   return (

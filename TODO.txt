@@ -1,2 +1,7 @@
 1. Sign Up & Log In
-2.
+2. Forgot Password.
+
+C/C++
+Java
+Python
+React

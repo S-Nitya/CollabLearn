@@ -36,6 +36,8 @@ export default function MainNavbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userAvatar');
     localStorage.removeItem('email');
     setUsername('Guest');
     setIsDropdownOpen(false);

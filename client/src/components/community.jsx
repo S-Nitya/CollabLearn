@@ -195,12 +195,30 @@ const CommunityPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const tabs = ['Recent', 'Popular', 'Trending', 'Unanswered'];
 
-  // TODO: Replace this with your actual authentication context or state management
-  const currentUser = {
-    id: 'some-hardcoded-user-id',
-    name: 'Shubham Upadhyay',
-    avatar: 'https://i.pravatar.cc/150?u=shubham',
+  // Get current user info from localStorage
+  const getCurrentUser = () => {
+    const username = localStorage.getItem('username');
+    const userId = localStorage.getItem('userId');
+    const userAvatar = localStorage.getItem('userAvatar');
+    
+    // If no user is logged in, return a default user (this shouldn't happen due to ProtectedRoute)
+    if (!username || !userId) {
+      console.warn('No user information found in localStorage');
+      return {
+        id: 'anonymous',
+        name: 'Anonymous User',
+        avatar: 'https://i.pravatar.cc/150?u=default',
+      };
+    }
+    
+    return {
+      id: userId,
+      name: username,
+      avatar: userAvatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(username)}`,
+    };
   };
+
+  const currentUser = getCurrentUser();
 
   const fetchPosts = async () => {
     try {
@@ -259,7 +277,7 @@ const CommunityPage = () => {
   return (
     <>
       <MainNavbar />
-      <div className="bg-gray-50 min-h-screen font-sans pt-24">
+      <div className="bg-gray-50 min-h-screen font-sans pt-17">
         <div className="container mx-auto px-4 py-8">
           
           <header className="mb-6">

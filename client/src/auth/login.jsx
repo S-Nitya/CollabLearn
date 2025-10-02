@@ -23,6 +23,8 @@ const LoginPage = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.user.name);
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('userAvatar', data.user.avatar || '');
         toast.success('Login successful!');
         navigate('/dashboard');
       } else {
