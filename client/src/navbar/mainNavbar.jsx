@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, User } from 'lucide-react';
+import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, User, UserCircle, Settings, FileText, LogOut } from 'lucide-react';
 
 import CollabLearnLogo from '../assets/Collablearn Logo.png';
 
@@ -8,14 +8,17 @@ export default function MainNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [username, setUsername] = useState('Guest');
+  const [email, setEmail] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedUsername = localStorage.getItem('username');
+    const storedEmail = localStorage.getItem('email') || 'alex@example.com';
     if (token && storedUsername) {
       setUsername(storedUsername);
+      setEmail(storedEmail);
     }
 
     function handleClickOutside(event) {
@@ -33,85 +36,154 @@ export default function MainNavbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('email');
     setUsername('Guest');
     setIsDropdownOpen(false);
     navigate('/');
   };
 
+  const handleMenuClick = (path) => {
+    setIsDropdownOpen(false);
+    navigate(path);
+  };
+
   const getLinkClass = (path) => {
+    const baseClasses = 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5';
     return location.pathname === path
-      ? 'nav-item flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700'
-      : 'nav-item flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50';
+      ? `${baseClasses} bg-indigo-600 text-white`
+      : `${baseClasses} text-gray-600 hover:text-gray-900 hover:bg-gray-100`;
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 shadow-sm">
-      <div className="flex justify-between items-center h-20 px-6">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <img 
-            src={CollabLearnLogo}
-            alt="CollabLearn Logo" 
-            className="w-12 h-12 rounded-xl object-cover"
-          />
-          <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
-        </div>
-
-        {/* Navigation Items */}
-        <div className="flex items-center gap-1">
-          <Link to="/dashboard" className={getLinkClass('/dashboard')}>
-            <Home size={20} />
-            <span className="font-medium">Dashboard</span>
-          </Link>
-          <Link to="/browse-skills" className={getLinkClass('/browse-skills')}>
-            <Search size={20} />
-            <span className="font-medium">Browse Skills</span>
-          </Link>
-          <Link to="/calendar" className={getLinkClass('/calendar')}>
-            <Calendar size={20} />
-            <span className="font-medium">Calendar</span>
-          </Link>
-          <Link to="/messages" className={getLinkClass('/messages')}>
-            <MessageSquare size={20} />
-            <span className="font-medium">Messages</span>
-          </Link>
-          <Link to="/community" className={getLinkClass('/community')}>
-            <Users size={20} />
-            <span className="font-medium">Community</span>
-          </Link>
-          <Link to="/achievements" className={getLinkClass('/achievements')}>
-            <Trophy size={20} />
-            <span className="font-medium">Achievements</span>
-          </Link>
-        </div>
-
-        {/* User Section */}
-        <div className="flex items-center gap-4">
-          <div className="relative cursor-pointer">
-            <Bell size={20} className="text-gray-600 hover:text-gray-900 transition-colors" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center bell-notification">3</span>
+    <>
+      <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 shadow-sm">
+        {/* The change is in the line below */}
+        <div className="flex justify-between items-center h-20 px-8">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <img 
+              src={CollabLearnLogo}
+              alt="CollabLearn Logo" 
+              className="w-12 h-12 rounded-xl object-cover"
+            />
+            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
           </div>
-          <div className="relative" ref={dropdownRef}>
-            <div 
-              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 transition-all"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            >
-              <User size={20} className="text-gray-600" />
-              <span className="text-sm font-medium text-gray-900">{username}</span>
+
+          {/* Navigation Items */}
+          <div className="flex items-center gap-1">
+            <Link to="/dashboard" className={getLinkClass('/dashboard')}>
+              <Home size={20} />
+              <span className="font-medium">Dashboard</span>
+            </Link>
+            <Link to="/browse-skills" className={getLinkClass('/browse-skills')}>
+              <Search size={20} />
+              <span className="font-medium">Browse Skills</span>
+            </Link>
+            <Link to="/calendar" className={getLinkClass('/calendar')}>
+              <Calendar size={20} />
+              <span className="font-medium">Calendar</span>
+            </Link>
+            <Link to="/messages" className={getLinkClass('/messages')}>
+              <MessageSquare size={20} />
+              <span className="font-medium">Messages</span>
+            </Link>
+            <Link to="/community" className={getLinkClass('/community')}>
+              <Users size={20} />
+              <span className="font-medium">Community</span>
+            </Link>
+            <Link to="/achievements" className={getLinkClass('/achievements')}>
+              <Trophy size={20} />
+              <span className="font-medium">Achievements</span>
+            </Link>
+          </div>
+
+          {/* User Section */}
+          <div className="flex items-center gap-4">
+            <div className="relative cursor-pointer p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <Bell size={20} className="text-gray-600" />
+              <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center bell-notification">3</span>
             </div>
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-red-800"
-                >
-                  Logout
-                </button>
+            <div className="relative" ref={dropdownRef}>
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 rounded-lg p-2 transition-all duration-200"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <User size={20} className="text-gray-600" />
+                <span className="text-base font-semibold text-gray-900">{username}</span>
               </div>
-            )}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-dropdown">
+                  {/* User Info Header */}
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                        <User size={20} className="text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{username}</p>
+                        <p className="text-sm text-gray-500">{email}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items with new hover effect */}
+                  <div className="p-2">
+                    <button
+                      onClick={() => handleMenuClick('/profile')}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-[#CC66FF] hover:text-white rounded-lg transition-colors group"
+                    >
+                      <UserCircle size={18} className="text-gray-500 group-hover:text-white transition-colors" />
+                      <span className="font-medium">Profile</span>
+                    </button>
+                    <button
+                      onClick={() => handleMenuClick('/settings')}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-[#CC66FF] hover:text-white rounded-lg transition-colors group"
+                    >
+                      <Settings size={18} className="text-gray-500 group-hover:text-white transition-colors" />
+                      <span className="font-medium">Settings</span>
+                    </button>
+                    <button
+                      onClick={() => handleMenuClick('/resources')}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-[#CC66FF] hover:text-white rounded-lg transition-colors group"
+                    >
+                      <FileText size={18} className="text-gray-500 group-hover:text-white transition-colors" />
+                      <span className="font-medium">Resources</span>
+                    </button>
+                  </div>
+
+                  {/* Sign Out Button */}
+                  <div className="px-4 pb-2 pt-1 border-t border-gray-200">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
+                    >
+                      <LogOut size={18} />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      <style jsx>{`
+        @keyframes dropdown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-dropdown {
+          animation: dropdown 0.2s ease-out;
+        }
+      `}</style>
+    </>
   );
 }
