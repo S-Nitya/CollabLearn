@@ -12,23 +12,27 @@ import Messages from './components/Messages';
 import Achievements from './components/Achievements';
 import ProfilePage from './components/ProfilePage';
 import ProtectedRoute from './auth/ProtectedRoute';
+import MessagesPage from './components/Messages';
 
 function App() {
   return (
+    // <div>
+    //   <Toaster />
+    //   <Routes>
+    //     <Route path="/" element={<CollabLearnLanding />} />
+    //     <Route path="/login" element={<LoginPage />} />
+    //     <Route path="/signup" element={<SignupPage />} />
+    //     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+    //     <Route path="/browse-skills" element={<ProtectedRoute><BrowseSkills /></ProtectedRoute>} />
+    //     <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+    //     <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+    //     <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+    //     <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+    //     <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+    //   </Routes>
+    // </div>
     <div>
-      <Toaster />
-      <Routes>
-        <Route path="/" element={<CollabLearnLanding />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/browse-skills" element={<ProtectedRoute><BrowseSkills /></ProtectedRoute>} />
-        <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-        <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
-        <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-        <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      </Routes>
+        <MessagesPage />
     </div>
   );
 }
