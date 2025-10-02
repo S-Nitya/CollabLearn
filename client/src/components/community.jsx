@@ -47,11 +47,9 @@ const PostCard = ({ post, handleDeletePost, currentUserId }) => (
                       <span className="text-sm font-semibold">Hot</span>
                   </div>
               )}
-              {post.userId === currentUserId && (
-                <button onClick={() => handleDeletePost(post._id)} className="text-gray-400 hover:text-red-500 cursor-pointer">
-                  <FiX size={18} />
-                </button>
-              )}
+              <button onClick={() => handleDeletePost(post._id)} className="text-gray-400 hover:text-red-500 cursor-pointer transition-colors duration-200">
+                <FiX size={18} />
+              </button>
             </div>
         </div>
         <div className="text-sm text-gray-500 mb-2">
