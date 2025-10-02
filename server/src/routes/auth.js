@@ -19,6 +19,9 @@ router.post('/login', authController.login);
 // GET /api/auth/me - Get current user profile
 router.get('/me', auth, authController.getCurrentUser);
 
+// PUT /api/auth/profile - Update user profile
+router.put('/profile', auth, authController.updateProfile);
+
 // ===== ROUTE DOCUMENTATION =====
 // GET /api/auth/ - Show available auth endpoints
 router.get('/', (req, res) => {
@@ -51,8 +54,22 @@ router.get('/', (req, res) => {
         headers: {
           Authorization: 'Bearer your-jwt-token'
         }
+      },
+      updateProfile: {
+        method: 'PUT',
+        url: '/api/auth/profile',
+        description: 'Update user profile (requires token)',
+        headers: {
+          Authorization: 'Bearer your-jwt-token'
+        },
+        body: {
+          name: 'string (optional)',
+          bio: 'string (optional)',
+          avatar: 'string (optional)'
+        }
       }
-    }
+    },
+    note: 'Skill management endpoints are now available at /api/skills/'
   });
 });
 

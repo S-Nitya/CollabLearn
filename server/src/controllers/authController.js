@@ -1,16 +1,13 @@
 const User = require('../models/User');
+const Availability = require('../models/Availability');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// ============= AUTHENTICATION CONTROLLER =============
 const authController = {
-  
-  // ===== USER REGISTRATION =====
   register: async (req, res) => {
     try {
       const { name, email, password } = req.body;
 
-      // 1. VALIDATION
       if (!name || !email || !password) {
         return res.status(400).json({ 
           success: false,
@@ -25,7 +22,6 @@ const authController = {
         });
       }
 
-      // 2. CHECK IF USER ALREADY EXISTS
       const existingUser = await User.findOne({ email: email.toLowerCase() });
       if (existingUser) {
         return res.status(400).json({ 
@@ -34,11 +30,9 @@ const authController = {
         });
       }
 
-      // 3. HASH PASSWORD (NEVER store plain text passwords!)
-      const saltRounds = 12; // Higher = more secure but slower
+      const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // 4. CREATE NEW USER
       const user = new User({
         name: name.trim(),
         email: email.toLowerCase(),
@@ -47,21 +41,18 @@ const authController = {
 
       await user.save();
 
-      // 5. GENERATE JWT TOKEN
       const token = jwt.sign(
         { 
           userId: user._id,
           email: user.email 
         },
         process.env.JWT_SECRET || 'your-secret-key-change-this',
-        { expiresIn: '7d' }  // Token expires in 7 days
+        { expiresIn: '7d' }
       );
 
-      // 6. SEND SUCCESS RESPONSE (Never send password back!)
       res.status(201).json({
         success: true,
         message: 'User registered successfully',
-   
         token,
         user: {
           id: user._id,
@@ -74,7 +65,6 @@ const authController = {
     } catch (error) {
       console.error('Registration error:', error);
       
-      // Handle duplicate email error from MongoDB
       if (error.code === 11000) {
         return res.status(400).json({ 
           success: false,
@@ -90,12 +80,10 @@ const authController = {
     }
   },
 
-  // ===== USER LOGIN =====
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
 
-      // 1. VALIDATION
       if (!email || !password) {
         return res.status(400).json({ 
           success: false,
@@ -103,16 +91,14 @@ const authController = {
         });
       }
 
-      // 2. FIND USER BY EMAIL
       const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
         return res.status(401).json({ 
           success: false,
-          message: 'Invalid email or password'  // Don't reveal which is wrong
+          message: 'Invalid email or password'
         });
       }
 
-      // 3. CHECK IF ACCOUNT IS ACTIVE
       if (!user.isActive) {
         return res.status(401).json({ 
           success: false,
@@ -120,16 +106,14 @@ const authController = {
         });
       }
 
-      // 4. VERIFY PASSWORD
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ 
           success: false,
-          message: 'Invalid email or password'  // Don't reveal which is wrong
+          message: 'Invalid email or password'
         });
       }
 
-      // 5. GENERATE JWT TOKEN
       const token = jwt.sign(
         { 
           userId: user._id,
@@ -139,7 +123,6 @@ const authController = {
         { expiresIn: '7d' }
       );
 
-      // 6. SEND SUCCESS RESPONSE
       res.json({
         success: true,
         message: 'Login successful',
@@ -163,11 +146,12 @@ const authController = {
     }
   },
 
-  // ===== GET CURRENT USER (Protected route) =====
   getCurrentUser: async (req, res) => {
     try {
-      // req.userId is set by auth middleware
-      const user = await User.findById(req.userId).select('-password');
+      const user = await User.findById(req.userId)
+        .select('-password')
+        .populate('skillsOffering')
+        .populate('skillsSeeking');
       
       if (!user) {
         return res.status(404).json({ 
@@ -175,6 +159,8 @@ const authController = {
           message: 'User not found' 
         });
       }
+
+      const availability = await Availability.getUserAvailability(req.userId);
 
       res.json({
         success: true,
@@ -185,8 +171,12 @@ const authController = {
           avatar: user.avatar,
           bio: user.bio,
           skillsOffering: user.skillsOffering,
-          skillsLearning: user.skillsLearning,
+          skillsSeeking: user.skillsSeeking,
+          availability: availability,
           rating: user.rating,
+          totalSessions: user.totalSessions,
+          badges: user.badges,
+          joinDate: user.createdAt,
           createdAt: user.createdAt
         }
       });
@@ -196,6 +186,56 @@ const authController = {
       res.status(500).json({ 
         success: false,
         message: 'Server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  },
+
+  updateProfile: async (req, res) => {
+    try {
+      const userId = req.userId;
+      const { name, bio, avatar } = req.body;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'User not found' 
+        });
+      }
+
+      if (name) user.name = name.trim();
+      if (bio !== undefined) user.bio = bio.trim();
+      if (avatar !== undefined) {
+        if (avatar === '' || avatar === 'default') {
+          user.avatar = 'default';
+        } else {
+          user.avatar = avatar;
+        }
+      }
+
+      await user.save();
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          bio: user.bio,
+          rating: user.rating,
+          totalSessions: user.totalSessions,
+          joinDate: user.createdAt
+        }
+      });
+
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Server error during profile update',
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
     }
