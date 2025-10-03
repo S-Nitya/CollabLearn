@@ -9,6 +9,18 @@ exports.getPosts = async (req, res) => {
   }
 };
 
+exports.getPostById = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.createPost = async (req, res) => {
   const { author, avatar, title, excerpt, tags, authorRole, category, userId } = req.body;
 
