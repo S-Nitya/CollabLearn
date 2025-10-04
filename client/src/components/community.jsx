@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   FiSearch, FiFilter, FiPlus, FiMessageCircle, 
-  FiEye, FiThumbsUp, FiUpload, FiBookmark, FiX 
+  FiEye, FiThumbsUp, FiTrash2 
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import MainNavbar from '../navbar/mainNavbar';
+import { Link } from 'react-router-dom';
 
 // --- Static Data ---
 const initialCategories = [
@@ -85,7 +86,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                   onClick={() => handleDeletePost(post._id)} 
                   className="text-gray-400 hover:text-red-500 cursor-pointer"
                 >
-                  <FiX size={18} />
+                  <FiTrash2 size={18} />
                 </button>
               )}
             </div>
@@ -107,10 +108,12 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
             </span>
           </div>
 
-          <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-700">
-            {post.title}
-          </h3>
-          <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
+          <Link to={`/post/${post._id}`}>
+            <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-700">
+              {post.title}
+            </h3>
+            <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
+          </Link>
 
           <div className="mt-4 flex items-center flex-wrap gap-2">
             {post.tags.map((tag) => (
@@ -120,7 +123,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
             ))}
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-gray-500">
+          <div className="mt-4 flex items-center text-gray-500">
             <div className="flex items-center space-x-5">
               <button
                 onClick={() => setIsCommentVisible(!isCommentVisible)}
@@ -129,12 +132,6 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                 <FiMessageCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.comments}</span>
               </button>
-              <span className="flex items-center space-x-1.5">
-                <FiEye className="w-4 h-4" />
-                <span className="text-sm font-medium">{post.stats.views}</span>
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
               <button
                 onClick={handleLike}
                 className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer"
@@ -142,12 +139,10 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                 <FiThumbsUp className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.likes}</span>
               </button>
-              <button className="hover:text-indigo-600 cursor-pointer">
-                <FiUpload className="w-4 h-4" />
-              </button>
-              <button className="hover:text-indigo-600 cursor-pointer">
-                <FiBookmark className="w-4 h-4" />
-              </button>
+              <span className="flex items-center space-x-1.5">
+                <FiEye className="w-4 h-4" />
+                <span className="text-sm font-medium">{post.stats.views}</span>
+              </span>
             </div>
           </div>
 

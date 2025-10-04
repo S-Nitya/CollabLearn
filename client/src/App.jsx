@@ -13,6 +13,7 @@ import Achievements from './components/Achievements';
 import ProfilePage from './components/ProfilePage';
 import ProtectedRoute from './auth/ProtectedRoute';
 import MessagesPage from './components/Messages';
+import PostPage from './components/PostPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/browse-skills" element={<ProtectedRoute><BrowseSkills /></ProtectedRoute>} />
         <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
+        <Route path="/post/:postId" element={<ProtectedRoute><PostPage /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><MessagesPage/></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
