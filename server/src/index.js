@@ -1,70 +1,102 @@
-// Import required packages
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Create Express application
 const app = express();
+const http = require('http');
+const { Server } = require('socket.io');
 const PORT = process.env.PORT || 5000;
 
-// ============= MIDDLEWARE =============
-// Middleware runs BEFORE your route handlers
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 
-// 1. CORS - Cross-Origin Resource Sharing
+const User = require('./models/User');
+const Message = require('./models/Message');
+
+// Socket.IO
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("joinRoom", (chatId) => {
+    socket.join(chatId);
+    console.log(`User ${socket.id} joined room ${chatId}`);
+  });
+
+  socket.on("leaveRoom", (chatId) => {
+    socket.leave(chatId);
+    console.log(`User ${socket.id} left room ${chatId}`);
+  });
+
+  socket.on("chat message", async (msg) => {
+    try {
+      const saved = await Message.create(msg);
+      // FIXED: Use socket.to() instead of io.to() to broadcast only to other clients
+      // This prevents the sender from receiving their own message again
+      socket.to(msg.chatId).emit("chat message", saved);
+    } catch (err) {
+      console.error("Error saving message:", err);
+    }
+  });
+
+  // Handle typing events
+  socket.on("typing", (data) => {
+    console.log(`User ${data.userId} is typing in ${data.chatId}`);
+    // Broadcast to other users in the room
+    socket.to(data.chatId).emit("user typing", data);
+  });
+
+  socket.on("stopped typing", (data) => {
+    console.log(`User ${data.userId} stopped typing in ${data.chatId}`);
+    // Broadcast to other users in the room
+    socket.to(data.chatId).emit("user stopped typing", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
 app.use(cors());
-// Why? Your React app (port 3000) needs to talk to your server (port 5000)
-// Without CORS, browsers block these cross-origin requests for security
-
-// 2. JSON Parser with increased limit for base64 images
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-// Why? Converts incoming JSON data to JavaScript objects
-// Increased limit to handle base64 encoded images
 
-// ============= DATABASE CONNECTION =============
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://Shubham:12345@collablearn.kppefxo.mongodb.net/collablearn?retryWrites=true&w=majority&appName=CollabLearn';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/collablearn';
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connection.on('connected', () => console.log('✅ MongoDB connected'));
+mongoose.connection.on('error', (err) => console.error('❌ MongoDB error:', err));
+mongoose.connection.on('disconnected', () => console.log('📴 MongoDB disconnected'));
+
+// APIs
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}, '_id name avatar email');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
 });
 
-// Database connection events
-mongoose.connection.on('connected', () => {
-  console.log('✅ Connected to MongoDB Atlas');
+app.get('/api/messages/:chatId', async (req, res) => {
+  try {
+    const messages = await Message.find({ chatId: req.params.chatId }).sort({ time: 1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
 });
 
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB Atlas connection error:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('📴 Disconnected from MongoDB Atlas');
-});
-
-// ============= ROUTES =============
-// Authentication routes (login, register)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/skills', require('./routes/skills'));
 
-// ============= ROOT ROUTE =============
-// Test route to check if server is running
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'CollabLearn API Server Running!',
-    endpoints: {
-      register: 'POST /api/auth/register',
-      login: 'POST /api/auth/login',
-      getPosts: 'GET /api/posts',
-      createPost: 'POST /api/posts'
-    }
-  });
+  res.json({ message: 'CollabLearn API Running!' });
 });
 
-// ============= START SERVER =============
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📖 Test at: http://localhost:${PORT}`);
 });

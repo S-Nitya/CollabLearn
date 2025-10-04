@@ -1,203 +1,431 @@
-import React, { useState } from 'react';
-import MainNavbar from "../navbar/mainNavbar.jsx"; 
-// Note: Ensure MainNavbar is correctly defined and exported as default from '../navbar/mainNavbar.jsx'
+import React, { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
+import MainNavbar from "../navbar/mainNavbar.jsx";
 
-const MOCK_CURRENT_USER_ID = 1; // Our user ID
+const SOCKET_SERVER_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5000/api';
+
+const getLoggedInUserId = () => {
+  return localStorage.getItem('userId');
+};
 
 const MessagesPage = () => {
-    // --- MOCK DATA ---
-    const [conversations, setConversations] = useState([
-        { id: 1, name: 'Marcus Johnson', lastMessage: 'See you tomorrow at 10 AM.', time: '10:30 AM', unread: 2, avatar: 'https://i.pravatar.cc/32?img=1', skill: 'Learning: React Hooks', online: true, messages: [
-            { id: 101, senderId: MOCK_CURRENT_USER_ID, text: 'Hi Marcus, just confirming our session tomorrow. Are you ready for the deep dive on custom hooks?', time: '10:05 AM' },
-            { id: 102, senderId: 2, text: 'I am! Looking forward to it.', time: '10:08 AM' },
-            { id: 103, senderId: MOCK_CURRENT_USER_ID, text: 'See you tomorrow at 10 AM.', time: '10:10 AM' },
-        ]},
-        { id: 2, name: 'Sarah Chen', lastMessage: 'The fundamentals link worked, thanks!', time: 'Yesterday', unread: 0, avatar: 'https://i.pravatar.cc/32?img=2', skill: 'Tutoring: Data Structures', online: false, lastOnline: 'Last seen 2h ago', messages: [
-            { id: 201, senderId: 2, text: 'Did you manage to open the fundamentals document?', time: 'Yesterday' },
-            { id: 202, senderId: MOCK_CURRENT_USER_ID, text: 'The link worked, thanks!', time: 'Yesterday' },
-        ]},
-        // ... other conversations can be added here
-    ]);
+  const [contacts, setContacts] = useState([]);
+  const [activeContactId, setActiveContactId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [messageInput, setMessageInput] = useState('');
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [loadingContacts, setLoadingContacts] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const socketRef = useRef(null);
+  const activeContactIdRef = useRef(activeContactId);
+  const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
-    const [activeChatId, setActiveChatId] = useState(1); // Start with the first conversation active
-    const [messageInput, setMessageInput] = useState('');
+  useEffect(() => {
+    const userId = getLoggedInUserId();
+    if (!userId) {
+      console.error('No logged-in user found!');
+      return;
+    }
+    setLoggedInUserId(userId);
+    console.log('Logged in user ID:', userId);
+  }, []);
 
-    // --- DERIVED STATE ---
-    const activeChat = conversations.find(chat => chat.id === activeChatId);
+  useEffect(() => {
+    activeContactIdRef.current = activeContactId;
+  }, [activeContactId]);
 
-    // --- HANDLERS ---
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-        if (!messageInput.trim()) return;
+  // Auto-scroll to bottom
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-        const newConversations = conversations.map(chat => {
-            if (chat.id === activeChatId) {
-                const newMessage = {
-                    id: Date.now(),
-                    senderId: MOCK_CURRENT_USER_ID,
-                    text: messageInput.trim(),
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                };
-                
-                return {
-                    ...chat,
-                    messages: [...chat.messages, newMessage],
-                    lastMessage: messageInput.trim(),
-                    time: newMessage.time, // Update the time in the sidebar
-                };
-            }
-            return chat;
-        });
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-        setConversations(newConversations);
-        setMessageInput(''); // Clear the input field
-    };
+  useEffect(() => {
+    if (!loggedInUserId) return;
+    
+    setLoadingContacts(true);
+    fetch(`${API_URL}/users`)
+      .then(res => res.json())
+      .then(users => {
+        const withMeta = users.map(u => ({ ...u, latestMessage: "", unread: 0 }));
+        setContacts(withMeta);
+        setLoadingContacts(false);
+        if (users.length > 0) {
+          const firstOther = users.find(u => u._id !== loggedInUserId);
+          setActiveContactId(firstOther ? firstOther._id : users[0]._id);
+        }
+      })
+      .catch(() => setLoadingContacts(false));
+  }, [loggedInUserId]);
 
-    const ChatBubble = ({ message }) => {
-        const isSent = message.senderId === MOCK_CURRENT_USER_ID;
-        
-        return (
-            <div className={`flex mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl text-white shadow-md ${
-                    isSent 
-                        ? 'bg-indigo-600 rounded-br-none' 
-                        : 'bg-gray-700 text-white rounded-tl-none'
-                }`}>
-                    <p className="text-sm">{message.text}</p>
-                    <p className={`text-xs mt-1 ${isSent ? 'text-indigo-200' : 'text-gray-400'} text-right`}>{message.time}</p>
-                </div>
-            </div>
-        );
-    };
+  useEffect(() => {
+    if (!activeContactId || !loggedInUserId) return;
+    const chatId = [loggedInUserId, activeContactId].sort().join('_');
+    fetch(`${API_URL}/messages/${chatId}`)
+      .then(res => res.json())
+      .then(msgs => {
+        console.log('Loaded messages:', msgs);
+        setMessages(msgs);
+      });
 
-    // --- RENDER ---
-    return (
-        <div className="flex h-screen bg-gray-100 font-sans">
-            <div className="flex-1 flex flex-col overflow-auto">
-                <MainNavbar />
-                
-                <main className="flex-1 p-6 bg-gray-100 mt-20">                    
-                    {/* Main Messaging Grid */}
-                    <div className="flex h-[calc(100vh-160px)] rounded-xl shadow-lg overflow-hidden">
-                        
-                        {/* 1. Conversation List Sidebar (1/4 width) */}
-                        <div className="w-full lg:w-1/4 bg-white border-r border-gray-200 overflow-y-auto">
-                            <div className="p-4 border-b border-gray-200">
-                                <input 
-                                    type="text" 
-                                    placeholder="Search chats..." 
-                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                                />
-                            </div>
-                            
-                            {conversations.map(chat => (
-                                <div 
-                                    key={chat.id}
-                                    className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 ${chat.id === activeChatId ? 'bg-indigo-50 border-l-4 border-indigo-600' : 'border-l-4 border-transparent'}`}
-                                    onClick={() => setActiveChatId(chat.id)} // FUNCTIONAL: Change active chat
-                                >
-                                    <img src={chat.avatar} alt={chat.name} className="h-10 w-10 rounded-full mr-3 object-cover" />
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-center">
-                                            <p className={`font-semibold text-gray-800 truncate ${chat.unread > 0 && chat.id !== activeChatId ? 'text-indigo-700' : ''}`}>{chat.name}</p>
-                                            <p className="text-xs text-gray-500">{chat.time}</p>
-                                        </div>
-                                        <div className="flex justify-between items-center mt-1">
-                                            <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
-                                            {chat.unread > 0 && chat.id !== activeChatId && (
-                                                <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                                    {chat.unread}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* 2. Main Chat Window (2/4 width on large screens) */}
-                        <div className="w-full lg:w-2/4 flex flex-col bg-white border-r border-gray-200">
-                            
-                            {/* Chat Header */}
-                            <div className="p-4 border-b border-gray-200 flex items-center justify-between shadow-sm">
-                                <div className="flex items-center">
-                                    <img src={activeChat.avatar} alt={activeChat.name} className="h-10 w-10 rounded-full mr-3 object-cover border-2 border-indigo-500" />
-                                    <div>
-                                        <p className="font-bold text-gray-800 text-lg">{activeChat.name}</p>
-                                        <p className="text-sm text-gray-500">{activeChat.skill}</p>
-                                    </div>
-                                </div>
-                                <button className="text-gray-500 hover:text-indigo-600">
-                                    <span className="material-icons-outlined text-2xl">&#9742;</span>
-                                </button>
-                            </div>
-
-                            {/* Messages Container */}
-                            <div className="flex-1 p-6 overflow-y-auto bg-gray-50">
-                                {activeChat.messages.map(msg => (
-                                    <ChatBubble key={msg.id} message={msg} />
-                                ))}
-                            </div>
-
-                            {/* Input Area */}
-                            <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200 bg-white">
-                                <div className="flex items-center space-x-3">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Type your message..." 
-                                        value={messageInput} // FUNCTIONAL: Controlled component
-                                        onChange={(e) => setMessageInput(e.target.value)} // FUNCTIONAL: Update state on change
-                                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                    <button 
-                                        type="submit" // FUNCTIONAL: Triggers form submission
-                                        className="p-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-md disabled:opacity-50"
-                                        disabled={!messageInput.trim()} // Disable if input is empty
-                                    >
-                                        <span className="material-icons-outlined text-xl">&#x27A4;</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        {/* 3. Details Panel (1/4 width on large screens) */}
-                        <div className="hidden lg:block lg:w-1/4 bg-white p-6 overflow-y-auto">
-                            <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Chat Details</h3>
-                            
-                            {/* User Info */}
-                            <div className="flex flex-col items-center mb-6">
-                                <img src={activeChat.avatar} alt={activeChat.name} className="h-20 w-20 rounded-full mb-3 object-cover border-4 border-indigo-100" />
-                                <p className="font-bold text-xl text-gray-800">{activeChat.name}</p>
-                                <p className="text-sm text-gray-500">{activeChat.skill}</p>
-                                <p className={`text-xs font-medium mt-1 ${activeChat.online ? 'text-green-500' : 'text-gray-500'}`}>
-                                    {activeChat.online ? '• Online' : activeChat.lastOnline || 'Offline'}
-                                </p>
-                            </div>
-
-                            {/* Quick Actions and Shared Files remain static for this iteration */}
-                            <div className="space-y-2">
-                                <button className="w-full flex items-center justify-center py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors duration-200 text-sm font-medium">
-                                    <span className="material-icons-outlined text-xl mr-2">&#128197;</span> View Calendar
-                                </button>
-                                <button className="w-full flex items-center justify-center py-2 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-sm font-medium">
-                                    <span className="material-icons-outlined text-xl mr-2">&#128200;</span> View Profile
-                                </button>
-                            </div>
-
-                            <div className="mt-6 pt-4 border-t border-gray-200">
-                                <h4 className="font-semibold text-gray-700 mb-3">Shared Files (3)</h4>
-                                <div className="space-y-2 text-sm text-blue-600">
-                                    <p className="truncate hover:underline cursor-pointer">&#128193; react-notes.pdf</p>
-                                    <p className="truncate hover:underline cursor-pointer">&#128279; context-api-link.com</p>
-                                    <p className="truncate hover:underline cursor-pointer">&#128459; session-summary.txt</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
-        </div>
+    setContacts(prev =>
+      prev.map(c =>
+        c._id === activeContactId ? { ...c, unread: 0 } : c
+      )
     );
+  }, [activeContactId, loggedInUserId]);
+
+  useEffect(() => {
+    if (!loggedInUserId) return;
+
+    socketRef.current = io(SOCKET_SERVER_URL);
+
+    const handleIncomingMessage = (msg) => {
+      const currentActiveId = activeContactIdRef.current;
+      const currentChatId = currentActiveId
+        ? [loggedInUserId, currentActiveId].sort().join("_")
+        : null;
+
+      console.log('📨 Received message:', {
+        text: msg.text,
+        senderId: msg.senderId,
+        chatId: msg.chatId,
+        loggedInUser: loggedInUserId,
+        isFromMe: msg.senderId === loggedInUserId
+      });
+
+      if (msg.chatId === currentChatId) {
+        setMessages((prev) => [...prev, msg]);
+        setIsTyping(false); // Stop typing indicator when message is received
+      }
+
+      setContacts((prevContacts) =>
+        prevContacts.map((c) => {
+          if (msg.chatId.includes(c._id) && c._id !== loggedInUserId) {
+            return {
+              ...c,
+              latestMessage: msg.text,
+              unread:
+                msg.chatId !== currentChatId
+                  ? (c.unread || 0) + 1
+                  : c.unread || 0,
+            };
+          }
+          return c;
+        })
+      );
+    };
+
+    // Listen for typing events
+    const handleUserTyping = (data) => {
+      const currentActiveId = activeContactIdRef.current;
+      const currentChatId = currentActiveId
+        ? [loggedInUserId, currentActiveId].sort().join("_")
+        : null;
+
+      if (data.chatId === currentChatId && data.userId !== loggedInUserId) {
+        setIsTyping(true);
+        
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+        
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 3000);
+      }
+    };
+
+    const handleUserStoppedTyping = (data) => {
+      const currentActiveId = activeContactIdRef.current;
+      const currentChatId = currentActiveId
+        ? [loggedInUserId, currentActiveId].sort().join("_")
+        : null;
+
+      if (data.chatId === currentChatId && data.userId !== loggedInUserId) {
+        setIsTyping(false);
+      }
+    };
+
+    socketRef.current.on("chat message", handleIncomingMessage);
+    socketRef.current.on("user typing", handleUserTyping);
+    socketRef.current.on("user stopped typing", handleUserStoppedTyping);
+
+    return () => {
+      socketRef.current.off("chat message", handleIncomingMessage);
+      socketRef.current.off("user typing", handleUserTyping);
+      socketRef.current.off("user stopped typing", handleUserStoppedTyping);
+      socketRef.current.disconnect();
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [loggedInUserId]);
+
+  useEffect(() => {
+    if (!activeContactId || !socketRef.current || !loggedInUserId) return;
+    const chatId = [loggedInUserId, activeContactId].sort().join('_');
+    console.log('🔗 Joining room:', chatId);
+    socketRef.current.emit("joinRoom", chatId);
+    
+    setIsTyping(false);
+    
+    return () => {
+      socketRef.current.emit("leaveRoom", chatId);
+    };
+  }, [activeContactId, loggedInUserId]);
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!messageInput.trim() || !activeContactId || !loggedInUserId) return;
+    
+    const chatId = [loggedInUserId, activeContactId].sort().join('_');
+    const newMessage = {
+      chatId,
+      senderId: loggedInUserId,
+      text: messageInput.trim(),
+      time: new Date().toISOString(),
+    };
+    
+    console.log('📤 Sending message:', newMessage);
+    socketRef.current.emit('chat message', newMessage);
+
+    socketRef.current.emit('stopped typing', { chatId, userId: loggedInUserId });
+
+    setMessages((prev) => [...prev, newMessage]);
+    setContacts(prev =>
+      prev.map(c =>
+        c._id === activeContactId
+          ? { ...c, latestMessage: newMessage.text }
+          : c
+      )
+    );
+    setMessageInput('');
+  };
+
+  // Handle typing indicator
+  const handleInputChange = (e) => {
+    setMessageInput(e.target.value);
+    
+    if (!activeContactId || !loggedInUserId) return;
+    
+    const chatId = [loggedInUserId, activeContactId].sort().join('_');
+    socketRef.current.emit('typing', { chatId, userId: loggedInUserId });
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current.emit('stopped typing', { chatId, userId: loggedInUserId });
+    }, 2000);
+  };
+
+  const ChatBubble = ({ message, index }) => {
+    if (!loggedInUserId) return null;
+    
+    const msgSenderId = String(message.senderId).trim();
+    const loggedInId = String(loggedInUserId).trim();
+    const isSent = msgSenderId === loggedInId;
+    
+    console.log('💬 Rendering bubble:', {
+      text: message.text,
+      msgSenderId,
+      loggedInId,
+      isSent
+    });
+    
+    return (
+      <div 
+        className={`flex mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
+      >
+        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl text-white shadow-lg transform transition-all duration-200 hover:scale-102 ${
+          isSent 
+            ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-br-none hover:shadow-xl' 
+            : 'bg-gradient-to-br from-gray-700 to-gray-800 rounded-tl-none hover:shadow-xl'
+        }`}>
+          <p className="text-sm">{message.text}</p>
+          <p className="text-xs mt-1 text-right opacity-70">
+            {new Date(message.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  if (!loggedInUserId) {
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-100 font-sans">
+      <style>
+        {`
+          @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; }
+          .contact-item { transition: all 0.2s ease; }
+          .contact-item:hover { transform: translateX(2px); background-color: #f9fafb; }
+          .message-input:focus { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); border-color: #818cf8; }
+          .send-button { transition: all 0.2s ease; }
+          .send-button:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+          .send-button:active:not(:disabled) { transform: scale(0.95); }
+          .online-dot { animation: pulse 3s ease-in-out infinite; }
+          @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.6;} }
+          .skeleton { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size:200% 100%; animation: loading 1.5s ease-in-out infinite; }
+          @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+          .typing-indicator { display: flex; align-items: center; gap: 4px; }
+          .typing-dot { width: 8px; height: 8px; border-radius: 50%; background-color: #9ca3af; animation: typing 1.4s infinite; }
+          .typing-dot:nth-child(1){animation-delay:0s;} .typing-dot:nth-child(2){animation-delay:0.2s;} .typing-dot:nth-child(3){animation-delay:0.4s;}
+          @keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:0.7;} 30%{transform:translateY(-10px);opacity:1;} }
+        `}
+      </style>
+      <div className="flex-1 flex flex-col overflow-auto">
+        <MainNavbar />
+        <main className="flex-1 p-6 bg-gray-100 mt-20">
+          <div className="flex h-[calc(100vh-160px)] rounded-xl shadow-lg overflow-hidden">
+            
+            {/* Sidebar */}
+            <div className="w-full lg:w-1/4 bg-white border-r overflow-y-auto">
+              <div className="p-4 border-b bg-gradient-to-r from-indigo-50 to-white">
+                <input type="text" placeholder="Search contacts..."
+                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 transition-all duration-300"/>
+              </div>
+              {loadingContacts ? (
+                <>
+                  {[1,2,3,4,5].map((i) => (
+                    <div key={i} className="flex items-center p-4 border-b">
+                      <div className="skeleton h-10 w-10 rounded-full mr-3"></div>
+                      <div className="flex-1">
+                        <div className="skeleton h-4 w-24 mb-2 rounded"></div>
+                        <div className="skeleton h-3 w-32 rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                contacts.map((user) => (
+                  <div key={user._id}
+                    className={`contact-item flex items-center justify-between p-4 cursor-pointer ${user._id === activeContactId ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
+                    onClick={() => setActiveContactId(user._id)}>
+                    <div className="flex items-center">
+                      <div className="relative">
+                        <img src={user.avatar || 'https://i.pravatar.cc/32?u=' + user._id}
+                             alt={user.name} className="h-10 w-10 rounded-full mr-3 ring-2 ring-white shadow-md"/>
+                        <div className="online-dot absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">{user.name}</p>
+                        <p className="text-sm text-gray-600 truncate w-32">
+                          {user.latestMessage || user.email}
+                        </p>
+                      </div>
+                    </div>
+                    {user.unread > 0 && (
+                      <span className="ml-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                        {user.unread}
+                      </span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Chat window */}
+            <div className="w-full lg:w-2/4 flex flex-col bg-white">
+              <div className="p-4 border-b flex items-center bg-gradient-to-r from-indigo-50 to-white shadow-sm">
+                {activeContactId ? (
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/32?u=' + activeContactId}
+                           alt="avatar" className="h-10 w-10 rounded-full mr-3 ring-2 ring-indigo-200 shadow-md"/>
+                      <div className="online-dot absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800">{contacts.find(u => u._id === activeContactId)?.name}</p>
+                      <p className="text-sm text-gray-500 flex items-center">
+                        <span className="online-dot w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                        Active now
+                      </p>
+                    </div>
+                  </div>
+                ) : <span>Select a contact to chat</span>}
+              </div>
+              
+              <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white">
+                {messages.map((msg, idx) => (
+                  <ChatBubble key={msg._id || idx} message={msg} index={idx}/>
+                ))}
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <div className="flex justify-start mb-3">
+                    <div className="bg-gray-200 px-3 py-2 rounded-xl text-gray-600 flex items-center typing-indicator">
+                      <span className="typing-dot"></span>
+                      <span className="typing-dot"></span>
+                      <span className="typing-dot"></span>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              <form onSubmit={handleSendMessage} className="p-4 border-t bg-white shadow-lg">
+                <div className="flex items-center space-x-3">
+                  <input type="text" placeholder="Type a message..."
+                    value={messageInput}
+                    onChange={handleInputChange}
+                    className="message-input flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none transition-all duration-300"
+                    disabled={!activeContactId}/>
+                  <button type="submit"
+                    className="send-button p-3 bg-indigo-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-md"
+                    disabled={!messageInput.trim() || !activeContactId}>
+                    ➤
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Right panel */}
+            <div className="hidden lg:block lg:w-1/4 bg-white p-6 overflow-y-auto border-l">
+              <h3 className="text-lg font-semibold mb-4 border-b pb-2 text-gray-800">Chat Details</h3>
+              {activeContactId ? (
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/80?u=' + activeContactId}
+                         alt="avatar" className="h-20 w-20 rounded-full mb-3 ring-4 ring-indigo-100 shadow-lg"/>
+                    <div className="online-dot absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                  </div>
+                  <h4 className="font-bold text-gray-800">{contacts.find(u => u._id === activeContactId)?.name}</h4>
+                  <p className="text-gray-500 mb-4">{contacts.find(u => u._id === activeContactId)?.email}</p>
+                  <div className="w-full">
+                    <h5 className="font-semibold mb-2 text-gray-700">Shared Files</h5>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[1,2,3,4,5,6].map((i) => (
+                        <div key={i} className="bg-gray-100 rounded-lg p-2 aspect-square flex items-center justify-center hover:bg-gray-200 transition">
+                          📄
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-600">Select a conversation to view details</p>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 };
 
 export default MessagesPage;
