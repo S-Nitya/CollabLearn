@@ -359,6 +359,25 @@ const getSkillCategories = async (req, res) => {
   }
 };
 
+// Get all distinct skill names
+const getAllSkillNames = async (req, res) => {
+  try {
+    const skillNames = await Skill.distinct('name', { isActive: true });
+    
+    res.json({
+      success: true,
+      skillNames: skillNames.sort()
+    });
+
+  } catch (error) {
+    console.error('Get skill names error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error fetching skill names'
+    });
+  }
+};
+
 module.exports = {
   // Skill Offering
   addSkillOffering,
@@ -373,5 +392,6 @@ module.exports = {
   // General
   getUserSkills,
   searchSkills,
-  getSkillCategories
+  getSkillCategories,
+  getAllSkillNames
 };
