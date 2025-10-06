@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus } from 'lucide-react';
+import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X } from 'lucide-react';
 import MainNavbar from '../navbar/mainNavbar.jsx';
 // Placeholder MainNavbar component
 
 
 export default function SkillSwapBrowse() {
   const [visibleSkills, setVisibleSkills] = useState(6);
+  const [showPostSkillModal, setShowPostSkillModal] = useState(false);
+  const [postSkillForm, setPostSkillForm] = useState({
+    title: '',
+    skills: '',
+    timePerHour: '',
+    price: ''
+  });
 
   const categories = [
     { 
@@ -197,6 +204,28 @@ export default function SkillSwapBrowse() {
     }
   ];
 
+  const handlePostSkillSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission here
+    console.log('Post Skill Data:', postSkillForm);
+    // Reset form and close modal
+    setPostSkillForm({
+      title: '',
+      skills: '',
+      timePerHour: '',
+      price: ''
+    });
+    setShowPostSkillModal(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setPostSkillForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <style>{`
@@ -275,6 +304,24 @@ export default function SkillSwapBrowse() {
         .bell-notification {
           animation: pulse 2s infinite;
         }
+
+        .cursor-pointer {
+          cursor: pointer;
+        }
+
+        .modal-overlay {
+          backdrop-filter: blur(4px);
+          background: rgba(0, 0, 0, 0.4);
+        }
+
+        .cursor-pointer {
+          cursor: pointer;
+        }
+
+        .modal-overlay {
+          backdrop-filter: blur(4px);
+          background: rgba(0, 0, 0, 0.4);
+        }
       `}</style>
 
       <MainNavbar />
@@ -301,12 +348,16 @@ export default function SkillSwapBrowse() {
             <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
               <option>All Categories</option>
             </select>
-            <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
-              <option>All Levels</option>
-            </select>
-            <button className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-all hover:border-indigo-400">
+            <button className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-all hover:border-indigo-400 cursor-pointer">
               <Filter size={20} />
               <span className="font-medium">More Filters</span>
+            </button>
+            <button 
+              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all hover:shadow-lg font-semibold cursor-pointer"
+              onClick={() => setShowPostSkillModal(true)}
+            >
+              <UserPlus size={20} />
+              <span>Post Skill</span>
             </button>
           </div>
 
@@ -317,7 +368,7 @@ export default function SkillSwapBrowse() {
               {categories.map((cat, idx) => (
                 <button
                   key={idx}
-                  className={`category-card p-6 rounded-xl border-2 flex flex-col items-center text-center ${
+                  className={`category-card p-6 rounded-xl border-2 flex flex-col items-center text-center cursor-pointer ${
                     cat.active
                       ? 'border-indigo-600 bg-indigo-50'
                       : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50'
@@ -388,8 +439,7 @@ export default function SkillSwapBrowse() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-gray-700">{skill.level}</span>
+                <div className="flex items-center justify-end mb-4">
                   <span className={`text-lg font-bold ${skill.price === 'Free' ? 'text-indigo-600' : 'text-gray-900'}`}>
                     {skill.price}
                   </span>
@@ -401,10 +451,10 @@ export default function SkillSwapBrowse() {
 
                 {/* Book Button */}
                 <div className="flex items-center gap-2">
-                  <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg">
+                  <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer">
                     Book Session
                   </button>
-                  <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all">
+                  <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
                     <UserPlus size={20} className="text-gray-600" />
                   </button>
                 </div>
@@ -417,7 +467,7 @@ export default function SkillSwapBrowse() {
             <div className="text-center animate-fadeInUp">
               <button
                 onClick={() => setVisibleSkills(prev => prev + 3)}
-                className="px-8 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all text-gray-700 hover:border-indigo-600 hover:text-indigo-600 hover:shadow-md"
+                className="px-8 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-all text-gray-700 hover:border-indigo-600 hover:text-indigo-600 hover:shadow-md cursor-pointer"
               >
                 Load More Skills
               </button>
@@ -425,6 +475,111 @@ export default function SkillSwapBrowse() {
           )}
         </div>
       </div>
+
+      {/* Post Skill Modal */}
+      {showPostSkillModal && (
+        <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4 animate-fadeInUp shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Post a New Skill</h2>
+              <button 
+                onClick={() => setShowPostSkillModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-all cursor-pointer"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePostSkillSubmit} className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={postSkillForm.title}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Master JavaScript Fundamentals"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              {/* Skills */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Skills to Include <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="skills"
+                  value={postSkillForm.skills}
+                  onChange={handleInputChange}
+                  placeholder="e.g., JavaScript, React, Node.js (comma separated)"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              {/* Time per Hour */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Session Duration <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="timePerHour"
+                  value={postSkillForm.timePerHour}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                  required
+                >
+                  <option value="">Select duration</option>
+                  <option value="30 minutes">30 minutes</option>
+                  <option value="1 hour">1 hour</option>
+                  <option value="1.5 hours">1.5 hours</option>
+                  <option value="2 hours">2 hours</option>
+                  <option value="2.5 hours">2.5 hours</option>
+                  <option value="3 hours">3 hours</option>
+                </select>
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="price"
+                  value={postSkillForm.price}
+                  onChange={handleInputChange}
+                  placeholder="e.g., $50/hr (leave empty for free)"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowPostSkillModal(false)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all cursor-pointer"
+                >
+                  Post Skill
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
