@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus } from 'lucide-react';
-import MainNavbar from '../navbar/mainNavbar';
+import MainNavbar from '../navbar/mainNavbar.jsx';
+// Placeholder MainNavbar component
+
 
 export default function SkillSwapBrowse() {
   const [visibleSkills, setVisibleSkills] = useState(6);
@@ -10,8 +11,9 @@ export default function SkillSwapBrowse() {
     { 
       icon: (
         <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <path d="M9 3v18" />
+          <path d="M15 3v18" />
         </svg>
       ), 
       name: 'All Categories', 
@@ -20,83 +22,91 @@ export default function SkillSwapBrowse() {
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <polyline points="16 18 22 12 16 6" />
-          <polyline points="8 6 2 12 8 18" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="none" stroke="currentColor" strokeWidth="2.5">
+          {/* Steam */}
+          <path d="M18 8c1 2 0 4 1 6M25 6c1 2.5 0 4.5 1 7" strokeLinecap="round"/>
+          
+          {/* Coffee cup */}
+          <path d="M12 20h26M12 20c0 0 2 18 13 18s13-18 13-18" strokeLinecap="round" strokeLinejoin="round"/>
+          <ellipse cx="25" cy="20" rx="13" ry="3" fill="currentColor" opacity="0.2"/>
+          
+          {/* Cup handle */}
+          <path d="M38 24c2 0 4 1.5 4 4s-2 4-4 4" strokeLinecap="round"/>
         </svg>
       ), 
-      name: 'Programming', 
-      count: '1234 skills'
-    },
-    { 
-      icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-          <path d="M6 12v5c3 3 9 3 12 0v-5" />
-        </svg>
-      ), 
-      name: 'Academics', 
+      name: 'Java', 
       count: '856 skills'
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M9 18V5l12-2v13" />
-          <circle cx="6" cy="18" r="3" />
-          <circle cx="18" cy="16" r="3" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="currentColor">
+          <path d="M25,2L6,11v17c0,11.7,8.1,22.6,19,25c10.9-2.4,19-13.3,19-25V11L25,2z M25,7l15,7v14c0,9.3-6.4,17.9-15,20 c-8.6-2.1-15-10.7-15-20V14L25,7z"/>
+          <text x="25" y="32" textAnchor="middle" fontSize="16" fontWeight="bold" fill="currentColor">C++</text>
         </svg>
       ), 
-      name: 'Music', 
-      count: '423 skills'
+      name: 'C/C++', 
+      count: '734 skills'
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" />
-          <path d="m14 7 3 3" />
-          <path d="M5 6v4" />
-          <path d="M19 14v4" />
-          <path d="M10 2v2" />
-          <path d="M7 8H3" />
-          <path d="M21 16h-4" />
-          <path d="M11 3H9" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="currentColor">
+          {/* Python snake logo - two intertwined snakes */}
+          <path d="M20 8c-3 0-5 2-5 5v6h10v1H13c-3 0-5 2-5 5v6c0 3 2 5 5 5h4v-5c0-3 2-5 5-5h10c2.5 0 4.5-2 4.5-4.5v-8.5c0-3-2-5-5-5h-11.5z" opacity="0.6"/>
+          <path d="M30 42c3 0 5-2 5-5v-6H25v-1h12c3 0 5-2 5-5v-6c0-3-2-5-5-5h-4v5c0 3-2 5-5 5H18c-2.5 0-4.5 2-4.5 4.5v8.5c0 3 2 5 5 5h11.5z"/>
+          <circle cx="18" cy="13" r="1.5" fill="white"/>
+          <circle cx="32" cy="37" r="1.5" fill="white"/>
         </svg>
       ), 
-      name: 'Arts & Design', 
-      count: '334 skills'
+      name: 'Python', 
+      count: '1023 skills'
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M14.4 14.4 9.6 9.6" />
-          <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z" />
-          <path d="m21.5 21.5-1.4-1.4" />
-          <path d="M3.9 3.9 2.5 2.5" />
-          <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="currentColor">
+          {/* MongoDB leaf */}
+          <path d="M25 5c-1 0-1.8 3-2.5 7-.8 4-1.5 9-1.5 13 0 6 2 10 4 10s4-4 4-10c0-4-.7-9-1.5-13-.7-4-1.5-7-2.5-7z"/>
+          <path d="M24 35v10h2V35" opacity="0.6"/>
+          <ellipse cx="25" cy="15" rx="8" ry="12" opacity="0.3"/>
         </svg>
       ), 
-      name: 'Fitness', 
-      count: '267 skills'
+      name: 'MongoDB', 
+      count: '342 skills'
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" />
-          <line x1="12" y1="8" x2="12" y2="12" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <line x1="8" y1="25" x2="42" y2="25"/>
+          <line x1="8" y1="15" x2="25" y2="15"/>
+          <line x1="8" y1="35" x2="25" y2="35"/>
+          <path d="M25 5L42 15v20L25 45"/>
         </svg>
       ), 
-      name: 'Cooking', 
-      count: '189 skills'
+      name: 'Express', 
+      count: '298 skills'
     },
     { 
       icon: (
-        <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-          <circle cx="12" cy="13" r="3" />
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="none" stroke="currentColor" strokeWidth="2">
+          <ellipse cx="25" cy="25" rx="18" ry="7"/>
+          <ellipse cx="25" cy="25" rx="18" ry="7" transform="rotate(60 25 25)"/>
+          <ellipse cx="25" cy="25" rx="18" ry="7" transform="rotate(120 25 25)"/>
+          <circle cx="25" cy="25" r="4" fill="currentColor"/>
         </svg>
       ), 
-      name: 'Photography', 
-      count: '156 skills'
+      name: 'React', 
+      count: '567 skills'
+    },
+    { 
+      icon: (
+        <svg className="w-10 h-10" viewBox="0 0 50 50" fill="currentColor">
+          {/* Node.js hexagon with JS */}
+          <path d="M25 5L8 14v18l17 10 17-10V14L25 5z"/>
+          <path d="M25 10l12 7v14l-12 7-12-7V17l12-7z" fill="white" opacity="0.9"/>
+          <text x="25" y="30" textAnchor="middle" fontSize="12" fontWeight="bold" fill="currentColor">JS</text>
+        </svg>
+      ), 
+      name: 'Node.js', 
+      count: '445 skills'
     }
   ];
 
@@ -147,13 +157,13 @@ export default function SkillSwapBrowse() {
       instructor: 'James Rodriguez',
       rating: 4.7,
       reviews: 92,
-      title: 'Piano Fundamentals',
-      description: 'Start your musical journey with basic piano techniques, scales, and simple songs.',
-      tags: ['Piano', 'Music Theory', 'Beginner'],
-      duration: '45 minutes',
+      title: 'Java Spring Boot Mastery',
+      description: 'Build enterprise-level applications with Spring Boot framework and best practices.',
+      tags: ['Java', 'Spring Boot', 'Backend'],
+      duration: '2 hours',
       location: 'In-Person & Online',
-      level: 'Beginner',
-      price: '$40/hr',
+      level: 'Intermediate',
+      price: '$55/hr',
       nextAvailable: 'Dec 18, 6:00 PM',
       avatar: 'https://i.pravatar.cc/150?img=33'
     },
@@ -161,12 +171,12 @@ export default function SkillSwapBrowse() {
       instructor: 'Luna Park',
       rating: 4.9,
       reviews: 73,
-      title: 'Digital Art & Illustration',
-      description: 'Create stunning digital artwork using industry-standard tools and techniques.',
-      tags: ['Digital Art', 'Illustration', 'Photoshop'],
+      title: 'C++ Game Development',
+      description: 'Create stunning games using C++ and modern game development techniques.',
+      tags: ['C++', 'Game Dev', 'Programming'],
       duration: '2 hours',
       location: 'Online',
-      level: 'Intermediate',
+      level: 'Advanced',
       price: '$50/hr',
       nextAvailable: 'Dec 19, 1:00 PM',
       avatar: 'https://i.pravatar.cc/150?img=27'
@@ -175,13 +185,13 @@ export default function SkillSwapBrowse() {
       instructor: 'Carlos Martinez',
       rating: 4.8,
       reviews: 134,
-      title: 'Spanish Conversation Practice',
-      description: 'Improve your Spanish speaking skills through engaging conversation practice.',
-      tags: ['Spanish', 'Language', 'Conversation'],
-      duration: '1 hour',
+      title: 'Full Stack MERN Development',
+      description: 'Build complete web applications using MongoDB, Express, React, and Node.js.',
+      tags: ['MERN', 'Full Stack', 'JavaScript'],
+      duration: '2.5 hours',
       location: 'Online',
       level: 'Intermediate',
-      price: '$35/hr',
+      price: '$65/hr',
       nextAvailable: 'Today, 7:00 PM',
       avatar: 'https://i.pravatar.cc/150?img=52'
     }
@@ -303,7 +313,7 @@ export default function SkillSwapBrowse() {
           {/* Browse by Category */}
           <div className="mb-12 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-            <div className="grid grid-cols-8 gap-4">
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-4">
               {categories.map((cat, idx) => (
                 <button
                   key={idx}
