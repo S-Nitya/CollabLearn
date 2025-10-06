@@ -14,8 +14,7 @@ export default function ProfilePage() {
   const [skillToDelete, setSkillToDelete] = useState(null);
   const [newSkill, setNewSkill] = useState({
     name: '',
-    level: 'Beginner',
-    description: ''
+    level: 'Beginner'
   });
   const [profileData, setProfileData] = useState({
     name: '',
@@ -121,8 +120,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({
           name: newSkill.name,
-          level: newSkill.level,
-          description: newSkill.description
+          level: newSkill.level
         })
       });
 
@@ -130,7 +128,7 @@ export default function ProfilePage() {
       
       if (data.success) {
         // Reset form and close modal
-        setNewSkill({ name: '', level: 'Beginner', description: '' });
+  setNewSkill({ name: '', level: 'Beginner' });
         setShowAddSkillModal(false);
         // Refresh profile data
         window.location.reload();
@@ -647,18 +645,7 @@ export default function ProfilePage() {
 
 
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows="3"
-                  value={newSkill.description}
-                  onChange={(e) => setNewSkill({ ...newSkill, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Brief description of what you'll teach..."
-                />
-              </div>
+
 
               <div className="flex gap-3 pt-4">
                 <button
