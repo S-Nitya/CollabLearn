@@ -14,6 +14,7 @@ import ProfilePage from './components/ProfilePage';
 import ProtectedRoute from './auth/ProtectedRoute';
 import MessagesPage from './components/Messages';
 import PostPage from './components/PostPage';
+import BookingSessionPage from './components/bookSession';
 
 function App() {
   return (
@@ -31,7 +32,10 @@ function App() {
         <Route path="/messages" element={<ProtectedRoute><MessagesPage/></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      </Routes>
+        <Route path="/book-session" element={<ProtectedRoute><BookingSessionPage /></ProtectedRoute>} />
+
+      </Routes> 
+      {/* < BookingSessionPage/> */}
     </div>
   );
 }

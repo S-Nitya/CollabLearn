@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X } from 'lucide-react';
 import MainNavbar from '../navbar/mainNavbar.jsx';
+import { Link } from 'react-router-dom';
 // Placeholder MainNavbar component
 
 
@@ -451,9 +452,11 @@ export default function SkillSwapBrowse() {
 
                 {/* Book Button */}
                 <div className="flex items-center gap-2">
-                  <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer">
+                  {/* <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer">
                     Book Session
-                  </button>
+                  </button> */}
+                  <Link to='/book-session' className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer px-28"> Book Session</Link>
+                  
                   <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
                     <UserPlus size={20} className="text-gray-600" />
                   </button>
