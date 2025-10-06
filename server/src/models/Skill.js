@@ -33,6 +33,11 @@ const skillSchema = new mongoose.Schema({
       default: 0,
       min: 0,
       max: 5
+    },
+    price: {
+      type: Number,
+      default: 0,
+      min: 0
     }
   },
   

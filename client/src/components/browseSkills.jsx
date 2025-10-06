@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X, ChevronDown } from 'lucide-react';
 import MainNavbar from '../navbar/mainNavbar.jsx';
 import { Link } from 'react-router-dom';
 // Placeholder MainNavbar component
@@ -10,10 +10,14 @@ export default function SkillSwapBrowse() {
   const [showPostSkillModal, setShowPostSkillModal] = useState(false);
   const [postSkillForm, setPostSkillForm] = useState({
     title: '',
+    description: '',
     skills: '',
     timePerHour: '',
     price: ''
   });
+  const [availableSkills, setAvailableSkills] = useState([]);
+  const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
+  const [skillsLoading, setSkillsLoading] = useState(false);
 
   const categories = [
     { 
@@ -205,6 +209,49 @@ export default function SkillSwapBrowse() {
     }
   ];
 
+  // Fetch user's available skills from database
+  const fetchAvailableSkills = async () => {
+    try {
+      setSkillsLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+
+      const response = await fetch('/api/skills/my-skills', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Extract unique skill names from user's skills (both offering and seeking)
+        const allUserSkills = [...data.data.skillsOffering, ...data.data.skillsSeeking];
+        const uniqueSkills = [...new Set(allUserSkills.map(skill => skill.name))];
+        setAvailableSkills(uniqueSkills);
+      } else {
+        console.error('Failed to fetch skills:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching skills:', error);
+    } finally {
+      setSkillsLoading(false);
+    }
+  };
+
+  // Fetch skills when modal opens
+  useEffect(() => {
+    if (showPostSkillModal) {
+      fetchAvailableSkills();
+    }
+  }, [showPostSkillModal]);
+
   const handlePostSkillSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
@@ -212,11 +259,13 @@ export default function SkillSwapBrowse() {
     // Reset form and close modal
     setPostSkillForm({
       title: '',
+      description: '',
       skills: '',
       timePerHour: '',
       price: ''
     });
     setShowPostSkillModal(false);
+    setShowSkillsDropdown(false);
   };
 
   const handleInputChange = (e) => {
@@ -225,6 +274,15 @@ export default function SkillSwapBrowse() {
       ...prev,
       [name]: value
     }));
+  };
+
+  // Handle skill selection
+  const handleSkillSelect = (skillName) => {
+    setPostSkillForm(prev => ({
+      ...prev,
+      skills: skillName
+    }));
+    setShowSkillsDropdown(false); // Close dropdown after selection
   };
 
   return (
@@ -486,7 +544,10 @@ export default function SkillSwapBrowse() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Post a New Skill</h2>
               <button 
-                onClick={() => setShowPostSkillModal(false)}
+                onClick={() => {
+                  setShowPostSkillModal(false);
+                  setShowSkillsDropdown(false);
+                }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-all cursor-pointer"
               >
                 <X size={20} className="text-gray-500" />
@@ -510,20 +571,97 @@ export default function SkillSwapBrowse() {
                 />
               </div>
 
-              {/* Skills */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Skills to Include <span className="text-red-500">*</span>
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  name="skills"
-                  value={postSkillForm.skills}
+                  name="description"
+                  value={postSkillForm.description}
                   onChange={handleInputChange}
-                  placeholder="e.g., JavaScript, React, Node.js (comma separated)"
+                  placeholder="e.g., This course covers the basics of Javascript..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                   required
                 />
+              </div>
+
+              {/* Skills */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Skill to Include <span className="text-red-500">*</span>
+                </label>
+                
+                {/* Selected Skill Display */}
+                {postSkillForm.skills && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">
+                      {postSkillForm.skills}
+                      <button
+                        type="button"
+                        onClick={() => setPostSkillForm(prev => ({ ...prev, skills: '' }))}
+                        className="hover:bg-indigo-200 rounded-full p-0.5 cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  </div>
+                )}
+                
+                {/* Skills Dropdown */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowSkillsDropdown(!showSkillsDropdown)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent text-left flex items-center justify-between cursor-pointer"
+                  >
+                    <span className={!postSkillForm.skills ? "text-gray-400" : "text-gray-900"}>
+                      {!postSkillForm.skills 
+                        ? "Select a skill to include..." 
+                        : postSkillForm.skills
+                      }
+                    </span>
+                    <ChevronDown size={20} className={`transform transition-transform ${
+                      showSkillsDropdown ? 'rotate-180' : ''
+                    }`} />
+                  </button>
+                  
+                  {/* Dropdown Options */}
+                  {showSkillsDropdown && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {skillsLoading ? (
+                        <div className="px-4 py-3 text-gray-500 text-center">
+                          Loading skills...
+                        </div>
+                      ) : availableSkills.length === 0 ? (
+                        <div className="px-4 py-3 text-gray-500 text-center">
+                          No skills available
+                        </div>
+                      ) : (
+                        availableSkills.map((skill, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleSkillSelect(skill)}
+                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
+                              postSkillForm.skills === skill ? 'bg-indigo-50 text-indigo-700' : 'text-gray-900'
+                            }`}
+                          >
+                            <span>{skill}</span>
+                            {postSkillForm.skills === skill && (
+                              <span className="text-indigo-600">✓</span>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Validation */}
+                {!postSkillForm.skills && (
+                  <p className="text-xs text-gray-500 mt-1">Please select a skill</p>
+                )}
               </div>
 
               {/* Time per Hour */}
@@ -567,14 +705,22 @@ export default function SkillSwapBrowse() {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowPostSkillModal(false)}
+                  onClick={() => {
+                    setShowPostSkillModal(false);
+                    setShowSkillsDropdown(false);
+                  }}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all cursor-pointer"
+                  disabled={!postSkillForm.skills}
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all cursor-pointer ${
+                    !postSkillForm.skills 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
                 >
                   Post Skill
                 </button>

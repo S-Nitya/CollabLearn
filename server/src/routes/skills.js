@@ -15,7 +15,8 @@ const {
   // General
   getUserSkills,
   searchSkills,
-  getSkillCategories
+  getSkillCategories,
+  getAllSkillNames
 } = require('../controllers/skillController');
 
 // ============= SKILL OFFERING ROUTES =============
@@ -32,5 +33,6 @@ router.delete('/seeking/:skillId', auth, deleteSkillSeeking);
 router.get('/my-skills', auth, getUserSkills);
 router.get('/search', searchSkills);
 router.get('/categories', getSkillCategories);
+router.get('/names', getAllSkillNames);
 
 module.exports = router;
