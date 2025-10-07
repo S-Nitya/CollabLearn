@@ -32,6 +32,17 @@ export default function ProfilePage() {
     name: "",
     level: "Beginner",
   });
+
+  // Predefined skills list
+  const predefinedSkills = [
+    "Java",
+    "Python", 
+    "C/C++",
+    "MongoDB",
+    "Express",
+    "React",
+    "Node.js",
+  ];
   const [profileData, setProfileData] = useState({
     name: "",
     joinDate: "",
@@ -404,7 +415,7 @@ export default function ProfilePage() {
           <div className="text-red-600 text-lg mb-4">Error: {error}</div>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer"
           >
             Retry
           </button>
@@ -489,7 +500,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-end gap-4">
               <button
                 onClick={() => setShowEditProfile(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-md"
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-md cursor-pointer"
               >
                 <Edit size={18} />
                 <span className="font-medium">Edit Profile</span>
@@ -520,7 +531,7 @@ export default function ProfilePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 cursor-pointer ${
                   activeTab === tab.id
                     ? "text-indigo-600 border-b-2 border-indigo-600"
                     : "text-gray-500 hover:text-gray-700"
@@ -534,7 +545,7 @@ export default function ProfilePage() {
 
         {/* Content */}
         {activeTab === "skills" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-8">
             {/* Skills I Teach */}
             <div className="bg-white rounded-2xl shadow-sm p-6 transform transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between mb-6">
@@ -546,44 +557,52 @@ export default function ProfilePage() {
                 </div>
                 <button
                   onClick={() => setShowAddSkillModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105 cursor-pointer"
                 >
                   <Plus size={18} />
                   <span className="font-medium">Add Skill</span>
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {profileData.skillsOffering.length > 0 ? (
-                  profileData.skillsOffering.map((skill, index) => (
+              {profileData.skillsOffering.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {profileData.skillsOffering.map((skill, index) => (
                     <div
                       key={skill._id}
-                      className="border border-gray-200 rounded-xl p-4 transition-all duration-300 hover:shadow-md hover:border-indigo-200 animate-slide-in"
+                      className="border border-gray-200 rounded-xl p-4 bg-gray-50 transition-all duration-300 hover:shadow-md hover:border-indigo-200 animate-slide-in min-w-[280px] flex-shrink-0"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                          <h3 className="text-base font-bold text-gray-900 mb-2">
                             {skill.name}
                           </h3>
                           <span
-                            className={`inline-block px-3 py-1 ${getLevelColor(
+                            className={`inline-block px-2 py-1 ${getLevelColor(
                               skill.offering?.level || "Beginner"
                             )} text-white text-xs font-medium rounded-full`}
                           >
                             {skill.offering?.level || "Beginner"}
                           </span>
                         </div>
+                        <div className="flex items-center gap-2 ml-2">
+                          <button
+                            onClick={() => handleDeleteSkill(skill)}
+                            className="p-1.5 hover:bg-red-100 rounded-lg transition-colors duration-200 cursor-pointer"
+                          >
+                            <Trash2 size={14} className="text-red-600" />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                           <span className="text-gray-600">
                             {skill.offering?.sessions || 0} sessions
                           </span>
                           <div className="flex items-center gap-1">
                             <Star
-                              size={14}
+                              size={12}
                               className="fill-yellow-400 text-yellow-400"
                             />
                             <span className="font-medium text-gray-900">
@@ -591,33 +610,22 @@ export default function ProfilePage() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-                            <Edit size={16} className="text-gray-600" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteSkill(skill)}
-                            className="p-2 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                          >
-                            <X size={16} className="text-red-600" />
-                          </button>
-                        </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <BookOpen
-                      size={48}
-                      className="mx-auto mb-4 text-gray-300"
-                    />
-                    <p>No skills offered yet.</p>
-                    <p className="text-sm">
-                      Add your first skill to start offering expertise!
-                    </p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <BookOpen
+                    size={48}
+                    className="mx-auto mb-4 text-gray-300"
+                  />
+                  <p>No skills offered yet.</p>
+                  <p className="text-sm">
+                    Add your first skill to start offering expertise!
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Skills I'm Learning */}
@@ -629,16 +637,16 @@ export default function ProfilePage() {
                 </h2>
               </div>
 
-              <div className="space-y-6">
-                {profileData.skillsSeeking.length > 0 ? (
-                  profileData.skillsSeeking.map((skill, index) => (
+              {profileData.skillsSeeking.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {profileData.skillsSeeking.map((skill, index) => (
                     <div
                       key={skill._id}
-                      className="animate-slide-in"
+                      className="border border-gray-200 rounded-xl p-4 bg-gray-50 transition-all duration-300 hover:shadow-md hover:border-cyan-200 animate-slide-in min-w-[280px] flex-shrink-0"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-bold text-gray-900">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-base font-bold text-gray-900">
                           {skill.name}
                         </h3>
                         <span className="text-sm font-semibold text-gray-900">
@@ -646,7 +654,7 @@ export default function ProfilePage() {
                         </span>
                       </div>
 
-                      <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
+                      <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
                         <div
                           className="absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out"
                           style={{
@@ -662,12 +670,12 @@ export default function ProfilePage() {
                         />
                       </div>
 
-                      <p className="text-sm text-gray-600 mb-3">
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                         {skill.seeking?.description ||
                           "No description provided"}
                       </p>
 
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className="text-xs text-gray-600 space-y-1">
                         <div>
                           Instructor:{" "}
                           {skill.seeking?.currentInstructor || "Not assigned"}
@@ -678,18 +686,18 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <BookOpen
-                      size={48}
-                      className="mx-auto mb-4 text-gray-300"
-                    />
-                    <p>No skills being sought yet.</p>
-                    <p className="text-sm">Start your learning journey!</p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <BookOpen
+                    size={48}
+                    className="mx-auto mb-4 text-gray-300"
+                  />
+                  <p>No skills being sought yet.</p>
+                  <p className="text-sm">Start your learning journey!</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -748,16 +756,21 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Skill Name *
                 </label>
-                <input
-                  type="text"
+                <select
                   value={newSkill.name}
                   onChange={(e) =>
                     setNewSkill({ ...newSkill, name: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="e.g., JavaScript, React, Python"
                   required
-                />
+                >
+                  <option value="">Select a skill...</option>
+                  {predefinedSkills.map((skill) => (
+                    <option key={skill} value={skill}>
+                      {skill}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -783,13 +796,13 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setShowAddSkillModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 cursor-pointer"
                 >
                   Add Skill
                 </button>
@@ -798,6 +811,8 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
@@ -824,13 +839,13 @@ export default function ProfilePage() {
             <div className="flex gap-3">
               <button
                 onClick={cancelDelete}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 cursor-pointer"
               >
                 Delete
               </button>
@@ -869,6 +884,13 @@ export default function ProfilePage() {
         .animate-slide-in {
           animation: slide-in 0.5s ease-out forwards;
           opacity: 0;
+        }
+
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>

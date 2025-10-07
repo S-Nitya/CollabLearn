@@ -20,6 +20,62 @@ export default function SkillSwapBrowse() {
   const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [skillCounts, setSkillCounts] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+
+  // Predefined skills mapping to categories
+  const skillCategoryMapping = {
+    'Java': 'Java',
+    'Python': 'Python', 
+    'C/C++': 'C/C++',
+    'C++': 'C/C++',
+    'C': 'C/C++',
+    'MongoDB': 'MongoDB',
+    'Mongo': 'MongoDB',
+    'Express': 'Express',
+    'Express.js': 'Express',
+    'React': 'React',
+    'React.js': 'React',
+    'Node.js': 'Node.js',
+    'Node': 'Node.js',
+    'JavaScript': 'Programming',
+    'TypeScript': 'Programming',
+    'HTML/CSS': 'Programming',
+    'PHP': 'Programming',
+    'Ruby': 'Programming',
+    'Go': 'Programming',
+    'Rust': 'Programming',
+    'Kotlin': 'Programming',
+    'Swift': 'Programming',
+    'Angular': 'Programming',
+    'Vue.js': 'Programming',
+    'Spring Boot': 'Java',
+    'Django': 'Python',
+    'Flask': 'Python',
+    'Laravel': 'Programming',
+    'Ruby on Rails': 'Programming',
+    'ASP.NET': 'Programming',
+    'PostgreSQL': 'MongoDB',
+    'MySQL': 'MongoDB',
+    'SQLite': 'MongoDB',
+    'Redis': 'MongoDB',
+    'Docker': 'Programming',
+    'Kubernetes': 'Programming',
+    'AWS': 'Programming',
+    'Azure': 'Programming',
+    'Google Cloud': 'Programming',
+    'Git': 'Programming',
+    'Linux': 'Programming',
+    'DevOps': 'Programming',
+    'Machine Learning': 'Programming',
+    'Data Science': 'Programming',
+    'Artificial Intelligence': 'Programming',
+    'Cybersecurity': 'Programming',
+    'UI/UX Design': 'Programming',
+    'Graphic Design': 'Programming',
+    'Digital Marketing': 'Programming',
+    'Project Management': 'Programming'
+  };
 
   const categories = [
     { 
@@ -31,8 +87,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'All Categories', 
-      count: '2847 skills', 
-      active: true
+      count: skillCounts['All Categories'] || 0, 
+      active: selectedCategory === 'All Categories'
     },
     { 
       icon: (
@@ -49,7 +105,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'Java', 
-      count: '856 skills'
+      count: skillCounts['Java'] || 0,
+      active: selectedCategory === 'Java'
     },
     { 
       icon: (
@@ -59,7 +116,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'C/C++', 
-      count: '734 skills'
+      count: skillCounts['C/C++'] || 0,
+      active: selectedCategory === 'C/C++'
     },
     { 
       icon: (
@@ -72,7 +130,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'Python', 
-      count: '1023 skills'
+      count: skillCounts['Python'] || 0,
+      active: selectedCategory === 'Python'
     },
     { 
       icon: (
@@ -84,7 +143,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'MongoDB', 
-      count: '342 skills'
+      count: skillCounts['MongoDB'] || 0,
+      active: selectedCategory === 'MongoDB'
     },
     { 
       icon: (
@@ -96,7 +156,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'Express', 
-      count: '298 skills'
+      count: skillCounts['Express'] || 0,
+      active: selectedCategory === 'Express'
     },
     { 
       icon: (
@@ -108,7 +169,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'React', 
-      count: '567 skills'
+      count: skillCounts['React'] || 0,
+      active: selectedCategory === 'React'
     },
     { 
       icon: (
@@ -120,7 +182,8 @@ export default function SkillSwapBrowse() {
         </svg>
       ), 
       name: 'Node.js', 
-      count: '445 skills'
+      count: skillCounts['Node.js'] || 0,
+      active: selectedCategory === 'Node.js'
     }
   ];
 
@@ -128,6 +191,44 @@ export default function SkillSwapBrowse() {
   const [pageLoading, setPageLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [newSkillAdded, setNewSkillAdded] = useState(false);
+  const [filteredSkills, setFilteredSkills] = useState([]);
+
+  // Function to calculate skill counts by category
+  const calculateSkillCounts = (skills) => {
+    const counts = {
+      'All Categories': skills.length,
+      'Java': 0,
+      'Python': 0,
+      'C/C++': 0,
+      'MongoDB': 0,
+      'Express': 0,
+      'React': 0,
+      'Node.js': 0
+    };
+
+    skills.forEach(skill => {
+      const skillName = skill.name;
+      const category = skillCategoryMapping[skillName];
+      
+      if (category && counts.hasOwnProperty(category)) {
+        counts[category]++;
+      }
+    });
+
+    return counts;
+  };
+
+  // Function to filter skills by category
+  const filterSkillsByCategory = (skills, category) => {
+    if (category === 'All Categories') {
+      return skills;
+    }
+
+    return skills.filter(skill => {
+      const skillCategory = skillCategoryMapping[skill.name];
+      return skillCategory === category;
+    });
+  };
 
   // Enhanced fetch function with smooth loading
   const fetchPostedSkills = async (showLoader = true) => {
@@ -152,6 +253,15 @@ export default function SkillSwapBrowse() {
         }
         
         setPostedSkills(data.data);
+        
+        // Calculate skill counts by category
+        const counts = calculateSkillCounts(data.data);
+        setSkillCounts(counts);
+        
+        // Filter skills based on selected category
+        const filtered = filterSkillsByCategory(data.data, selectedCategory);
+        setFilteredSkills(filtered);
+        
       } else {
         console.error('Failed to fetch posted skills:', data.message);
       }
@@ -177,6 +287,14 @@ export default function SkillSwapBrowse() {
     
     return () => clearInterval(autoRefreshInterval);
   }, []);
+
+  // Update filtered skills when posted skills or selected category changes
+  useEffect(() => {
+    if (postedSkills.length > 0) {
+      const filtered = filterSkillsByCategory(postedSkills, selectedCategory);
+      setFilteredSkills(filtered);
+    }
+  }, [postedSkills, selectedCategory]);
 
   // Fetch user's available skills from database
   const fetchAvailableSkills = async () => {
@@ -294,6 +412,14 @@ export default function SkillSwapBrowse() {
       skills: skillName
     }));
     setShowSkillsDropdown(false); // Close dropdown after selection
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (categoryName) => {
+    setSelectedCategory(categoryName);
+    const filtered = filterSkillsByCategory(postedSkills, categoryName);
+    setFilteredSkills(filtered);
+    setVisibleSkills(6); // Reset visible skills count
   };
 
   return (
@@ -450,6 +576,7 @@ export default function SkillSwapBrowse() {
               {categories.map((cat, idx) => (
                 <button
                   key={idx}
+                  onClick={() => handleCategorySelect(cat.name)}
                   className={`category-card p-6 rounded-xl border-2 flex flex-col items-center text-center cursor-pointer ${
                     cat.active
                       ? 'border-indigo-600 bg-indigo-50'
@@ -459,7 +586,7 @@ export default function SkillSwapBrowse() {
                 >
                   <div className="bg-indigo-100 rounded-2xl p-4 mb-4 text-indigo-600">{cat.icon}</div>
                   <div className="font-semibold text-gray-900 text-sm mb-1">{cat.name}</div>
-                  <div className="text-xs text-gray-500">{cat.count}</div>
+                  <div className="text-xs text-gray-500">{cat.count} skills</div>
                 </button>
               ))}
             </div>
@@ -467,7 +594,14 @@ export default function SkillSwapBrowse() {
 
           {/* Skills Available with Refresh Button */}
           <div className="mb-8 flex items-center justify-between animate-fadeInUp" style={{animationDelay: '0.5s'}}>
-            <h2 className="text-2xl font-bold text-gray-900">{postedSkills.length} Skills Available</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {filteredSkills.length} Skills Available
+              {selectedCategory !== 'All Categories' && (
+                <span className="text-lg font-normal text-gray-600 ml-2">
+                  in {selectedCategory}
+                </span>
+              )}
+            </h2>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => fetchPostedSkills(false)}
@@ -553,7 +687,7 @@ export default function SkillSwapBrowse() {
               )}
               
               <div className="grid grid-cols-3 gap-6 mb-8">
-              {postedSkills.slice(0, visibleSkills).map((skill, idx) => (
+              {filteredSkills.slice(0, visibleSkills).map((skill, idx) => (
                 <div key={skill._id} className="skill-card bg-white rounded-xl border border-gray-200 p-6 animate-fadeInUp" style={{animationDelay: `${0.6 + idx * 0.1}s`}}>
                   {/* Instructor Info */}
                   <div className="flex items-center gap-3 mb-4">
@@ -699,7 +833,7 @@ export default function SkillSwapBrowse() {
           )}
 
           {/* Load More Button */}
-          {visibleSkills < postedSkills.length && (
+          {visibleSkills < filteredSkills.length && (
             <div className="text-center animate-fadeInUp">
               <button
                 onClick={() => setVisibleSkills(prev => prev + 3)}
