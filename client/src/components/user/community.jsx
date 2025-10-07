@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   FiSearch, FiFilter, FiPlus, FiMessageCircle, 
-  FiEye, FiThumbsUp, FiTrash2 
+  FiEye, FiThumbsUp, FiTrash2, FiX 
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
