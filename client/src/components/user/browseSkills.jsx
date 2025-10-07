@@ -686,7 +686,12 @@ export default function SkillSwapBrowse() {
 
                   {/* Book Button */}
                   <div className="flex items-center gap-2">
-                    <Link to='/book-session' className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer px-28"> Book Session</Link>
+                    <Link 
+                      to={`/book-session?skillId=${skill._id}&instructorId=${skill.user?._id || skill.user?.id}&skillTitle=${encodeURIComponent(skill.name)}&instructorName=${encodeURIComponent(skill.user?.name || 'Unknown User')}`}
+                      className="flex-1 text-center bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer px-28"
+                    >
+                      Book Session
+                    </Link>
                     
                     <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
                       <UserPlus size={20} className="text-gray-600" />

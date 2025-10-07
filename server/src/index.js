@@ -13,6 +13,7 @@ const io = new Server(server, {
   cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
+// Models
 const User = require('./models/User');
 const Message = require('./models/Message');
 
@@ -33,24 +34,17 @@ io.on("connection", (socket) => {
   socket.on("chat message", async (msg) => {
     try {
       const saved = await Message.create(msg);
-      // FIXED: Use socket.to() instead of io.to() to broadcast only to other clients
-      // This prevents the sender from receiving their own message again
       socket.to(msg.chatId).emit("chat message", saved);
     } catch (err) {
       console.error("Error saving message:", err);
     }
   });
 
-  // Handle typing events
   socket.on("typing", (data) => {
-    console.log(`User ${data.userId} is typing in ${data.chatId}`);
-    // Broadcast to other users in the room
     socket.to(data.chatId).emit("user typing", data);
   });
 
   socket.on("stopped typing", (data) => {
-    console.log(`User ${data.userId} stopped typing in ${data.chatId}`);
-    // Broadcast to other users in the room
     socket.to(data.chatId).emit("user stopped typing", data);
   });
 
@@ -59,10 +53,12 @@ io.on("connection", (socket) => {
   });
 });
 
+// Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
+// MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/collablearn';
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -70,7 +66,7 @@ mongoose.connection.on('connected', () => console.log('✅ MongoDB connected'));
 mongoose.connection.on('error', (err) => console.error('❌ MongoDB error:', err));
 mongoose.connection.on('disconnected', () => console.log('📴 MongoDB disconnected'));
 
-// APIs
+// API Routes
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find({}, '_id name avatar email');
@@ -89,10 +85,15 @@ app.get('/api/messages/:chatId', async (req, res) => {
   }
 });
 
+// Existing routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/skills', require('./routes/skills'));
 
+// ✅ New Booking route
+app.use('/api/bookings', require('./routes/booking'));  // <-- Add this line
+
+// Root
 app.get('/', (req, res) => {
   res.json({ message: 'CollabLearn API Running!' });
 });

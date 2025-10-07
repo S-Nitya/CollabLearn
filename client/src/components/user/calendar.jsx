@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
     format, 
     startOfMonth, 
@@ -20,8 +20,107 @@ const CalendarPage = () => {
   // --- STATE MANAGEMENT ---
   const [currentDate, setCurrentDate] = useState(new Date()); // Tracks the date currently centered/viewed
   const [currentView, setCurrentView] = useState('Month'); // 'Day', 'Week', or 'Month'
+  const [bookingRequests, setBookingRequests] = useState([]);
+  const [scheduledSessions, setScheduledSessions] = useState([]);
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [feedback, setFeedback] = useState({ show: false, message: '', type: '' });
+
+  // --- DATA FETCHING ---
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    if (!userId || !token) {
+        console.error("User not authenticated");
+        setLoadingRequests(false);
+        return;
+    }
+
+    const fetchAllData = async () => {
+        setLoadingRequests(true);
+        try {
+            const [instructorBookingsRes, studentBookingsRes] = await Promise.all([
+                fetch(`http://localhost:5000/api/bookings/instructor/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`http://localhost:5000/api/bookings/student/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+
+            const instructorBookingsData = await instructorBookingsRes.json();
+            const studentBookingsData = await studentBookingsRes.json();
+
+            let pending = [];
+            let confirmed = [];
+
+            if (instructorBookingsData.success) {
+                pending = instructorBookingsData.bookings.filter(b => b.status === 'pending');
+                const instructorConfirmed = instructorBookingsData.bookings
+                    .filter(b => b.status === 'confirmed')
+                    .map(b => ({ ...b, role: 'instructor' }));
+                confirmed.push(...instructorConfirmed);
+            }
+
+            if (studentBookingsData.success) {
+                const studentConfirmed = studentBookingsData.bookings
+                    .filter(b => b.status === 'confirmed')
+                    .map(b => ({ ...b, role: 'student' }));
+                confirmed.push(...studentConfirmed);
+            }
+            
+            const uniqueConfirmed = Array.from(new Set(confirmed.map(a => a._id)))
+                .map(id => {
+                    return confirmed.find(a => a._id === id)
+                });
+
+            setBookingRequests(pending);
+            setScheduledSessions(uniqueConfirmed);
+
+        } catch (error) {
+            console.error("Error fetching booking data:", error);
+        } finally {
+            setLoadingRequests(false);
+        }
+    };
+
+    fetchAllData();
+  }, []);
 
   // --- HANDLERS ---
+
+  const handleBookingAction = async (bookingId, status) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error("No token found");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.booking) {
+            if (status === 'confirmed') {
+                setScheduledSessions(prevSessions => [...prevSessions, { ...data.booking, role: 'instructor' }]);
+            }
+            setBookingRequests(prevRequests => prevRequests.filter(req => req._id !== bookingId));
+            
+            const feedbackMessage = status === 'confirmed' ? 'Request has been confirmed.' : 'Request has been cancelled.';
+            setFeedback({ show: true, message: feedbackMessage, type: 'success' });
+            setTimeout(() => setFeedback({ show: false, message: '', type: '' }), 3000);
+        } else {
+            console.error("Failed to update booking:", data.message);
+            setFeedback({ show: true, message: 'Failed to update request.', type: 'error' });
+            setTimeout(() => setFeedback({ show: false, message: '', type: '' }), 3000);
+        }
+    } catch (error) {
+        console.error("Error updating booking:", error);
+    }
+  };
 
   const handlePrev = () => {
     if (currentView === 'Month') {
@@ -75,16 +174,26 @@ const CalendarPage = () => {
     return days;
   }, [currentDate, currentView]);
 
+  const todaySessions = useMemo(() => 
+    scheduledSessions.filter(session => isToday(new Date(session.date)))
+  , [scheduledSessions]);
 
-  // --- MOCK DATA (Remaining unchanged) ---
-  const todaySessions = [
-    { name: 'JavaScript Fundamentals', time: '2:00 PM', duration: '60min', instructor: 'Self' }
-  ];
+  const weekStats = useMemo(() => {
+    const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 0 });
+    const endOfThisWeek = endOfWeek(new Date(), { weekStartsOn: 0 });
 
-  const bookingRequests = [
-    { name: 'Lisa Park', skill: 'JavaScript Fundamentals', date: 'Dec 21, 2024', time: '2:00 PM', duration: '1 hour', note: 'Looking forward to learning JavaScript from scratch!' },
-    { name: 'Michael Chen', skill: 'React Advanced Patterns', date: 'Dec 22, 2024', time: '10:00 AM', duration: '1.5 hours', note: 'I want to learn about custom hooks and context patterns.' }
-  ];
+    const thisWeekSessions = scheduledSessions.filter(session => {
+        const sessionDate = new Date(session.date);
+        return sessionDate >= startOfThisWeek && sessionDate <= endOfThisWeek;
+    });
+
+    const teachingCount = thisWeekSessions.filter(s => s.role === 'instructor').length;
+    const learningCount = thisWeekSessions.filter(s => s.role === 'student').length;
+    const totalHours = thisWeekSessions.reduce((acc, session) => acc + (session.duration || 0), 0) / 60;
+    const earnings = 0; // Placeholder for earnings calculation
+
+    return { teachingCount, learningCount, totalHours, earnings };
+  }, [scheduledSessions]);
 
   return (
     <div className="flex h-screen bg-gray-100 font-sans">
@@ -96,6 +205,11 @@ const CalendarPage = () => {
         
         {/* Main Calendar Content */}
         <main className="flex-1 p-6 bg-gray-100 pt-24">
+          {feedback.show && (
+            <div className={`${feedback.type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'} px-4 py-3 rounded relative mb-4`} role="alert">
+                <span className="block sm:inline">{feedback.message}</span>
+            </div>
+          )}
           
           {/* Header Section */}
           <div className="flex justify-between items-center mb-6">
@@ -183,21 +297,38 @@ const CalendarPage = () => {
                   ))}
                   
                   {/* Days */}
-                  {monthCalendarDays.map((day, index) => (
-                    <div 
-                      key={index} 
-                      className={`h-24 p-2 border border-gray-200 ${!isSameMonth(day, currentDate) ? 'bg-gray-50' : 'bg-white'}`}
-                    >
-                      <div className={`text-sm font-semibold h-6 w-6 flex items-center justify-center rounded-full mx-auto 
-                        ${isToday(day) ? 'bg-red-500 text-white' : ''} 
-                        ${isSameDay(day, currentDate) && !isToday(day) && isSameMonth(day, currentDate) ? 'border-2 border-indigo-600 text-indigo-600' : 'text-gray-800'}
-                        ${!isSameMonth(day, currentDate) ? 'text-gray-400' : ''}
-                      `}>
-                        {format(day, 'd')}
-                      </div>
-                      {/* Placeholder for events */}
-                    </div>
-                  ))}
+                  {monthCalendarDays.map((day, index) => {
+                    const daySessions = scheduledSessions.filter(session => 
+                        isSameDay(new Date(session.date), day)
+                    );
+
+                    return (
+                        <div 
+                          key={index} 
+                          className={`h-32 p-1 border-b border-r border-gray-200 ${!isSameMonth(day, currentDate) ? 'bg-gray-50' : 'bg-white'} transition-colors duration-300 hover:bg-gray-100`}
+                        >
+                          <div className={`text-sm font-medium h-6 w-6 flex items-center justify-center rounded-full 
+                            ${isToday(day) ? 'bg-indigo-600 text-white' : 'text-gray-700'} 
+                            ${!isSameMonth(day, currentDate) ? 'text-gray-400' : ''}
+                          `}>
+                            {format(day, 'd')}
+                          </div>
+                          
+                          <div className="mt-1 space-y-1 overflow-y-auto h-20">
+                            {daySessions.map(session => (
+                                <div 
+                                    key={session._id}
+                                    className={`p-1.5 rounded-lg text-xs text-white shadow-sm ${session.role === 'instructor' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-purple-500 hover:bg-purple-600'} cursor-pointer`}
+                                    title={`${session.skill.name} with ${session.role === 'instructor' ? session.student.name : session.instructor.name} at ${format(new Date(session.date), 'p')}`}
+                                >
+                                    <p className="font-bold truncate">{session.skill.name}</p>
+                                    <p className="truncate">{format(new Date(session.date), 'p')} - {session.role === 'instructor' ? session.student.name : session.instructor.name}</p>
+                                </div>
+                            ))}
+                          </div>
+                        </div>
+                    );
+                  })}
                 </div>
               ) : (
                 // --- DAY / WEEK VIEW PLACEHOLDER ---
@@ -217,45 +348,61 @@ const CalendarPage = () => {
               {/* Today's Sessions Card */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Today's Sessions</h3>
-                {todaySessions.map((session, index) => (
-                  <div key={index} className="border-b last:border-b-0 pb-3 mb-3">
-                    <p className="text-sm font-medium text-gray-700">{session.skill}</p>
-                    <p className="text-xs text-gray-500 mb-2">{session.time} • {session.duration}</p>
-                    <div className="flex justify-between items-center text-sm">
-                      <p className="text-indigo-600 font-semibold">Join</p>
-                      <button className="text-gray-500 hover:text-gray-800">&#9993;</button> {/* Message icon */}
+                {todaySessions.length > 0 ? (
+                    <div className="space-y-3">
+                        {todaySessions.map(session => (
+                            <div key={session._id} className={`p-2 rounded-lg text-white ${session.role === 'instructor' ? 'bg-blue-500' : 'bg-purple-500'}`}>
+                                <p className="font-bold text-sm truncate">{session.skill.name}</p>
+                                <p className="text-xs truncate">
+                                    {format(new Date(session.date), 'p')} with {session.role === 'instructor' ? session.student.name : session.instructor.name}
+                                </p>
+                            </div>
+                        ))}
                     </div>
-                  </div>
-                ))}
+                ) : (
+                    <p className="text-sm text-gray-500">No sessions scheduled for today.</p>
+                )}
               </div>
 
               {/* Booking Requests Card */}
               <div className="bg-white p-6 rounded-xl shadow-md">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Booking Requests</h3>
-                {bookingRequests.map((request, index) => (
-                  <div key={index} className="border-b border-gray-200 last:border-b-0 pb-4 mb-4">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <img src={`https://i.pravatar.cc/32?img=${index + 10}`} alt={request.name} className="h-8 w-8 rounded-full" />
-                      <div>
-                        <p className="font-semibold text-gray-800">{request.name}</p>
-                        <p className="text-xs text-indigo-600">{request.skill}</p>
+                {loadingRequests ? (
+                  <p className="text-sm text-gray-500">Loading requests...</p>
+                ) : bookingRequests.length === 0 ? (
+                  <p className="text-sm text-gray-500">You have no pending booking requests.</p>
+                ) : (
+                  bookingRequests.map((request, index) => (
+                    <div key={request._id} className="border-b border-gray-200 last:border-b-0 pb-4 mb-4">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <img src={`https://i.pravatar.cc/32?u=${request.student._id}`} alt={request.student.name} className="h-8 w-8 rounded-full" />
+                        <div>
+                          <p className="font-semibold text-gray-800">{request.student.name}</p>
+                          <p className="text-xs text-indigo-600">{request.skill.name}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {format(new Date(request.date), 'MMM d, yyyy')} at {format(new Date(request.date), 'p')}<br />
+                        <span className="text-xs text-gray-500">Duration: {request.duration} minutes</span>
+                      </p>
+                      {request.notes && (
+                        <p className="text-xs italic text-gray-500 mb-3">"{request.notes}"</p>
+                      )}
+                      <div className="flex justify-between space-x-2">
+                        <button 
+                          onClick={() => handleBookingAction(request._id, 'confirmed')}
+                          className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium">
+                          Accept
+                        </button>
+                        <button 
+                          onClick={() => handleBookingAction(request._id, 'cancelled')}
+                          className="flex-1 px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors duration-200 text-sm font-medium">
+                          Decline
+                        </button>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {request.date} at {request.time}<br />
-                      <span className="text-xs text-gray-500">Duration: {request.duration}</span>
-                    </p>
-                    <p className="text-xs italic text-gray-500 mb-3">"{request.note}"</p>
-                    <div className="flex justify-between space-x-2">
-                      <button className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium">
-                        Accept
-                      </button>
-                      <button className="flex-1 px-3 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors duration-200 text-sm font-medium">
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
               
               {/* This Week Stats Card */}
@@ -264,19 +411,19 @@ const CalendarPage = () => {
                 <div className="space-y-2 text-gray-700">
                   <div className="flex justify-between">
                     <span>Teaching sessions</span>
-                    <span className="font-semibold">3</span>
+                    <span className="font-semibold">{weekStats.teachingCount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Learning sessions</span>
-                    <span className="font-semibold">2</span>
+                    <span className="font-semibold">{weekStats.learningCount}</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-gray-200">
                     <span>Total hours</span>
-                    <span className="font-semibold">7.5</span>
+                    <span className="font-semibold">{weekStats.totalHours.toFixed(1)}</span>
                   </div>
                   <div className="flex justify-between text-indigo-600 font-bold pt-2 border-t border-gray-200">
                     <span>Earnings</span>
-                    <span>$375</span>
+                    <span>${weekStats.earnings.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
