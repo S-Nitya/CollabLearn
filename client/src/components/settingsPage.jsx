@@ -1,0 +1,293 @@
+import React, { useState } from 'react';
+import { 
+    Settings, User, Bell, Shield, Moon, Sun, Lock, CreditCard, 
+    LogOut, Trash2, MessageSquare, ExternalLink 
+} from 'lucide-react'; // Added ExternalLink for Edit Cards
+
+// Assuming MainNavbar exists at this path
+import MainNavbar from '../navbar/mainNavbar.jsx'; 
+
+// ----------------------------------------------------------------------
+// NOTE ON DARK MODE: 
+// In a real application, the 'isDarkMode' state and 'toggleDarkMode' 
+// function would typically come from a React Context or a Redux store 
+// wrapping the entire application, not just passed as props to a single page.
+// We are simulating that global control here via component props.
+// ----------------------------------------------------------------------
+
+export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
+    
+    // Local state for settings form (simulated data)
+    const [notificationSettings, setNotificationSettings] = useState({
+        sessionReminders: true,
+        newSkillAlerts: false,
+        messageNotifications: true,
+    });
+    const [profilePrivacy, setProfilePrivacy] = useState(true); // True = Public, False = Private
+    
+    // --- Theme Utility Classes ---
+    const themeBg = isDarkMode ? 'bg-gray-900 text-gray-50' : 'bg-gray-50 text-gray-900';
+    const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
+    const iconColor = isDarkMode ? 'text-indigo-400' : 'text-indigo-600';
+    const switchColor = isDarkMode ? 'bg-indigo-600' : 'bg-gray-200';
+
+    // --- Button Handler Functions ---
+    
+    const handleNotificationChange = (name) => {
+        setNotificationSettings(prev => ({
+            ...prev,
+            [name]: !prev[name]
+        }));
+    };
+
+    const handleManageProfile = () => {
+        // In a real app, this would use React Router to navigate to /profile/edit
+        alert("Navigating to Profile Editor page...");
+        console.log("Action: Manage Profile clicked.");
+    };
+
+    const handleChangePassword = () => {
+        // In a real app, this would open a modal or navigate to a password change form
+        alert("Opening Change Password form...");
+        console.log("Action: Change Password clicked.");
+    };
+    
+    const handleEditCards = () => {
+        // In a real app, this would navigate to a billing portal
+        alert("Navigating to Payment Methods management portal...");
+        console.log("Action: Edit Cards clicked.");
+    };
+
+    const handleLogoutAllDevices = () => {
+        if (window.confirm("Are you sure you want to log out from ALL other devices?")) {
+            // API call to revoke all sessions except current one
+            alert("Successfully logged out from all other devices.");
+            console.log("Action: Logout All Devices confirmed.");
+        }
+    };
+
+    const handleDeleteAccount = () => {
+        if (window.confirm("WARNING: This action is irreversible. Are you absolutely sure you want to permanently delete your account?")) {
+            // API call to delete the account
+            alert("Account deletion initiated. You will be logged out now.");
+            console.log("Action: Delete Account confirmed.");
+            // Force logout or redirect
+        }
+    };
+
+
+    // --- Feature Card Component (Helper) ---
+    const FeatureCard = ({ icon, title, description, action }) => (
+        <div className={`p-6 rounded-xl shadow-md ${cardBg} border transition-all duration-300`}>
+            <div className="flex items-start justify-between">
+                <div className="flex items-center">
+                    <div className={`p-3 rounded-full ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'} mr-4`}>
+                        {icon}
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold">{title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+                    </div>
+                </div>
+                {action}
+            </div>
+        </div>
+    );
+
+    // --- Main JSX Render ---
+    return (
+        <div className={`min-h-screen ${themeBg} font-sans transition-colors duration-500`}>
+            <MainNavbar isDarkMode={isDarkMode} /> {/* Pass Dark Mode state to Navbar */}
+            
+            <div className="pt-24 max-w-5xl mx-auto px-6 py-12">
+                <header className="mb-10 flex items-center justify-between">
+                    <h1 className="text-4xl font-bold flex items-center">
+                        <Settings size={30} className={`mr-3 ${iconColor}`} />
+                        Settings
+                    </h1>
+                </header>
+
+                <div className="space-y-8">
+                    
+                    {/* 1. APPEARANCE SECTION */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Appearance</h2>
+                        
+                        <FeatureCard
+                            icon={isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+                            title="Dark Mode"
+                            description="Switch between light and dark themes to optimize your viewing experience."
+                            action={
+                                <button
+                                    onClick={toggleDarkMode}
+                                    className={`relative inline-flex flex-shrink-0 h-7 w-14 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${switchColor} focus:ring-indigo-600`}
+                                    aria-checked={isDarkMode}
+                                >
+                                    <span className="sr-only">Toggle Dark Mode</span>
+                                    <span
+                                        className={`pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-lg transform ring-0 transition ease-in-out duration-200 ${
+                                            isDarkMode ? 'translate-x-7' : 'translate-x-0'
+                                        }`}
+                                    />
+                                    <span className="absolute left-1 top-1 text-xs text-gray-500">{isDarkMode ? 'Dark' : 'Light'}</span>
+                                </button>
+                            }
+                        />
+                    </section>
+
+                    {/* 2. ACCOUNT & PROFILE SECTION */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Account & Profile</h2>
+                        
+                        <div className="space-y-4">
+                            <FeatureCard
+                                icon={<User size={24} />}
+                                title="Edit Profile"
+                                description="Update your name, bio, skills, and profile picture."
+                                action={
+                                    <button 
+                                        onClick={handleManageProfile}
+                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+                                    >
+                                        Manage
+                                    </button>
+                                }
+                            />
+                            <FeatureCard
+                                icon={<Lock size={24} />}
+                                title="Change Password"
+                                description="Update your security credentials for better protection."
+                                action={
+                                    <button 
+                                        onClick={handleChangePassword}
+                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    >
+                                        Update
+                                    </button>
+                                }
+                            />
+                            <FeatureCard
+                                icon={<Shield size={24} />}
+                                title="Privacy Settings"
+                                description={`Set your profile visibility. Currently: ${profilePrivacy ? 'Public' : 'Private'}`}
+                                action={
+                                    <button
+                                        onClick={() => setProfilePrivacy(prev => !prev)}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                                            profilePrivacy ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-green-500 text-white hover:bg-green-600'
+                                        }`}
+                                    >
+                                        {profilePrivacy ? 'Set Private' : 'Set Public'}
+                                    </button>
+                                }
+                            />
+                        </div>
+                    </section>
+
+                    {/* 3. NOTIFICATIONS SECTION */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Notifications</h2>
+                        
+                        <div className="space-y-4">
+                            <FeatureCard
+                                icon={<Bell size={24} />}
+                                title="Session Reminders"
+                                description="Get alerts 15 minutes before your scheduled sessions start."
+                                action={
+                                    <ToggleSwitch 
+                                        isOn={notificationSettings.sessionReminders}
+                                        onToggle={() => handleNotificationChange('sessionReminders')}
+                                        isDarkMode={isDarkMode}
+                                    />
+                                }
+                            />
+                            <FeatureCard
+                                icon={<MessageSquare size={24} />}
+                                title="Message Notifications"
+                                description="Receive instant notifications for new chat messages."
+                                action={
+                                    <ToggleSwitch 
+                                        isOn={notificationSettings.messageNotifications}
+                                        onToggle={() => handleNotificationChange('messageNotifications')}
+                                        isDarkMode={isDarkMode}
+                                    />
+                                }
+                            />
+                        </div>
+                    </section>
+                    
+                    {/* 4. PAYMENT AND BILLING */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Billing</h2>
+                        
+                        <FeatureCard
+                            icon={<CreditCard size={24} />}
+                            title="Payment Methods"
+                            description="Manage your credit cards and billing information securely."
+                            action={
+                                <button 
+                                    onClick={handleEditCards}
+                                    className="flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                    Edit Cards <ExternalLink size={14} className="ml-2" />
+                                </button>
+                            }
+                        />
+                    </section>
+                    
+                    {/* 5. DANGER ZONE */}
+                    <section>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-red-500">Danger Zone</h2>
+                        
+                        <div className="space-y-4">
+                            <FeatureCard
+                                icon={<LogOut size={24} />}
+                                title="Logout All Devices"
+                                description="Sign out from all devices except this one."
+                                action={
+                                    <button 
+                                        onClick={handleLogoutAllDevices}
+                                        className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors"
+                                    >
+                                        Logout
+                                    </button>
+                                }
+                            />
+                            <FeatureCard
+                                icon={<Trash2 size={24} />}
+                                title="Delete Account"
+                                description="Permanently delete your profile, history, and data."
+                                action={
+                                    <button 
+                                        onClick={handleDeleteAccount}
+                                        className="px-4 py-2 border border-red-500 text-red-500 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors dark:hover:bg-gray-700"
+                                    >
+                                        Delete
+                                    </button>
+                                }
+                            />
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// --- Reusable Toggle Switch Component (No changes needed here) ---
+const ToggleSwitch = ({ isOn, onToggle, isDarkMode }) => (
+    <button
+        onClick={onToggle}
+        className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 ${
+            isOn ? 'bg-indigo-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+        }`}
+        aria-checked={isOn}
+    >
+        <span className="sr-only">Use setting</span>
+        <span
+            className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
+                isOn ? 'translate-x-5' : 'translate-x-0'
+            }`}
+        />
+    </button>
+);
