@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'; // Added ExternalLink for Edit Cards
 
 // Assuming MainNavbar exists at this path
-import MainNavbar from '../navbar/mainNavbar.jsx'; 
+import MainNavbar from '../../navbar/mainNavbar.jsx'; 
 
 // ----------------------------------------------------------------------
 // NOTE ON DARK MODE: 

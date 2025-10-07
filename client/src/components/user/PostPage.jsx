@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiMessageCircle, FiThumbsUp, FiBookmark, FiUpload, FiArrowLeft } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
-import MainNavbar from '../navbar/mainNavbar';
+import MainNavbar from '../../navbar/mainNavbar';
 
 const PostPage = () => {
   const { postId } = useParams();

@@ -1,21 +1,20 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import CollabLearnLanding from './components/landingPage';
+import CollabLearnLanding from './components/user/landingPage';
 import LoginPage from './auth/login';
 import SignupPage from './auth/signup';
-import Dashboard from './components/dashboard';
-import BrowseSkills from './components/browseSkills';
-import CalendarPage from './components/calendar';
-import CommunityPage from './components/community';
-import Messages from './components/Messages';
-import Achievements from './components/Achievements';
-import ProfilePage from './components/ProfilePage';
+import Dashboard from './components/user/dashboard';
+import BrowseSkills from './components/user/browseSkills';
+import CalendarPage from './components/user/calendar';
+import CommunityPage from './components/user/community';
+import Achievements from './components/user/Achievements';
+import ProfilePage from './components/user/ProfilePage';
 import ProtectedRoute from './auth/ProtectedRoute';
-import MessagesPage from './components/Messages';
-import PostPage from './components/PostPage';
-import BookingSessionPage from './components/bookSession';
-import SettingsPage from './components/settingsPage';
+import MessagesPage from './components/user/Messages';
+import PostPage from './components/user/PostPage';
+import BookingSessionPage from './components/user/bookSession';
+import SettingsPage from './components/user/settingsPage';
 
 function App() {
   return (

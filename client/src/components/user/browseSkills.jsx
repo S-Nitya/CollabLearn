@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X, ChevronDown } from 'lucide-react';
-import MainNavbar from '../navbar/mainNavbar.jsx';
+import MainNavbar from '../../navbar/mainNavbar.jsx';
 import { Link } from 'react-router-dom';
 // Placeholder MainNavbar component
 

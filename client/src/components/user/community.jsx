@@ -5,7 +5,7 @@ import {
 } from 'react-icons/fi';
 import { FaFire } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
-import MainNavbar from '../navbar/mainNavbar';
+import MainNavbar from '../../navbar/mainNavbar';
 import { Link } from 'react-router-dom';
 
 // --- Static Data ---
