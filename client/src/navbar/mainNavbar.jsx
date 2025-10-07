@@ -254,7 +254,8 @@ export default function MainNavbar() {
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-[#CC66FF] hover:text-white rounded-lg transition-colors group"
                     >
                       <Settings size={18} className="text-gray-500 group-hover:text-white transition-colors" />
-                      <span className="font-medium">Settings</span>
+                      {/* <span className="font-medium">Settings</span> */}
+                      <Link to="/settings"><span className="font-medium">Settings</span></Link>
                     </button>
                     <button
                       onClick={() => handleMenuClick('/resources')}

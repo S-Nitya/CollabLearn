@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Code, GraduationCap, Music, Palette, Users, Calendar, Trophy, Shield, Star } from 'lucide-react';
-import LandingNavbar from '../navbar/landingNavbar';
+import LandingNavbar from '../../navbar/landingNavbar';
 
 export default function CollabLearnLanding() {
   return (

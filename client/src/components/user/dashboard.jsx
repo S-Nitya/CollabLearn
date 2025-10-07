@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import MainNavbar from '../navbar/mainNavbar'; // Assuming you save the new component here
+import MainNavbar from '../../navbar/mainNavbar'; // Assuming you save the new component here
 
 const Dashboard = () => {
   const [username, setUsername] = useState('Guest');

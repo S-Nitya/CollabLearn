@@ -16,7 +16,7 @@ import {
   BookOpen,
   Edit,
 } from "lucide-react";
-import MainNavbar from "../navbar/mainNavbar";
+import MainNavbar from "../../navbar/mainNavbar";
 import EditProfile from "./EditProfile";
 import Avatar from "./Avatar";
 

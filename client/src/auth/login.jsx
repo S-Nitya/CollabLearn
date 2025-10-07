@@ -5,11 +5,14 @@ import toast from 'react-hot-toast';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  // State to hold the selected login role (user or admin)
+  const [role, setRole] = useState('user'); 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // 1. Send Login Request
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
@@ -21,12 +24,37 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // 2. Successful Login: Store credentials
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.user.name);
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userAvatar', data.user.avatar || '');
+        // IMPORTANT: Store the user's actual role returned by the server
+        localStorage.setItem('userRole', data.user.role || 'user'); 
+        
         toast.success('Login successful!');
-        navigate('/dashboard');
+
+        // 3. Conditional Redirection based on user's ACTUAL role and selected role
+        
+        const actualRole = data.user.role || 'user';
+        
+        if (actualRole === 'admin' && role === 'admin') {
+          // If the user is an admin AND they selected "Login as Admin"
+          navigate('/admin');
+        } else if (actualRole === 'admin' && role === 'user') {
+          // If a user is an admin but chooses to log in as a regular user (optional)
+          navigate('/dashboard');
+        } else if (actualRole !== 'admin' && role === 'admin') {
+            // Error if a regular user tries to login as admin
+            toast.error("You do not have administrative privileges.");
+            // Clear token and redirect to prevent unauthorized session
+            localStorage.clear();
+            navigate('/login');
+        }
+        else {
+          // Regular user login (most common case)
+          navigate('/dashboard');
+        }
       } else {
         toast.error(data.message || 'Login failed. Please check your credentials.');
       }
@@ -49,6 +77,21 @@ const LoginPage = () => {
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Welcome Back!</h2>
         
         <form onSubmit={handleLogin}>
+          
+          <div className="mb-6 text-left">
+            <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">
+              Login Role
+            </label>
+            <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 bg-white appearance-none"
+            >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+          </div>
           
           <div className="mb-6 text-left">
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -84,7 +127,7 @@ const LoginPage = () => {
             type="submit" 
             className="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01]"
           >
-            Log In
+            {role === 'admin' ? 'Log In as Admin' : 'Log In'}
           </button>
 
           <a 
