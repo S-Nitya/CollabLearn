@@ -1,223 +1,238 @@
-import React, { useState } from 'react';
-import { Clock, Calendar, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import toast from 'react-hot-toast';
 
-// Using the same styling principles (colors, fonts, shadow) as your existing components.
+const BookingModal = ({
+  skillTitle,
+  instructorName,
+  skill,
+  instructor,
+  student,
+  onClose,
+  onConfirm,
+}) => {
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [duration, setDuration] = useState("60");
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
 
-// --- Booking Modal Component (Included within the page for encapsulation) ---
-const BookingModal = ({ skillTitle, instructorName, onClose, onConfirm }) => {
-    // State for form inputs
-    const [date, setDate] = useState('');
-    const [time, setTime] = useState('');
-    const [duration, setDuration] = useState('60'); // Default to 60 minutes
-    const [notes, setNotes] = useState('');
-    const [error, setError] = useState('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setError('');
+    if (!date || !time || !duration) {
+      setError("Please select a Date, Time, and Duration.");
+      return;
+    }
 
-        if (!date || !time || !duration) {
-            setError('Please select a Date, Time, and Duration.');
-            return;
-        }
+    const sessionDateTime = new Date(`${date}T${time}`);
+    if (isNaN(sessionDateTime) || sessionDateTime < new Date()) {
+      setError("Please select a valid future time.");
+      return;
+    }
 
-        // Basic date validation
-        const sessionDateTime = new Date(`${date}T${time}`);
-        if (isNaN(sessionDateTime) || sessionDateTime < new Date()) {
-            setError('Please select a valid time that is in the future.');
-            return;
-        }
+    // ✅ Pass correct field names expected by backend
+    onConfirm({
+      skill: skill,
+      instructor: instructor,
+      student: student,
+      date: sessionDateTime.toISOString(),
+      duration: parseInt(duration),
+      notes,
+    });
+  };
 
-        const sessionDetails = {
-            skillTitle,
-            instructorName,
-            date,
-            time,
-            duration: parseInt(duration),
-            notes,
-        };
-
-        onConfirm(sessionDetails);
-    };
-
-    return (
-        // Modal Overlay (Full screen with backdrop blur/darken)
-        <div className="fixed inset-0 modal-overlay flex items-center justify-center z-50" style={{ backdropFilter: 'blur(4px)', background: 'rgba(0, 0, 0, 0.4)' }}>
-            
-            {/* Modal Content Box */}
-            <div className="bg-white rounded-xl p-8 max-w-lg w-full mx-4 animate-fadeInUp shadow-2xl">
-                <div className="flex items-center justify-between mb-6 border-b pb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Book Session: {skillTitle}</h2>
-                    <button 
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-all cursor-pointer"
-                    >
-                        <X size={20} className="text-gray-500" />
-                    </button>
-                </div>
-
-                <p className="text-md text-gray-700 mb-4">Instructor: <span className="font-semibold text-indigo-600">{instructorName}</span></p>
-
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative mb-4 text-sm" role="alert">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    
-                    {/* Date and Time Fields */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                                Date <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <Calendar size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
-                                <input
-                                    type="date"
-                                    id="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-                                Time <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative">
-                                <Clock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"/>
-                                <input
-                                    type="time"
-                                    id="time"
-                                    value={time}
-                                    onChange={(e) => setTime(e.target.value)}
-                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* Duration Field */}
-                    <div>
-                        <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
-                            Duration (minutes) <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            id="duration"
-                            value={duration}
-                            onChange={(e) => setDuration(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all cursor-pointer"
-                            required
-                        >
-                            <option value="30">30 minutes</option>
-                            <option value="45">45 minutes</option>
-                            <option value="60">1 hour (60 minutes)</option>
-                            <option value="90">1.5 hours (90 minutes)</option>
-                            <option value="120">2 hours (120 minutes)</option>
-                        </select>
-                    </div>
-
-                    {/* Notes Field */}
-                    <div>
-                        <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                            Specific Topics / Notes (Optional)
-                        </label>
-                        <textarea
-                            id="notes"
-                            rows="3"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 resize-y transition-all"
-                            placeholder="Specify areas you want to cover or any prerequisites you've completed."
-                        ></textarea>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 mt-6"
-                    >
-                        Confirm Booking
-                    </button>
-                </form>
-            </div>
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-white rounded-xl p-8 w-full max-w-lg shadow-2xl">
+        <div className="flex justify-between items-center mb-6 border-b pb-3">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Book Session: {skillTitle}
+          </h2>
+          <button onClick={onClose}>
+            <X className="text-gray-500" />
+          </button>
         </div>
-    );
+
+        <p className="text-gray-700 mb-4">
+          Instructor:{" "}
+          <span className="font-semibold text-indigo-600">
+            {instructorName || "Unknown Instructor"}
+          </span>
+        </p>
+
+        {error && (
+          <p className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm mb-1">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="border rounded p-2 w-full"
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-1">Time</label>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="border rounded p-2 w-full"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Duration (minutes)</label>
+            <select
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="border rounded p-2 w-full"
+            >
+              <option value="30">30</option>
+              <option value="45">45</option>
+              <option value="60">60</option>
+              <option value="90">90</option>
+              <option value="120">120</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Notes (optional)</label>
+            <textarea
+              rows="3"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="border rounded p-2 w-full"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
+          >
+            Confirm Booking
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
-// --- End Booking Modal Component ---
 
 export default function BookingSessionPage() {
-    // We simulate receiving the skill details from the page that links here (e.g., from query params or context)
-    // For this example, we hardcode a default session
-    const [skillDetails] = useState({
-        title: 'Master JavaScript Fundamentals',
-        instructor: 'Sarah Chen'
-    });
-    
-    // State to control whether the modal is shown
-    // It's set to true by default to show the booking page immediately upon load
-    const [isModalVisible, setIsModalVisible] = useState(true);
+  const [skillDetails, setSkillDetails] = useState({});
+  const [studentId, setStudentId] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-    const handleBookingConfirm = (sessionDetails) => {
-        console.log('BOOKING CONFIRMED:', sessionDetails);
-        alert(`Success! Session with ${sessionDetails.instructorName} booked for ${sessionDetails.date} at ${sessionDetails.time}. Redirecting...`);
-        
-        // In a real app, you would redirect the user to a confirmation or dashboard page here.
-        // For now, we'll just close the modal and show a placeholder message.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const skill = params.get("skillId");
+    const instructor = params.get("instructorId");
+    const skillTitle = params.get("skillTitle");
+    const instructorName = params.get("instructorName");
+
+    if (skill && instructor) {
+      setSkillDetails({
+        title: decodeURIComponent(skillTitle || ""),
+        instructorName: decodeURIComponent(instructorName || ""),
+        skill,
+        instructor,
+      });
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:5000/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const userId = data.user?._id || data.user?.id;
+        if (data.success && userId) {
+          setStudentId(userId);
+        }
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleBookingConfirm = async (bookingData) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // ✅ Ensure all fields are present
+      if (
+        !bookingData.skill ||
+        !bookingData.instructor ||
+        !bookingData.student
+      ) {
+        toast.error("Booking failed: Missing instructor, skill, or student details.");
+        return;
+      }
+
+      const res = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        toast.success("Request sent successfully!");
         setIsModalVisible(false);
-    };
+      } else {
+        toast.error("Booking failed: " + (result.message || "Unknown error"));
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
+  };
 
-    // Placeholder UI for the rest of the page (in case the modal is closed or not used immediately)
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center font-sans">
-            {/* Minimal Styling for Animations */}
-            <style>{`
-                @keyframes fadeInUp {
-                  from { opacity: 0; transform: translateY(20px); }
-                  to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
-            `}</style>
-            
-            <div className="text-center p-10">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">Session Booking Portal</h1>
-                <p className="text-lg text-gray-600">
-                    Your session request is being processed.
-                    {isModalVisible ? (
-                        <span className="text-indigo-600 font-semibold ml-1">Please fill out the details.</span>
-                    ) : (
-                        <span className="text-green-600 font-semibold ml-1">Redirecting to confirmation page.</span>
-                    )}
-                </p>
-                
-                {!isModalVisible && (
-                    <div className="mt-8 p-6 bg-white rounded-xl shadow-md border-t-4 border-indigo-600 max-w-lg mx-auto">
-                        <p className="text-gray-700 font-medium">Session with **{skillDetails.instructor}** confirmed!</p>
-                        <p className="text-sm text-gray-500 mt-2">In a production application, you would now be redirected to your calendar view.</p>
-                        <button 
-                            className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                            onClick={() => window.history.back()}
-                        >
-                            Go Back to Skills
-                        </button>
-                    </div>
-                )}
-            </div>
+  if (loading) return <p className="text-center p-10">Loading...</p>;
 
-            {/* The Booking Modal */}
-            {isModalVisible && (
-                <BookingModal
-                    skillTitle={skillDetails.title}
-                    instructorName={skillDetails.instructor}
-                    onClose={() => setIsModalVisible(false)} // Allows user to close without booking
-                    onConfirm={handleBookingConfirm}
-                />
-            )}
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      {isModalVisible && (
+        <BookingModal
+          skillTitle={skillDetails.title}
+          instructorName={skillDetails.instructorName}
+          skill={skillDetails.skill}
+          instructor={skillDetails.instructor}
+          student={studentId}
+          onClose={() => setIsModalVisible(false)}
+          onConfirm={handleBookingConfirm}
+        />
+      )}
+      {!isModalVisible && (
+        <div className="bg-white p-10 rounded-lg shadow-md text-center">
+          <h2 className="text-2xl font-bold text-indigo-600">
+            Request Sent
+          </h2>
+          <p className="text-gray-600 mt-2">
+            The instructor has been notified of your request.
+          </p>
+          <button
+            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
+            onClick={() => window.history.back()}
+          >
+            Go Back
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
 }

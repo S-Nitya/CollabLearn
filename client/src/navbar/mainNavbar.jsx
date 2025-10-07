@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, User, UserCircle, Settings, FileText, LogOut } from 'lucide-react';
 
 import CollabLearnLogo from '../assets/Collablearn Logo.png';
+import Notification from '../components/Notification';
 
 export default function MainNavbar() {
   const location = useLocation();
@@ -10,8 +11,11 @@ export default function MainNavbar() {
   const [username, setUsername] = useState('Guest');
   const [email, setEmail] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
 
   // Fetch user data from database
   const fetchUserData = async () => {
@@ -116,6 +120,55 @@ export default function MainNavbar() {
     // Then fetch fresh data from API
     fetchUserData();
 
+    const fetchNotifications = async () => {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
+      if (!userId || !token) return;
+
+      try {
+        const [studentResponse, instructorResponse] = await Promise.all([
+            fetch(`http://localhost:5000/api/bookings/student/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            }),
+            fetch(`http://localhost:5000/api/bookings/instructor/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+        ]);
+
+        let allNotifications = [];
+
+        if (studentResponse.ok) {
+            const studentData = await studentResponse.json();
+            if (studentData.success) {
+                const studentNotifications = studentData.bookings
+                    .filter(b => b.status === 'confirmed' || b.status === 'cancelled')
+                    .map(b => ({ ...b, type: 'student' }));
+                allNotifications.push(...studentNotifications);
+            }
+        }
+
+        if (instructorResponse.ok) {
+            const instructorData = await instructorResponse.json();
+            if (instructorData.success) {
+                const instructorNotifications = instructorData.bookings
+                    .filter(b => b.status === 'pending')
+                    .map(b => ({ ...b, type: 'instructor' }));
+                allNotifications.push(...instructorNotifications);
+            }
+        }
+        
+        allNotifications.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+        setNotifications(allNotifications);
+
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+    const notificationInterval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+
     // Listen for profile updates
     const handleProfileUpdate = (event) => {
       if (event.detail.name) {
@@ -130,6 +183,9 @@ export default function MainNavbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
       }
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
+      }
     }
 
     window.addEventListener('profileUpdated', handleProfileUpdate);
@@ -138,6 +194,7 @@ export default function MainNavbar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener('profileUpdated', handleProfileUpdate);
+      clearInterval(notificationInterval);
     };
   }, []);
 
@@ -209,9 +266,18 @@ export default function MainNavbar() {
 
           {/* User Section */}
           <div className="flex items-center gap-4">
-            <div className="relative cursor-pointer p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <div 
+              className="relative cursor-pointer p-2 rounded-full hover:bg-gray-100 transition-colors"
+              ref={notificationRef}
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            >
               <Bell size={20} className="text-gray-600" />
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center bell-notification">3</span>
+              {notifications.length > 0 && (
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center bell-notification">
+                  {notifications.length}
+                </span>
+              )}
+              {isNotificationsOpen && <Notification notifications={notifications} onClose={() => setIsNotificationsOpen(false)} />}
             </div>
             <div className="relative" ref={dropdownRef}>
               <div 
