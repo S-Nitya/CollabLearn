@@ -16,7 +16,7 @@ const skillSchema = new mongoose.Schema({
     level: {
       type: String,
       enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
-      required: function() { return this.isOffering; }
+      required: function() { return this.parent().isOffering; }
     },
     description: {
       type: String,
@@ -38,6 +38,11 @@ const skillSchema = new mongoose.Schema({
       type: Number,
       default: 0,
       min: 0
+    },
+    duration: {
+      type: String,
+      enum: ['30 minutes', '1 hour', '1.5 hours', '2 hours', '2.5 hours', '3 hours'],
+      required: function() { return this.parent().isOffering; }
     }
   },
   
@@ -99,7 +104,8 @@ const skillSchema = new mongoose.Schema({
   // ===== STATUS =====
   isActive: {
     type: Boolean,
-    default: true
+    default: false, // Skills are inactive by default and need to be activated
+    required: true
   },
   priority: {
     type: Number,

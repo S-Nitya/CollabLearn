@@ -252,20 +252,54 @@ export default function SkillSwapBrowse() {
     }
   }, [showPostSkillModal]);
 
-  const handlePostSkillSubmit = (e) => {
+  const handlePostSkillSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Post Skill Data:', postSkillForm);
-    // Reset form and close modal
-    setPostSkillForm({
-      title: '',
-      description: '',
-      skills: '',
-      timePerHour: '',
-      price: ''
-    });
-    setShowPostSkillModal(false);
-    setShowSkillsDropdown(false);
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        alert('Please log in to post a skill');
+        return;
+      }
+
+      const response = await fetch('/api/skills/post', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: postSkillForm.title,
+          description: postSkillForm.description,
+          skills: postSkillForm.skills,
+          timePerHour: postSkillForm.timePerHour,
+          price: postSkillForm.price
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('Skill details updated successfully!');
+        
+        // Reset form and close modal
+        setPostSkillForm({
+          title: '',
+          description: '',
+          skills: '',
+          timePerHour: '',
+          price: ''
+        });
+        setShowPostSkillModal(false);
+        setShowSkillsDropdown(false);
+      } else {
+        alert(data.message || 'Failed to post skill');
+      }
+    } catch (error) {
+      console.error('Error posting skill:', error);
+      alert('An error occurred while posting the skill. Please try again.');
+    }
   };
 
   const handleInputChange = (e) => {

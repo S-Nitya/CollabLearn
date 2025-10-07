@@ -127,6 +127,38 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
+  // Fetch user skills separately for dynamic updates
+  const fetchSkills = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const skillsResponse = await fetch(
+        "http://localhost:5000/api/skills/my-skills",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (skillsResponse.ok) {
+        const skillsData = await skillsResponse.json();
+        if (skillsData.success) {
+          setProfileData(prev => ({
+            ...prev,
+            skillsOffering: skillsData.data.skillsOffering || [],
+            skillsSeeking: skillsData.data.skillsSeeking || []
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching skills:", error);
+    }
+  };
+
   // Handle add skill form submission
   const handleAddSkill = async (e) => {
     e.preventDefault();
@@ -159,8 +191,9 @@ export default function ProfilePage() {
         // Reset form and close modal
         setNewSkill({ name: "", level: "Beginner" });
         setShowAddSkillModal(false);
-        // Refresh profile data
-        window.location.reload();
+        // Refresh skills data dynamically
+        await fetchSkills();
+        alert("Skill added successfully!");
       } else {
         alert(data.message || "Failed to add skill");
       }
@@ -189,11 +222,14 @@ export default function ProfilePage() {
 
       if (data.success) {
         // Remove the skill from local state
-        setSkills((prevSkills) =>
-          prevSkills.filter((skill) => skill._id !== skillId)
-        );
+        setProfileData((prev) => ({
+          ...prev,
+          skillsOffering: prev.skillsOffering.filter((skill) => skill._id !== skillId)
+        }));
+        alert("Skill deleted successfully!");
       } else {
         console.error("Failed to delete skill:", data.message);
+        alert("Failed to delete skill: " + data.message);
       }
     } catch (err) {
       console.error("Error deleting skill:", err);
@@ -219,11 +255,14 @@ export default function ProfilePage() {
 
       if (data.success) {
         // Remove the skill from local state
-        setSkills((prevSkills) =>
-          prevSkills.filter((skill) => skill._id !== skillId)
-        );
+        setProfileData((prev) => ({
+          ...prev,
+          skillsSeeking: prev.skillsSeeking.filter((skill) => skill._id !== skillId)
+        }));
+        alert("Skill deleted successfully!");
       } else {
         console.error("Failed to delete skill:", data.message);
+        alert("Failed to delete skill: " + data.message);
       }
     } catch (err) {
       console.error("Error deleting skill:", err);
@@ -536,11 +575,6 @@ export default function ProfilePage() {
                           </span>
                         </div>
                       </div>
-
-                      <p className="text-sm text-gray-600 mb-3">
-                        {skill.offering?.description ||
-                          "No description provided"}
-                      </p>
 
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-4">

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const {
+  // Skill Posting (Browse Skills Modal)
+  postSkill,
+  
   // Skill Offering
   addSkillOffering,
   updateSkillOffering,
@@ -18,6 +21,9 @@ const {
   getSkillCategories,
   getAllSkillNames
 } = require('../controllers/skillController');
+
+// ============= SKILL POSTING ROUTES (BROWSE SKILLS MODAL) =============
+router.post('/post', auth, postSkill);
 
 // ============= SKILL OFFERING ROUTES =============
 router.post('/offering', auth, addSkillOffering);

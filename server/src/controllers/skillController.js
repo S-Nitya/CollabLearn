@@ -1,12 +1,76 @@
 const Skill = require('../models/Skill');
 const User = require('../models/User');
 
+// ============= SKILL POSTING METHODS (FOR BROWSE SKILLS MODAL) =============
+
+// Post a skill (update existing skill with posting details)
+const postSkill = async (req, res) => {
+  try {
+    const { title, description, skills: skillName, timePerHour, price } = req.body;
+    const userId = req.userId;
+
+    // Input validation
+    if (!title || !description || !skillName || !timePerHour) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title, description, skill name, and duration are required'
+      });
+    }
+
+    // Find the user's existing skill to update
+    const existingSkill = await Skill.findOne({
+      name: skillName,
+      user: userId,
+      isOffering: true
+    });
+
+    if (!existingSkill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Skill not found. Please add this skill to your profile first.'
+      });
+    }
+
+    // Update the skill details but keep isActive: false
+    // All skills remain inactive by default
+    
+    // Update offering details
+    if (existingSkill.offering) {
+      existingSkill.offering.description = description;
+      existingSkill.offering.duration = timePerHour;
+      if (price) {
+        existingSkill.offering.price = parseFloat(price.replace(/[^\d.]/g, '')) || 0;
+      }
+    }
+
+    // Ensure isActive remains false
+    existingSkill.isActive = false;
+
+    // Save the updated skill
+    await existingSkill.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Skill details updated successfully',
+      data: existingSkill
+    });
+
+  } catch (error) {
+    console.error('Post skill error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during skill posting',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 // ============= SKILL OFFERING METHODS =============
 
 // Add a new skill offering
 const addSkillOffering = async (req, res) => {
   try {
-    const { name, level, description, category, tags } = req.body;
+    const { name, level, description, category, tags, duration, price } = req.body;
     const userId = req.userId;
 
     // Check if user already offers this skill
@@ -23,17 +87,27 @@ const addSkillOffering = async (req, res) => {
       });
     }
 
+    // Create new skill with isActive explicitly set to false for ProfilePage
+    // This ensures skills added through ProfilePage start as inactive
     const newSkill = new Skill({
       name,
       user: userId,
       isOffering: true,
+      isActive: false, // ProfilePage skills are inactive until manually activated
       offering: {
-        level,
-        description
+        level: level || 'Beginner',
+        description: description || '',
+        duration: duration || '1 hour',
+        price: price || 0
       },
       category: category || 'Other',
       tags: tags || []
     });
+
+    // Verify isActive is false before saving
+    if (newSkill.isActive !== false) {
+      newSkill.isActive = false;
+    }
 
     await newSkill.save();
 
@@ -57,7 +131,7 @@ const addSkillOffering = async (req, res) => {
 const updateSkillOffering = async (req, res) => {
   try {
     const { skillId } = req.params;
-    const { level, description } = req.body;
+    const { level, description, duration, price } = req.body;
     const userId = req.userId;
 
     const skill = await Skill.findOne({ _id: skillId, user: userId, isOffering: true });
@@ -72,6 +146,8 @@ const updateSkillOffering = async (req, res) => {
     // Update offering fields
     if (level) skill.offering.level = level;
     if (description !== undefined) skill.offering.description = description;
+    if (duration) skill.offering.duration = duration;
+    if (price !== undefined) skill.offering.price = price;
 
     await skill.save();
 
@@ -267,7 +343,8 @@ const getUserSkills = async (req, res) => {
   try {
     const userId = req.userId;
     
-    const skills = await Skill.find({ user: userId, isActive: true })
+    // Get ALL user skills regardless of isActive status for ProfilePage display
+    const skills = await Skill.find({ user: userId })
       .sort({ createdAt: -1 });
 
     const skillsOffering = skills.filter(skill => skill.isOffering);
@@ -379,6 +456,9 @@ const getAllSkillNames = async (req, res) => {
 };
 
 module.exports = {
+  // Skill Posting (Browse Skills Modal)
+  postSkill,
+  
   // Skill Offering
   addSkillOffering,
   updateSkillOffering,
