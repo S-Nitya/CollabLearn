@@ -21,15 +21,17 @@ const Notification = ({ notifications, onClose }) => {
         {hasNotifications ? (
           notifications.map(notif => {
             if (notif.type === 'student') {
+              const skillName = notif.skill?.name ?? 'an unknown skill';
+              const instructorName = notif.instructor?.name ?? 'an unknown instructor';
               return (
                 <div key={notif._id} className="px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
                   {notif.status === 'confirmed' ? (
                       <p className="text-sm text-gray-800">
-                          Your session for <span className="font-semibold text-indigo-600">{notif.skill.name}</span> with <span className="font-semibold">{notif.instructor.name}</span> is confirmed for <span className="font-semibold">{new Date(notif.date).toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>.
+                          Your session for <span className="font-semibold text-indigo-600">{skillName}</span> with <span className="font-semibold">{instructorName}</span> is confirmed for <span className="font-semibold">{new Date(notif.date).toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>.
                       </p>
                   ) : ( // cancelled
                       <p className="text-sm text-gray-800">
-                          Your booking for <span className="font-semibold text-indigo-600">{notif.skill.name}</span> with <span className="font-semibold">{notif.instructor.name}</span> for <span className="font-semibold">{new Date(notif.date).toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> has been <span className="font-bold text-red-600">cancelled</span>.
+                          Your booking for <span className="font-semibold text-indigo-600">{skillName}</span> with <span className="font-semibold">{instructorName}</span> for <span className="font-semibold">{new Date(notif.date).toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span> has been <span className="font-bold text-red-600">cancelled</span>.
                       </p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
@@ -38,10 +40,12 @@ const Notification = ({ notifications, onClose }) => {
                 </div>
               )
             } else if (notif.type === 'instructor') {
+              const skillName = notif.skill?.name ?? 'an unknown skill';
+              const studentName = notif.student?.name ?? 'an unknown student';
               return (
                 <div key={notif._id} className="px-4 py-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
                     <p className="text-sm text-gray-800">
-                        You have a new booking request from <span className="font-semibold">{notif.student.name}</span> for <span className="font-semibold text-indigo-600">{notif.skill.name}</span>.
+                        You have a new booking request from <span className="font-semibold">{studentName}</span> for <span className="font-semibold text-indigo-600">{skillName}</span>.
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                         {new Date(notif.createdAt).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}

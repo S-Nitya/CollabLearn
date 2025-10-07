@@ -64,10 +64,18 @@ const CalendarPage = () => {
                 confirmed.push(...studentConfirmed);
             }
             
-            const uniqueConfirmed = Array.from(new Set(confirmed.map(a => a._id)))
-                .map(id => {
-                    return confirmed.find(a => a._id === id)
-                });
+            const bookingsById = new Map();
+            confirmed.forEach(booking => {
+                if (bookingsById.has(booking._id)) {
+                    const existingBooking = bookingsById.get(booking._id);
+                    if (typeof booking.student === 'object') existingBooking.student = booking.student;
+                    if (typeof booking.instructor === 'object') existingBooking.instructor = booking.instructor;
+                    if (typeof booking.skill === 'object') existingBooking.skill = booking.skill;
+                } else {
+                    bookingsById.set(booking._id, { ...booking });
+                }
+            });
+            const uniqueConfirmed = Array.from(bookingsById.values());
 
             setBookingRequests(pending);
             setScheduledSessions(uniqueConfirmed);
@@ -105,7 +113,13 @@ const CalendarPage = () => {
 
         if (data.success && data.booking) {
             if (status === 'confirmed') {
-                setScheduledSessions(prevSessions => [...prevSessions, { ...data.booking, role: 'instructor' }]);
+                const confirmedSession = bookingRequests.find(req => req._id === bookingId);
+                if (confirmedSession) {
+                    setScheduledSessions(prevSessions => [
+                        ...prevSessions, 
+                        { ...confirmedSession, status: 'confirmed', role: 'instructor' }
+                    ]);
+                }
             }
             setBookingRequests(prevRequests => prevRequests.filter(req => req._id !== bookingId));
             
