@@ -17,42 +17,39 @@ const postSkill = async (req, res) => {
       });
     }
 
-    // Find the user's existing skill to update
-    const existingSkill = await Skill.findOne({
-      name: skillName,
-      user: userId,
-      isOffering: true
-    });
+    // Prepare the update payload
+    const updateData = {
+      'offering.description': description,
+      'offering.duration': timePerHour,
+      isPosted: true, // Activate the skill
+      'offering.price': 0 // Default price to 0
+    };
 
-    if (!existingSkill) {
+    if (price) {
+      const parsedPrice = parseFloat(price.replace(/[^\d.]/g, ''));
+      if (!isNaN(parsedPrice)) {
+        updateData['offering.price'] = parsedPrice;
+      }
+    }
+
+    // Find the skill and update it atomically
+    const updatedSkill = await Skill.findOneAndUpdate(
+      { name: skillName, user: userId, isOffering: true }, // Query
+      { $set: updateData }, // Update
+      { new: true, runValidators: true } // Options
+    );
+
+    if (!updatedSkill) {
       return res.status(404).json({
         success: false,
         message: 'Skill not found. Please add this skill to your profile first.'
       });
     }
 
-    // Update the skill details but keep isActive: false
-    // All skills remain inactive by default
-    
-    // Update offering details
-    if (existingSkill.offering) {
-      existingSkill.offering.description = description;
-      existingSkill.offering.duration = timePerHour;
-      if (price) {
-        existingSkill.offering.price = parseFloat(price.replace(/[^\d.]/g, '')) || 0;
-      }
-    }
-
-    // Ensure isActive remains false
-    existingSkill.isActive = false;
-
-    // Save the updated skill
-    await existingSkill.save();
-
     res.status(200).json({
       success: true,
-      message: 'Skill details updated successfully',
-      data: existingSkill
+      message: 'Skill has been posted and is now active.',
+      data: updatedSkill
     });
 
   } catch (error) {
@@ -87,13 +84,13 @@ const addSkillOffering = async (req, res) => {
       });
     }
 
-    // Create new skill with isActive explicitly set to false for ProfilePage
-    // This ensures skills added through ProfilePage start as inactive
+    // Create new skill with isPosted set to false.
+    // Skills are not posted until the user does so from the browse skills page.
     const newSkill = new Skill({
       name,
       user: userId,
       isOffering: true,
-      isActive: false, // ProfilePage skills are inactive until manually activated
+      isPosted: false, // Skill is not posted by default
       offering: {
         level: level || 'Beginner',
         description: description || '',
@@ -103,11 +100,6 @@ const addSkillOffering = async (req, res) => {
       category: category || 'Other',
       tags: tags || []
     });
-
-    // Verify isActive is false before saving
-    if (newSkill.isActive !== false) {
-      newSkill.isActive = false;
-    }
 
     await newSkill.save();
 
@@ -373,7 +365,7 @@ const searchSkills = async (req, res) => {
   try {
     const { q, category, level, type = 'offering' } = req.query;
     
-    let query = { isActive: true };
+    let query = { isPosted: true };
     
     if (type === 'offering') {
       query.isOffering = true;
@@ -402,10 +394,29 @@ const searchSkills = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(50);
 
+    // Debug: Log the populated user data and process avatars
+    console.log('Found skills with user data:', skills.map(skill => ({
+      skillName: skill.name,
+      userName: skill.user?.name,
+      userAvatarUrl: skill.user?.getAvatarUrl?.() || null,
+      userAvatarType: skill.user?.avatar?.type,
+      userId: skill.user?._id
+    })));
+
+    // Process skills to include computed avatar URLs
+    const processedSkills = skills.map(skill => {
+      const skillObj = skill.toObject();
+      if (skillObj.user && skill.user.getAvatarUrl) {
+        skillObj.user.avatarUrl = skill.user.getAvatarUrl();
+        skillObj.user.avatarType = skill.user.avatar?.type;
+      }
+      return skillObj;
+    });
+
     res.json({
       success: true,
-      data: skills,
-      count: skills.length
+      data: processedSkills,
+      count: processedSkills.length
     });
 
   } catch (error) {
@@ -420,7 +431,7 @@ const searchSkills = async (req, res) => {
 // Get skill categories
 const getSkillCategories = async (req, res) => {
   try {
-    const categories = await Skill.distinct('category', { isActive: true });
+    const categories = await Skill.distinct('category', { isPosted: true });
     
     res.json({
       success: true,
@@ -439,7 +450,7 @@ const getSkillCategories = async (req, res) => {
 // Get all distinct skill names
 const getAllSkillNames = async (req, res) => {
   try {
-    const skillNames = await Skill.distinct('name', { isActive: true });
+    const skillNames = await Skill.distinct('name', { isPosted: true });
     
     res.json({
       success: true,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Upload, User, FileText, Image, Camera, Save, AlertCircle, CheckCircle } from 'lucide-react';
-import Avatar, { fileToBase64, validateImageFile } from './Avatar';
+import Avatar from './Avatar';
+import { validateAvatarFile, fileToBase64 } from '../../utils/avatarUtils';
 
 export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
   const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
     if (!file) return;
 
     // Validate file
-    const validation = validateImageFile(file);
+    const validation = validateAvatarFile(file);
     if (!validation.isValid) {
       setErrors(prev => ({
         ...prev,

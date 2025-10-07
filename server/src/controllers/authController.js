@@ -58,6 +58,8 @@ const authController = {
           id: user._id,
           name: user.name,
           email: user.email,
+          avatar: user.getAvatarUrl(),
+          avatarType: user.avatar?.type,
           createdAt: user.createdAt
         }
       });
@@ -131,7 +133,8 @@ const authController = {
           id: user._id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar,
+          avatar: user.getAvatarUrl(),
+          avatarType: user.avatar?.type,
           createdAt: user.createdAt
         }
       });
@@ -168,7 +171,8 @@ const authController = {
           id: user._id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar,
+          avatar: user.getAvatarUrl(),
+          avatarType: user.avatar?.type,
           bio: user.bio,
           skillsOffering: user.skillsOffering,
           skillsSeeking: user.skillsSeeking,
@@ -204,14 +208,13 @@ const authController = {
         });
       }
 
+      // Update basic fields
       if (name) user.name = name.trim();
       if (bio !== undefined) user.bio = bio.trim();
+      
+      // Update avatar using the new helper method
       if (avatar !== undefined) {
-        if (avatar === '' || avatar === 'default') {
-          user.avatar = 'default';
-        } else {
-          user.avatar = avatar;
-        }
+        user.setAvatar(avatar);
       }
 
       await user.save();
@@ -223,11 +226,15 @@ const authController = {
           id: user._id,
           name: user.name,
           email: user.email,
-          avatar: user.avatar,
           bio: user.bio,
+          avatar: user.getAvatarUrl(), // Use the helper method
+          avatarType: user.avatar?.type,
           rating: user.rating,
           totalSessions: user.totalSessions,
-          joinDate: user.createdAt
+          badges: user.badges,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
         }
       });
 
@@ -235,11 +242,11 @@ const authController = {
       console.error('Update profile error:', error);
       res.status(500).json({ 
         success: false,
-        message: 'Server error during profile update',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: 'Internal server error' 
       });
     }
   }
+
 };
 
 module.exports = authController;

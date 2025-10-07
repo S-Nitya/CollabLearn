@@ -15,8 +15,7 @@ const skillSchema = new mongoose.Schema({
   offering: {
     level: {
       type: String,
-      enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
-      required: function() { return this.parent().isOffering; }
+      enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
     },
     description: {
       type: String,
@@ -41,8 +40,7 @@ const skillSchema = new mongoose.Schema({
     },
     duration: {
       type: String,
-      enum: ['30 minutes', '1 hour', '1.5 hours', '2 hours', '2.5 hours', '3 hours'],
-      required: function() { return this.parent().isOffering; }
+      enum: ['30 minutes', '1 hour', '1.5 hours', '2 hours', '2.5 hours', '3 hours']
     }
   },
   
@@ -102,10 +100,9 @@ const skillSchema = new mongoose.Schema({
   }],
   
   // ===== STATUS =====
-  isActive: {
+  isPosted: {
     type: Boolean,
-    default: false, // Skills are inactive by default and need to be activated
-    required: true
+    default: false
   },
   priority: {
     type: Number,
@@ -155,21 +152,21 @@ skillSchema.methods.updateProgress = function(progressValue) {
 
 // ============= STATIC METHODS =============
 skillSchema.statics.findByCategory = function(category) {
-  return this.find({ category, isActive: true });
+  return this.find({ category, isPosted: true });
 };
 
 skillSchema.statics.findOfferedSkills = function(userId) {
-  return this.find({ user: userId, isOffering: true, isActive: true });
+  return this.find({ user: userId, isOffering: true, isPosted: true });
 };
 
 skillSchema.statics.findSeekingSkills = function(userId) {
-  return this.find({ user: userId, isSeeking: true, isActive: true });
+  return this.find({ user: userId, isSeeking: true, isPosted: true });
 };
 
 skillSchema.statics.searchSkills = function(searchTerm, isOffering = true) {
   return this.find({
     $and: [
-      { isActive: true },
+      { isPosted: true },
       { [isOffering ? 'isOffering' : 'isSeeking']: true },
       {
         $or: [

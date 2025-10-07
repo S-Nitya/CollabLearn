@@ -25,8 +25,23 @@ const userSchema = new mongoose.Schema({
 
   // ===== PROFILE INFO =====
   avatar: {
-    type: String,
-    default: 'default' // Changed from URL to 'default' to indicate no custom avatar
+    type: {
+      type: String,
+      enum: ['default', 'upload', 'url', 'base64'],
+      default: 'default'
+    },
+    url: {
+      type: String,
+      default: ''
+    },
+    filename: {
+      type: String,
+      default: ''
+    },
+    uploadDate: {
+      type: Date,
+      default: null
+    }
   },
   bio: {
     type: String,
@@ -96,6 +111,87 @@ userSchema.virtual('allSkills', {
 // Ensure virtual fields are serialized
 userSchema.set('toJSON', { virtuals: true });
 userSchema.set('toObject', { virtuals: true });
+
+// ============= AVATAR UTILITIES =============
+// Helper method to get avatar URL
+userSchema.methods.getAvatarUrl = function() {
+  if (!this.avatar) {
+    return null;
+  }
+  
+  switch (this.avatar.type) {
+    case 'upload':
+      return this.avatar.url ? `/uploads/avatars/${this.avatar.filename}` : null;
+    case 'url':
+      return this.avatar.url;
+    case 'base64':
+      return this.avatar.url;
+    case 'default':
+    default:
+      return null;
+  }
+};
+
+// Helper method to set avatar
+userSchema.methods.setAvatar = function(avatarData) {
+  if (!avatarData) {
+    this.avatar = {
+      type: 'default',
+      url: '',
+      filename: '',
+      uploadDate: null
+    };
+    return;
+  }
+  
+  if (typeof avatarData === 'string') {
+    if (avatarData === 'default' || avatarData === '') {
+      this.avatar = {
+        type: 'default',
+        url: '',
+        filename: '',
+        uploadDate: null
+      };
+    } else if (avatarData.startsWith('data:image/')) {
+      // Base64 image
+      this.avatar = {
+        type: 'base64',
+        url: avatarData,
+        filename: '',
+        uploadDate: new Date()
+      };
+    } else if (avatarData.startsWith('http://') || avatarData.startsWith('https://')) {
+      // External URL
+      this.avatar = {
+        type: 'url',
+        url: avatarData,
+        filename: '',
+        uploadDate: new Date()
+      };
+    } else {
+      // Local file path/filename
+      this.avatar = {
+        type: 'upload',
+        url: '',
+        filename: avatarData,
+        uploadDate: new Date()
+      };
+    }
+  } else if (typeof avatarData === 'object') {
+    // Full avatar object
+    this.avatar = {
+      type: avatarData.type || 'default',
+      url: avatarData.url || '',
+      filename: avatarData.filename || '',
+      uploadDate: avatarData.uploadDate || new Date()
+    };
+  }
+};
+
+// Virtual for backward compatibility
+userSchema.virtual('avatarUrl').get(function() {
+  return this.getAvatarUrl();
+});
 
 // ============= EXPORT MODEL =============
 module.exports = mongoose.model('User', userSchema);

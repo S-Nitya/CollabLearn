@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X, ChevronDown } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar.jsx';
 import { Link } from 'react-router-dom';
+import { getAvatarDisplayProps, hasCustomAvatar } from '../../utils/avatarUtils';
 // Placeholder MainNavbar component
 
 
@@ -18,6 +19,7 @@ export default function SkillSwapBrowse() {
   const [availableSkills, setAvailableSkills] = useState([]);
   const [showSkillsDropdown, setShowSkillsDropdown] = useState(false);
   const [skillsLoading, setSkillsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const categories = [
     { 
@@ -122,92 +124,59 @@ export default function SkillSwapBrowse() {
     }
   ];
 
-  const skills = [
-    {
-      instructor: 'Sarah Chen',
-      rating: 4.9,
-      reviews: 127,
-      title: 'Master JavaScript Fundamentals',
-      description: 'Learn the core concepts of JavaScript including variables, functions, and DOM manipulation.',
-      tags: ['JavaScript', 'Web Development', 'Programming'],
-      duration: '1 hour',
-      location: 'Online',
-      level: 'Beginner',
-      price: 'Free',
-      nextAvailable: 'Today, 3:00 PM',
-      avatar: 'S'
-    },
-    {
-      instructor: 'Marcus Johnson',
-      rating: 4.8,
-      reviews: 89,
-      title: 'Advanced React Patterns',
-      description: 'Deep dive into advanced React patterns including hooks, context, and performance optimization.',
-      tags: ['React', 'JavaScript', 'Frontend'],
-      duration: '2 hours',
-      location: 'Online',
-      level: 'Advanced',
-      price: '$45/hr',
-      nextAvailable: 'Tomorrow, 10:00 AM',
-      avatar: 'https://i.pravatar.cc/150?img=12'
-    },
-    {
-      instructor: 'Dr. Emily Wang',
-      rating: 5,
-      reviews: 156,
-      title: 'Python for Data Science',
-      description: 'Learn Python programming focused on data analysis, pandas, and visualization libraries.',
-      tags: ['Python', 'Data Science', 'Analytics'],
-      duration: '1.5 hours',
-      location: 'Online',
-      level: 'Intermediate',
-      price: '$60/hr',
-      nextAvailable: 'Dec 20, 2:00 PM',
-      avatar: 'https://i.pravatar.cc/150?img=45'
-    },
-    {
-      instructor: 'James Rodriguez',
-      rating: 4.7,
-      reviews: 92,
-      title: 'Java Spring Boot Mastery',
-      description: 'Build enterprise-level applications with Spring Boot framework and best practices.',
-      tags: ['Java', 'Spring Boot', 'Backend'],
-      duration: '2 hours',
-      location: 'In-Person & Online',
-      level: 'Intermediate',
-      price: '$55/hr',
-      nextAvailable: 'Dec 18, 6:00 PM',
-      avatar: 'https://i.pravatar.cc/150?img=33'
-    },
-    {
-      instructor: 'Luna Park',
-      rating: 4.9,
-      reviews: 73,
-      title: 'C++ Game Development',
-      description: 'Create stunning games using C++ and modern game development techniques.',
-      tags: ['C++', 'Game Dev', 'Programming'],
-      duration: '2 hours',
-      location: 'Online',
-      level: 'Advanced',
-      price: '$50/hr',
-      nextAvailable: 'Dec 19, 1:00 PM',
-      avatar: 'https://i.pravatar.cc/150?img=27'
-    },
-    {
-      instructor: 'Carlos Martinez',
-      rating: 4.8,
-      reviews: 134,
-      title: 'Full Stack MERN Development',
-      description: 'Build complete web applications using MongoDB, Express, React, and Node.js.',
-      tags: ['MERN', 'Full Stack', 'JavaScript'],
-      duration: '2.5 hours',
-      location: 'Online',
-      level: 'Intermediate',
-      price: '$65/hr',
-      nextAvailable: 'Today, 7:00 PM',
-      avatar: 'https://i.pravatar.cc/150?img=52'
+  const [postedSkills, setPostedSkills] = useState([]);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [newSkillAdded, setNewSkillAdded] = useState(false);
+
+  // Enhanced fetch function with smooth loading
+  const fetchPostedSkills = async (showLoader = true) => {
+    try {
+      if (showLoader) {
+        setPageLoading(true);
+      } else {
+        setIsRefreshing(true);
+      }
+      
+      const response = await fetch('/api/skills/search');
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('=== SKILLS FETCHED SUCCESSFULLY ===');
+        console.log('Skills count:', data.data.length);
+        
+        // Add smooth transition for new skills
+        if (!showLoader && data.data.length > postedSkills.length) {
+          setNewSkillAdded(true);
+          setTimeout(() => setNewSkillAdded(false), 2000);
+        }
+        
+        setPostedSkills(data.data);
+      } else {
+        console.error('Failed to fetch posted skills:', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching posted skills:', error);
+    } finally {
+      if (showLoader) {
+        // Add minimum loading time for smooth UX
+        setTimeout(() => setPageLoading(false), 500);
+      } else {
+        setTimeout(() => setIsRefreshing(false), 300);
+      }
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchPostedSkills(true);
+    
+    // Optional: Set up auto-refresh every 5 minutes for real-time updates
+    const autoRefreshInterval = setInterval(() => {
+      fetchPostedSkills(false);
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    return () => clearInterval(autoRefreshInterval);
+  }, []);
 
   // Fetch user's available skills from database
   const fetchAvailableSkills = async () => {
@@ -231,10 +200,10 @@ export default function SkillSwapBrowse() {
       const data = await response.json();
       
       if (data.success) {
-        // Extract unique skill names from user's skills (both offering and seeking)
-        const allUserSkills = [...data.data.skillsOffering, ...data.data.skillsSeeking];
-        const uniqueSkills = [...new Set(allUserSkills.map(skill => skill.name))];
-        setAvailableSkills(uniqueSkills);
+        // Filter for skills that are being offered but are not yet posted
+        const skillsToPost = data.data.skillsOffering.filter(skill => !skill.isPosted);
+        const uniqueSkillNames = [...new Set(skillsToPost.map(skill => skill.name))];
+        setAvailableSkills(uniqueSkillNames);
       } else {
         console.error('Failed to fetch skills:', data.message);
       }
@@ -281,7 +250,9 @@ export default function SkillSwapBrowse() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Skill details updated successfully!');
+        // Show success message with smooth animation
+        setSuccessMessage('Skill posted successfully! 🎉');
+        setTimeout(() => setSuccessMessage(''), 4000);
         
         // Reset form and close modal
         setPostSkillForm({
@@ -293,6 +264,12 @@ export default function SkillSwapBrowse() {
         });
         setShowPostSkillModal(false);
         setShowSkillsDropdown(false);
+        
+        // Dynamically refresh skills without full page reload
+        setTimeout(() => {
+          fetchPostedSkills(false); // Use refresh mode
+        }, 500);
+        
       } else {
         alert(data.message || 'Failed to post skill');
       }
@@ -428,6 +405,18 @@ export default function SkillSwapBrowse() {
             <p className="text-lg text-gray-600">Learn from passionate teachers and share your expertise with others</p>
           </div>
 
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-6 animate-slideDown">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 max-w-md mx-auto">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">✓</span>
+                </div>
+                <span className="text-green-700 font-medium">{successMessage}</span>
+              </div>
+            </div>
+          )}
+
           {/* Search and Filters */}
           <div className="flex items-center gap-4 mb-12 animate-fadeInUp" style={{animationDelay: '0.1s'}}>
             <div className="flex-1 relative group">
@@ -476,89 +465,241 @@ export default function SkillSwapBrowse() {
             </div>
           </div>
 
-          {/* Skills Available */}
+          {/* Skills Available with Refresh Button */}
           <div className="mb-8 flex items-center justify-between animate-fadeInUp" style={{animationDelay: '0.5s'}}>
-            <h2 className="text-2xl font-bold text-gray-900">{skills.length} Skills Available</h2>
-            <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
-              <option>Relevance</option>
-            </select>
+            <h2 className="text-2xl font-bold text-gray-900">{postedSkills.length} Skills Available</h2>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => fetchPostedSkills(false)}
+                disabled={isRefreshing}
+                className={`flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg font-medium transition-all ${
+                  isRefreshing 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-gray-50 hover:border-indigo-400 cursor-pointer'
+                }`}
+                title="Refresh skills"
+              >
+                <div className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
+              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
+                <option>Relevance</option>
+              </select>
+            </div>
           </div>
 
-          {/* Skills Grid */}
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            {skills.slice(0, visibleSkills).map((skill, idx) => (
-              <div key={idx} className="skill-card bg-white rounded-xl border border-gray-200 p-6 animate-fadeInUp" style={{animationDelay: `${0.6 + idx * 0.1}s`}}>
-                {/* Instructor Info */}
-                <div className="flex items-center gap-3 mb-4">
-                  {typeof skill.avatar === 'string' && skill.avatar.startsWith('http') ? (
-                    <img src={skill.avatar} alt={skill.instructor} className="w-12 h-12 rounded-full hover:scale-110 transition-transform" />
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-700 font-semibold hover:scale-110 transition-transform">
-                      {skill.avatar}
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">{skill.instructor}</div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium">{skill.rating}</span>
-                      <span className="text-gray-500">({skill.reviews})</span>
+          {/* Skills Grid with Enhanced Loading */}
+          {pageLoading ? (
+            <div className="grid grid-cols-3 gap-6 mb-8">
+              {/* Skeleton Loading Cards */}
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
+                  {/* Header skeleton */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                     </div>
                   </div>
-                </div>
-
-                {/* Skill Title & Description */}
-                <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-indigo-600 transition-colors">{skill.title}</h3>
-                <p className="text-sm text-gray-600 mb-4">{skill.description}</p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {skill.tags.map((tag, i) => (
-                    <span key={i} className="tag-item px-3 py-1 bg-cyan-500 text-white text-xs rounded-full font-medium cursor-pointer">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Details */}
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Clock size={16} />
-                    <span>{skill.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin size={16} />
-                    <span>{skill.location}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end mb-4">
-                  <span className={`text-lg font-bold ${skill.price === 'Free' ? 'text-indigo-600' : 'text-gray-900'}`}>
-                    {skill.price}
-                  </span>
-                </div>
-
-                <div className="text-xs text-gray-500 mb-3">
-                  Next available: {skill.nextAvailable}
-                </div>
-
-                {/* Book Button */}
-                <div className="flex items-center gap-2">
-                  {/* <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer">
-                    Book Session
-                  </button> */}
-                  <Link to='/book-session' className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer px-28"> Book Session</Link>
                   
-                  <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
-                    <UserPlus size={20} className="text-gray-600" />
-                  </button>
+                  {/* Content skeleton */}
+                  <div className="space-y-3 mb-4">
+                    <div className="h-6 bg-gray-200 rounded w-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                  
+                  {/* Tags skeleton */}
+                  <div className="flex gap-2 mb-4">
+                    <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                    <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                  </div>
+                  
+                  {/* Footer skeleton */}
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                    <div className="h-8 bg-gray-200 rounded w-20"></div>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Refresh indicator */}
+              {isRefreshing && (
+                <div className="mb-6 animate-fadeIn">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-center gap-3">
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-blue-700 font-medium">Refreshing skills...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* New skill notification */}
+              {newSkillAdded && (
+                <div className="mb-6 animate-slideDown">
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-center gap-3">
+                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">✓</span>
+                    </div>
+                    <span className="text-green-700 font-medium">New skills available! Check them out below.</span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-3 gap-6 mb-8">
+              {postedSkills.slice(0, visibleSkills).map((skill, idx) => (
+                <div key={skill._id} className="skill-card bg-white rounded-xl border border-gray-200 p-6 animate-fadeInUp" style={{animationDelay: `${0.6 + idx * 0.1}s`}}>
+                  {/* Instructor Info */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {(() => {
+                      // Use avatar utility functions for consistent avatar handling
+                      const avatarProps = getAvatarDisplayProps(skill.user, 48);
+                      
+                      console.log('=== AVATAR RENDERING WITH UTILS ===');
+                      console.log('User:', skill.user?.name);
+                      console.log('Avatar Props:', avatarProps);
+                      
+                      // Try to show custom avatar first
+                      if (avatarProps.hasCustom && avatarProps.avatarUrl) {
+                        console.log('Showing custom avatar:', avatarProps.avatarUrl);
+                        return (
+                          <img 
+                            src={avatarProps.avatarUrl}
+                            alt={avatarProps.userName} 
+                            className="w-12 h-12 rounded-full hover:scale-110 transition-transform object-cover border-2 border-gray-200 flex-shrink-0"
+                            onLoad={() => {
+                              console.log('✅ Custom avatar loaded:', avatarProps.avatarUrl);
+                            }}
+                            onError={(e) => {
+                              console.log('❌ Custom avatar failed, trying placeholder');
+                              // Switch to placeholder on error
+                              e.target.src = avatarProps.placeholderUrl;
+                              e.target.onError = (e2) => {
+                                console.log('❌ Placeholder also failed, using initials');
+                                // Hide image and show initials fallback
+                                e2.target.style.display = 'none';
+                                const fallback = document.createElement('div');
+                                fallback.className = avatarProps.fallbackProps.className;
+                                fallback.style.backgroundColor = avatarProps.fallbackProps.style.backgroundColor;
+                                fallback.textContent = avatarProps.fallbackProps.children;
+                                fallback.title = `Avatar failed for ${avatarProps.userName}`;
+                                e2.target.parentNode.insertBefore(fallback, e2.target);
+                              };
+                            }}
+                          />
+                        );
+                      } else {
+                        // Use placeholder avatar service for users without custom avatars
+                        console.log('Showing placeholder avatar:', avatarProps.placeholderUrl);
+                        return (
+                          <img 
+                            src={avatarProps.placeholderUrl}
+                            alt={avatarProps.userName} 
+                            className="w-12 h-12 rounded-full hover:scale-110 transition-transform object-cover border-2 border-gray-200 flex-shrink-0"
+                            onLoad={() => {
+                              console.log('✅ Placeholder avatar loaded for:', avatarProps.userName);
+                            }}
+                            onError={(e) => {
+                              console.log('❌ Placeholder failed, using initials for:', avatarProps.userName);
+                              // Hide image and show initials fallback
+                              e.target.style.display = 'none';
+                              const fallback = document.createElement('div');
+                              fallback.className = avatarProps.fallbackProps.className;
+                              fallback.style.backgroundColor = avatarProps.fallbackProps.style.backgroundColor;
+                              fallback.textContent = avatarProps.fallbackProps.children;
+                              fallback.title = `Generated avatar for ${avatarProps.userName}`;
+                              e.target.parentNode.insertBefore(fallback, e.target);
+                            }}
+                          />
+                        );
+                      }
+                    })()}
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{skill.user?.name || 'Unknown User'}</div>
+                      <div className="flex items-center gap-1 text-sm">
+                        <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{skill.user?.rating?.average?.toFixed(1) || 'N/A'}</span>
+                        <span className="text-gray-500">({skill.user?.rating?.count || 0})</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Skill Title & Description */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-indigo-600 transition-colors">{skill.name}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{skill.offering?.description}</p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {skill.tags.map((tag, i) => (
+                      <span key={i} className="tag-item px-3 py-1 bg-cyan-500 text-white text-xs rounded-full font-medium cursor-pointer">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-1">
+                      <Clock size={16} />
+                      <span>{skill.offering?.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin size={16} />
+                      <span>Online</span>
+                    </div>
+                    {/* <div className="flex items-center gap-1">
+                      <Trophy size={16} />
+                      <span>{skill.offering?.level}</span>
+                    </div> */}
+                  </div>
+
+                  {/* Difficulty Level Badge */}
+                  <div className="mt-3">
+                    <span 
+                      className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                        skill.offering?.level === 'Beginner' 
+                          ? 'bg-green-100 text-green-800 border border-green-200' 
+                          : skill.offering?.level === 'Intermediate' 
+                          ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                          : skill.offering?.level === 'Advanced'
+                          ? 'bg-red-100 text-red-800 border border-red-200'
+                          : skill.offering?.level === 'Expert'
+                          ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                          : 'bg-gray-100 text-gray-800 border border-gray-200'
+                      }`}
+                    >
+                      {skill.offering?.level || 'Not specified'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-end mb-4">
+                    <span className={`text-lg font-bold ${skill.offering?.price === 0 ? 'text-indigo-600' : 'text-gray-900'}`}>
+                      {skill.offering?.price === 0 ? 'Free' : `$${skill.offering?.price}/hr`}
+                    </span>
+                  </div>
+
+                  {/* Book Button */}
+                  <div className="flex items-center gap-2">
+                    <Link to='/book-session' className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all hover:shadow-lg cursor-pointer px-28"> Book Session</Link>
+                    
+                    <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
+                      <UserPlus size={20} className="text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
           {/* Load More Button */}
-          {visibleSkills < skills.length && (
+          {visibleSkills < postedSkills.length && (
             <div className="text-center animate-fadeInUp">
               <button
                 onClick={() => setVisibleSkills(prev => prev + 3)}
@@ -763,6 +904,78 @@ export default function SkillSwapBrowse() {
           </div>
         </div>
       )}
+      
+      {/* Enhanced Animation Styles */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+          from { 
+            opacity: 0; 
+            transform: translateY(-20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { 
+            opacity: 1; 
+          }
+          50% { 
+            opacity: 0.7; 
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+        
+        .animate-slideDown {
+          animation: slideDown 0.5s ease-out;
+        }
+        
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .skill-card {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .skill-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Stagger animation for skill cards */
+        .skill-card:nth-child(1) { animation-delay: 0.1s; }
+        .skill-card:nth-child(2) { animation-delay: 0.2s; }
+        .skill-card:nth-child(3) { animation-delay: 0.3s; }
+        .skill-card:nth-child(4) { animation-delay: 0.4s; }
+        .skill-card:nth-child(5) { animation-delay: 0.5s; }
+        .skill-card:nth-child(6) { animation-delay: 0.6s; }
+      `}</style>
     </div>
   );
 }

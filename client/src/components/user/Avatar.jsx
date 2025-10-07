@@ -1,35 +1,7 @@
 import React from 'react';
+import { getInitials, getInitialsColor, hasCustomAvatar, getAvatarUrl } from '../../utils/avatarUtils';
 
-// Utility function to generate a color based on name
-const getAvatarColor = (name) => {
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
-    '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
-    '#10AC84', '#EE5A6F', '#C44569', '#F8B500', '#6C5CE7',
-    '#A29BFE', '#FD79A8', '#FDCB6E', '#E17055', '#00B894'
-  ];
-  
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  hash = Math.abs(hash);
-  return colors[hash % colors.length];
-};
-
-// Utility function to get initials from name
-const getInitials = (name) => {
-  if (!name) return '?';
-  
-  const words = name.trim().split(' ');
-  if (words.length === 1) {
-    return words[0].charAt(0).toUpperCase();
-  }
-  
-  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-};
-
-// Avatar component
+// Avatar component with enhanced functionality
 export default function Avatar({ 
   src, 
   name, 
@@ -66,7 +38,7 @@ export default function Avatar({
         <div 
           className="absolute inset-0 flex items-center justify-center font-semibold text-white"
           style={{ 
-            backgroundColor: getAvatarColor(name || 'User'),
+            backgroundColor: getInitialsColor(name || 'User'),
             display: 'none'
           }}
         >
@@ -87,7 +59,7 @@ export default function Avatar({
   return (
     <div 
       className={`${baseClasses} ${onClick ? 'cursor-pointer hover:scale-105' : ''}`}
-      style={{ backgroundColor: getAvatarColor(name || 'User') }}
+      style={{ backgroundColor: getInitialsColor(name || 'User') }}
       onClick={onClick}
     >
       {getInitials(name || 'User')}
@@ -101,35 +73,3 @@ export default function Avatar({
     </div>
   );
 }
-
-// Utility function to convert file to base64
-export const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-};
-
-// Utility function to validate image file
-export const validateImageFile = (file) => {
-  const errors = [];
-  
-  // Check file type
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-  if (!validTypes.includes(file.type)) {
-    errors.push('Please select a valid image file (JPEG, PNG, or WebP)');
-  }
-  
-  // Check file size (5MB limit)
-  const maxSize = 5 * 1024 * 1024; // 5MB
-  if (file.size > maxSize) {
-    errors.push('Image size must be less than 5MB');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
