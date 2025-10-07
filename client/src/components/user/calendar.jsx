@@ -315,16 +315,23 @@ const CalendarPage = () => {
                           </div>
                           
                           <div className="mt-1 space-y-1 overflow-y-auto h-20">
-                            {daySessions.map(session => (
+                            {daySessions.map(session => {
+                              const skillName = session.skill?.name || 'Unknown Skill';
+                              const studentName = session.student?.name || 'Unknown Student';
+                              const instructorName = session.instructor?.name || 'Unknown Instructor';
+                              const partnerName = session.role === 'instructor' ? studentName : instructorName;
+                              
+                              return (
                                 <div 
                                     key={session._id}
                                     className={`p-1.5 rounded-lg text-xs text-white shadow-sm ${session.role === 'instructor' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-purple-500 hover:bg-purple-600'} cursor-pointer`}
-                                    title={`${session.skill.name} with ${session.role === 'instructor' ? session.student.name : session.instructor.name} at ${format(new Date(session.date), 'p')}`}
+                                    title={`${skillName} with ${partnerName} at ${format(new Date(session.date), 'p')}`}
                                 >
-                                    <p className="font-bold truncate">{session.skill.name}</p>
-                                    <p className="truncate">{format(new Date(session.date), 'p')} - {session.role === 'instructor' ? session.student.name : session.instructor.name}</p>
+                                    <p className="font-bold truncate">{skillName}</p>
+                                    <p className="truncate">{format(new Date(session.date), 'p')} - {partnerName}</p>
                                 </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                     );
@@ -350,14 +357,21 @@ const CalendarPage = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Today's Sessions</h3>
                 {todaySessions.length > 0 ? (
                     <div className="space-y-3">
-                        {todaySessions.map(session => (
+                        {todaySessions.map(session => {
+                          const skillName = session.skill?.name || 'Unknown Skill';
+                          const studentName = session.student?.name || 'Unknown Student';
+                          const instructorName = session.instructor?.name || 'Unknown Instructor';
+                          const partnerName = session.role === 'instructor' ? studentName : instructorName;
+                          
+                          return (
                             <div key={session._id} className={`p-2 rounded-lg text-white ${session.role === 'instructor' ? 'bg-blue-500' : 'bg-purple-500'}`}>
-                                <p className="font-bold text-sm truncate">{session.skill.name}</p>
+                                <p className="font-bold text-sm truncate">{skillName}</p>
                                 <p className="text-xs truncate">
-                                    {format(new Date(session.date), 'p')} with {session.role === 'instructor' ? session.student.name : session.instructor.name}
+                                    {format(new Date(session.date), 'p')} with {partnerName}
                                 </p>
                             </div>
-                        ))}
+                          );
+                        })}
                     </div>
                 ) : (
                     <p className="text-sm text-gray-500">No sessions scheduled for today.</p>
@@ -372,13 +386,18 @@ const CalendarPage = () => {
                 ) : bookingRequests.length === 0 ? (
                   <p className="text-sm text-gray-500">You have no pending booking requests.</p>
                 ) : (
-                  bookingRequests.map((request, index) => (
+                  bookingRequests.map((request, index) => {
+                    const studentName = request.student?.name || 'Unknown Student';
+                    const skillName = request.skill?.name || 'Unknown Skill';
+                    const studentId = request.student?._id || 'default';
+                    
+                    return (
                     <div key={request._id} className="border-b border-gray-200 last:border-b-0 pb-4 mb-4">
                       <div className="flex items-center space-x-3 mb-2">
-                        <img src={`https://i.pravatar.cc/32?u=${request.student._id}`} alt={request.student.name} className="h-8 w-8 rounded-full" />
+                        <img src={`https://i.pravatar.cc/32?u=${studentId}`} alt={studentName} className="h-8 w-8 rounded-full" />
                         <div>
-                          <p className="font-semibold text-gray-800">{request.student.name}</p>
-                          <p className="text-xs text-indigo-600">{request.skill.name}</p>
+                          <p className="font-semibold text-gray-800">{studentName}</p>
+                          <p className="text-xs text-indigo-600">{skillName}</p>
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
@@ -401,7 +420,8 @@ const CalendarPage = () => {
                         </button>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
               
