@@ -17,18 +17,20 @@ import PostPage from './components/user/PostPage';
 import BookingSessionPage from './components/user/bookSession';
 import SettingsPage from './components/user/settingsPage';
 import ManageUsers from './components/admin/manageUser';
+import SkillRecommendations from './components/user/SkillRecommandation';
 
 function App() {
-  return (
-    <div>
-      <Toaster />
-      <Routes>
+  return (
+    <div>
+      <Toaster />
+      <Routes>
         <Route path="/" element={<CollabLearnLanding />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/browse-skills" element={<ProtectedRoute><BrowseSkills /></ProtectedRoute>} />
+        <Route path="/skill-recommendations" element={<ProtectedRoute><SkillRecommendations /></ProtectedRoute>} />
         <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         <Route path="/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
         <Route path="/post/:postId" element={<ProtectedRoute><PostPage /></ProtectedRoute>} />
@@ -36,12 +38,12 @@ function App() {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/book-session" element={<ProtectedRoute><BookingSessionPage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      
-        <Route path="/admin/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />            
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      
+        <Route path="/admin/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />         
         </Routes> 
-      {/* <SettingsPage /> */}
-    </div>
-  );
+      {/* <SettingsPage /> */}
+    </div>
+  );
 }
 
 export default App;
