@@ -238,7 +238,7 @@ const CalendarPage = () => {
                 <select 
                   value={currentView}
                   onChange={handleViewChange}
-                  className="appearance-none border border-gray-300 rounded-lg py-2 px-4 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="appearance-none border border-gray-300 rounded-lg py-2 px-4 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
                 >
                     <option>Day</option>
                     <option>Week</option>
@@ -253,8 +253,8 @@ const CalendarPage = () => {
                 <span className="material-icons-outlined text-xl mr-1">&#x2B;</span> Filter
               </button>
               
-              {/* Block Time Button (Indigo-Themed) */}
-              <button className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200 font-semibold">
+              {/* Block Time Button (Sky-Themed) */}
+              <button className="flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg shadow-md hover:bg-sky-700 transition-colors duration-200 font-semibold">
                 <span className="material-icons-outlined text-xl mr-2">&#x2B;</span> Block Time
               </button>
             </div>
@@ -322,7 +322,7 @@ const CalendarPage = () => {
                           className={`h-32 p-1 border-b border-r border-gray-200 ${!isSameMonth(day, currentDate) ? 'bg-gray-50' : 'bg-white'} transition-colors duration-300 hover:bg-gray-100`}
                         >
                           <div className={`text-sm font-medium h-6 w-6 flex items-center justify-center rounded-full 
-                            ${isToday(day) ? 'bg-indigo-600 text-white' : 'text-gray-700'} 
+                            ${isToday(day) ? 'bg-sky-600 text-white' : 'text-gray-700'} 
                             ${!isSameMonth(day, currentDate) ? 'text-gray-400' : ''}
                           `}>
                             {format(day, 'd')}
@@ -411,7 +411,7 @@ const CalendarPage = () => {
                         <img src={`https://i.pravatar.cc/32?u=${studentId}`} alt={studentName} className="h-8 w-8 rounded-full" />
                         <div>
                           <p className="font-semibold text-gray-800">{studentName}</p>
-                          <p className="text-xs text-indigo-600">{skillName}</p>
+                          <p className="text-xs text-sky-600">{skillName}</p>
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
@@ -424,7 +424,7 @@ const CalendarPage = () => {
                       <div className="flex justify-between space-x-2">
                         <button 
                           onClick={() => handleBookingAction(request._id, 'confirmed')}
-                          className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-colors duration-200 text-sm font-medium">
+                          className="flex-1 px-3 py-2 bg-sky-600 text-white rounded-lg shadow-sm hover:bg-sky-700 transition-colors duration-200 text-sm font-medium">
                           Accept
                         </button>
                         <button 
@@ -455,7 +455,7 @@ const CalendarPage = () => {
                     <span>Total hours</span>
                     <span className="font-semibold">{weekStats.totalHours.toFixed(1)}</span>
                   </div>
-                  <div className="flex justify-between text-indigo-600 font-bold pt-2 border-t border-gray-200">
+                  <div className="flex justify-between text-sky-600 font-bold pt-2 border-t border-gray-200">
                     <span>Earnings</span>
                     <span>${weekStats.earnings.toFixed(2)}</span>
                   </div>

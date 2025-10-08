@@ -204,7 +204,7 @@ export const getAvatarDisplayProps = (user, size = 48) => {
     initials: getInitials(userName),
     initialsColor: getInitialsColor(userName),
     fallbackProps: {
-      className: "w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold hover:scale-110 transition-transform border-2 border-gray-200 flex-shrink-0",
+  className: "w-12 h-12 bg-gradient-to-br from-sky-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold hover:scale-110 transition-transform border-2 border-gray-200 flex-shrink-0",
       style: { backgroundColor: getInitialsColor(userName) },
       children: getInitials(userName)
     }

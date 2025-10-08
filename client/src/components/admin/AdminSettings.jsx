@@ -5,7 +5,7 @@ import AdminNavbar from '../../navbar/adminNavbar';
 // --- Static Theme Classes (Light Mode) ---
 const themeBg = 'bg-gray-50 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-indigo-600';
+const primaryText = 'text-sky-600';
 
 // --- Main Component: AdminSettings Page ---
 export default function AdminSettings() {
@@ -80,7 +80,7 @@ export default function AdminSettings() {
                                 id="siteName"
                                 value={siteName}
                                 onChange={(e) => setSiteName(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
                                 required
                             />
                         </div>
@@ -95,7 +95,7 @@ export default function AdminSettings() {
                                 id="maintenanceMode"
                                 checked={maintenanceMode}
                                 onChange={(e) => setMaintenanceMode(e.target.checked)}
-                                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                className="h-4 w-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500"
                             />
                         </div>
                     </SettingsSection>
@@ -113,7 +113,7 @@ export default function AdminSettings() {
                                 id="minPasswordLength"
                                 value={minPasswordLength}
                                 onChange={(e) => setMinPasswordLength(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 max-w-sm"
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 max-w-sm"
                                 min="6"
                                 max="16"
                                 required
@@ -150,7 +150,7 @@ export default function AdminSettings() {
                     {/* Submit Button & Status */}
                     <div className="flex items-center justify-end mt-8">
                         {saveStatus === 'saving' && (
-                            <div className="flex items-center text-indigo-600 font-medium mr-4">
+                            <div className="flex items-center text-sky-600 font-medium mr-4">
                                 <Loader size={18} className="animate-spin mr-2" />
                                 Saving...
                             </div>
@@ -164,7 +164,7 @@ export default function AdminSettings() {
                         <button
                             type="submit"
                             disabled={saveStatus === 'saving'}
-                            className="flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors disabled:bg-indigo-400"
+                            className="flex items-center px-6 py-3 bg-sky-600 text-white font-semibold rounded-lg shadow-md hover:bg-sky-700 transition-colors disabled:bg-sky-400"
                         >
                             <Save size={20} className="mr-2" />
                             Save Configuration

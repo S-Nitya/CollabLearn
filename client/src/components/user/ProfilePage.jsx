@@ -399,7 +399,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
         <MainNavbar />
         <div className="flex items-center gap-3">
-          <Loader className="animate-spin text-indigo-600" size={24} />
+          <Loader className="animate-spin text-sky-600" size={24} />
           <span className="text-lg text-gray-600">Loading profile...</span>
         </div>
       </div>
@@ -415,7 +415,7 @@ export default function ProfilePage() {
           <div className="text-red-600 text-lg mb-4">Error: {error}</div>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 cursor-pointer"
           >
             Retry
           </button>
@@ -450,7 +450,7 @@ export default function ProfilePage() {
 
                 <div className="flex items-center gap-4 mb-3 text-gray-600">
                   {profileData.joinDate && (
-                    <div className="flex items-center gap-1 transition-colors duration-200 hover:text-indigo-600">
+                    <div className="flex items-center gap-1 transition-colors duration-200 hover:text-sky-600">
                       <Calendar size={16} />
                       <span className="text-sm">
                         Joined {profileData.joinDate}
@@ -487,7 +487,7 @@ export default function ProfilePage() {
 
                 <div className="flex items-center gap-6 text-sm">
                   {profileData.email && (
-                    <div className="flex items-center gap-2 text-indigo-600 transition-all duration-200 hover:text-indigo-700">
+                    <div className="flex items-center gap-2 text-sky-600 transition-all duration-200 hover:text-sky-700">
                       <Mail size={16} />
                       <span>{profileData.email}</span>
                     </div>
@@ -508,7 +508,7 @@ export default function ProfilePage() {
 
               <div className="text-right space-y-2">
                 <div>
-                  <div className="text-4xl font-bold text-indigo-600">
+                  <div className="text-4xl font-bold text-sky-600">
                     {profileData.totalSessions}
                   </div>
                   <div className="text-sm text-gray-500">Total Sessions</div>
@@ -532,9 +532,9 @@ export default function ProfilePage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  activeTab === tab.id
-                    ? "text-indigo-600 border-b-2 border-indigo-600"
-                    : "text-gray-500 hover:text-gray-700"
+          activeTab === tab.id
+            ? "text-sky-600 border-b-2 border-sky-600"
+            : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 {tab.label}
@@ -550,14 +550,14 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm p-6 transform transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="text-indigo-600" size={24} />
+                  <BookOpen className="text-sky-600" size={24} />
                   <h2 className="text-2xl font-bold text-gray-900">
                     Skills I Offer
                   </h2>
                 </div>
                 <button
                   onClick={() => setShowAddSkillModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105 cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105 cursor-pointer"
                 >
                   <Plus size={18} />
                   <span className="font-medium">Add Skill</span>
@@ -569,7 +569,7 @@ export default function ProfilePage() {
                   {profileData.skillsOffering.map((skill, index) => (
                     <div
                       key={skill._id}
-                      className="border border-gray-200 rounded-xl p-4 bg-gray-50 transition-all duration-300 hover:shadow-md hover:border-indigo-200 animate-slide-in min-w-[280px] flex-shrink-0"
+                      className="border border-gray-200 rounded-xl p-4 bg-gray-50 transition-all duration-300 hover:shadow-md hover:border-sky-200 animate-slide-in min-w-[280px] flex-shrink-0"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -761,7 +761,7 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setNewSkill({ ...newSkill, name: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                   required
                 >
                   <option value="">Select a skill...</option>
@@ -782,7 +782,7 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setNewSkill({ ...newSkill, level: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                   required
                 >
                   <option value="Beginner">Beginner</option>
@@ -802,7 +802,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 cursor-pointer"
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors duration-200 cursor-pointer"
                 >
                   Add Skill
                 </button>

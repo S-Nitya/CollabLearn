@@ -197,7 +197,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
     <div className="fixed inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] mx-auto transform transition-all duration-500 scale-100 animate-slideUp overflow-hidden flex flex-col">
         {/* Decorative Header Background */}
-        <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 rounded-t-3xl p-6">
+  <div className="relative bg-gradient-to-r from-sky-600 via-purple-600 to-cyan-600 rounded-t-3xl p-6">
           <div className="absolute inset-0 bg-black/10 rounded-t-3xl"></div>
           
           {/* Header Content */}
@@ -236,7 +236,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
           {/* Profile Picture Upload */}
           <div className="flex flex-col items-center space-y-6">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-sky-600 to-purple-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <div className="relative">
                 <Avatar
                   src={imagePreview}
@@ -261,7 +261,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
                 type="button"
                 onClick={handleAvatarClick}
                 disabled={uploadingImage}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sky-600 to-purple-600 text-white rounded-xl hover:from-sky-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
               >
                 <Camera size={18} />
                 {imagePreview && imagePreview !== 'default' ? 'Change Photo' : 'Upload Photo'}
@@ -307,7 +307,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
               <span className="flex items-center gap-2">
-                <User size={16} className="text-indigo-600" />
+                <User size={16} className="text-sky-600" />
                 Full Name *
               </span>
             </label>
@@ -317,7 +317,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 font-medium placeholder:text-gray-400 ${
+                className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-sky-500/20 focus:border-sky-500 transition-all duration-200 font-medium placeholder:text-gray-400 ${
                   errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                 }`}
                 placeholder="Enter your full name"
@@ -348,7 +348,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
               <span className="flex items-center gap-2">
-                <FileText size={16} className="text-indigo-600" />
+                <FileText size={16} className="text-sky-600" />
                 Bio
               </span>
             </label>
@@ -358,7 +358,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
                 value={formData.bio}
                 onChange={handleInputChange}
                 rows="4"
-                className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 resize-none font-medium placeholder:text-gray-400 ${
+                className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-sky-500/20 focus:border-sky-500 transition-all duration-200 resize-none font-medium placeholder:text-gray-400 ${
                   errors.bio ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
                 }`}
                 placeholder="Tell others about yourself, your interests, and what you're passionate about teaching or learning..."
@@ -401,7 +401,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
               type="submit"
               className={`flex-1 px-6 py-4 rounded-xl transition-all duration-200 font-semibold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:cursor-not-allowed ${
                 hasChanges && !loading
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700'
+                  ? 'bg-gradient-to-r from-sky-600 to-purple-600 text-white hover:from-sky-700 hover:to-purple-700'
                   : 'bg-gray-200 text-gray-500 cursor-not-allowed'
               }`}
               disabled={loading || !hasChanges}
@@ -423,7 +423,7 @@ export default function EditProfile({ isOpen, onClose, profileData, onSave }) {
           {/* Change Indicator */}
           {hasChanges && !loading && (
             <div className="text-center">
-              <p className="text-sm text-indigo-600 font-medium">You have unsaved changes</p>
+              <p className="text-sm text-sky-600 font-medium">You have unsaved changes</p>
             </div>
           )}
         </form>

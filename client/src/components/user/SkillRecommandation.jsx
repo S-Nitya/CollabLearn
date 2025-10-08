@@ -119,7 +119,7 @@ const SkillRecommendations = () => {
                 <ArrowLeft className="w-4 h-4 text-gray-700" />
               </button>
               {/* Discover Skills Icon with Deeper Lavender-Purple Gradient */}
-              <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-700 rounded-full flex items-center justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-sky-500 to-purple-700 rounded-full flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -183,7 +183,7 @@ const SkillRecommendations = () => {
 
               {/* Action Button with Deeper Lavender-Purple Gradient */}
               <div className="p-5 pt-2">
-                <button className="w-full py-3 bg-gradient-to-br from-indigo-500 to-purple-700 text-white rounded-lg font-semibold text-sm 
+                <button className="w-full py-3 bg-gradient-to-br from-sky-500 to-purple-700 text-white rounded-lg font-semibold text-sm 
                   hover:shadow-md hover:scale-[1.02] transition-all duration-300">
                   Book • {card.price}
                 </button>

@@ -22,7 +22,7 @@ const activeUsersCount = 95;
 // --- Static Theme Classes (Light Mode) ---
 const themeBg = 'bg-gray-50 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-indigo-600';
+const primaryText = 'text-sky-600';
 
 // --- Utility Functions ---
 const calculateChange = (data) => {
@@ -86,7 +86,7 @@ export default function AnalyticsDashboard() {
             title: "Total Users", 
             value: totalUsers, 
             icon: <Users size={24} />, 
-            color: 'text-indigo-600', 
+            color: 'text-sky-600', 
             footer: `${userGrowthChange.change}% vs. last month`,
             footerColor: userGrowthChange.color,
             footerIcon: userGrowthChange.icon

@@ -20,10 +20,10 @@ const initialPosts = [
 
 // --- Static Theme Classes (Light Mode) ---
 const themeBg = 'bg-gray-50 text-gray-900';
-const primaryText = 'text-indigo-600';
+const primaryText = 'text-sky-600';
 const subtleText = 'text-gray-600';
 const buttonClass = (isActive) => isActive 
-    ? `py-2 px-4 rounded-lg font-semibold bg-indigo-600 text-white`
+    ? `py-2 px-4 rounded-lg font-semibold bg-sky-600 text-white`
     : `py-2 px-4 rounded-lg font-medium hover:bg-gray-200 ${subtleText}`;
 
 
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
         const activeUsers = users.filter(u => u.status === 'Active').length;
         
         const dataCards = [
-            { title: "Total Users", value: totalUsers, icon: <Users size={24} />, color: 'text-indigo-500' },
+            { title: "Total Users", value: totalUsers, icon: <Users size={24} />, color: 'text-sky-500' },
             { title: "Active Users", value: activeUsers, icon: <CheckCircle size={24} />, color: 'text-green-500' },
             { title: "Reported Posts", value: posts.filter(p => p.reports > 0).length, icon: <X size={24} />, color: 'text-red-500' },
             { title: "Instructors", value: instructors, icon: <BarChart2 size={24} />, color: 'text-yellow-500' },
