@@ -134,7 +134,7 @@ export default function AnalyticsDashboard() {
                         <BarChart2 size={30} className={`mr-3 ${primaryText}`} />
                         Platform Analytics & User Growth
                     </h1>
-                    <p className={`mt-2 ${subtleText}`}>Key performance indicators and detailed charts on user activity and platform health.</p>
+                    {/* <p className={`mt-2 ${subtleText}`}>Key performance indicators and detailed charts on user activity and platform health.</p> */}
                 </header>
 
                 {/* KPI Cards (Improved with Footer/Change Indicator) */}

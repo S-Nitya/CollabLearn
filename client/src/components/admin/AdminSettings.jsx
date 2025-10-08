@@ -62,7 +62,7 @@ export default function AdminSettings() {
                         <Settings size={30} className={`mr-3 ${primaryText}`} />
                         Admin Settings
                     </h1>
-                    <p className={`mt-2 ${subtleText}`}>Configure global platform parameters and management tools.</p>
+                    {/* <p className={`mt-2 ${subtleText}`}>Configure global platform parameters and management tools.</p> */}
                 </header>
 
                 <form onSubmit={handleSave}>

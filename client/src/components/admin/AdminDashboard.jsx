@@ -204,7 +204,7 @@ export default function AdminDashboard() {
                         <BarChart2 size={30} className={`mr-3 ${primaryText}`} />
                         Admin Dashboard
                     </h1>
-                    <p className={`mt-2 ${subtleText}`}>Manage platform content, users, and view key metrics.</p>
+                    {/* <p className={`mt-2 ${subtleText}`}>Manage platform content, users, and view key metrics.</p> */}
                 </header>
 
                 {/* Navigation Tabs */}
