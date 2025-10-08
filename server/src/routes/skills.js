@@ -19,7 +19,10 @@ const {
   getUserSkills,
   searchSkills,
   getSkillCategories,
-  getAllSkillNames
+  getAllSkillNames,
+  
+  // Advanced Recommendations
+  getPersonalizedRecommendations
 } = require('../controllers/skillController');
 
 // ============= SKILL POSTING ROUTES (BROWSE SKILLS MODAL) =============
@@ -40,5 +43,8 @@ router.get('/my-skills', auth, getUserSkills);
 router.get('/search', searchSkills);
 router.get('/categories', getSkillCategories);
 router.get('/names', getAllSkillNames);
+
+// ============= RECOMMENDATION ROUTES =============
+router.get('/recommendations', auth, getPersonalizedRecommendations);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, BookOpen, Clock, Star, ArrowLeft, Zap, Award } from 'lucide-react';
+import { Sparkles, BookOpen, Clock, Star, ArrowLeft, Zap, Award, TrendingUp } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar';
 
 // Skeleton Loader Component
@@ -37,62 +37,7 @@ const SkillRecommendations = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const calculateMatchScore = (recommendedSkill, currentUserSkills) => {
-      if (!recommendedSkill || !currentUserSkills) return 0;
-
-      let score = 0;
-      const weights = {
-        oneWayMatch: 40,
-        peerMatch: 20,
-        tagOverlap: 25,
-        categoryOverlap: 10,
-        profileCompleteness: 5,
-        recency: 5,
-      };
-
-      const { user: recommendedUser, name: recommendedName, tags: theirTagsRaw, category: theirCategory, updatedAt } = recommendedSkill;
-
-      if (!recommendedUser) return 0;
-
-      const seekingNames = (currentUserSkills.seeking || []).map(s => s.name.toLowerCase());
-      if (seekingNames.includes((recommendedName || '').toLowerCase())) {
-        score += weights.oneWayMatch;
-      }
-      const offeringNames = (currentUserSkills.offering || []).map(s => s.name.toLowerCase());
-      if (offeringNames.includes((recommendedName || '').toLowerCase())) {
-        score += weights.peerMatch;
-      }
-
-      const myTags = [...(currentUserSkills.offering || []), ...(currentUserSkills.seeking || [])].flatMap(s => s.tags?.map(t => t.toLowerCase()) || []);
-      const theirTags = (theirTagsRaw || []).map(t => t.toLowerCase());
-      if (myTags.length > 0 && theirTags.length > 0) {
-        const commonTags = myTags.filter(t => theirTags.includes(t));
-        score += Math.min(weights.tagOverlap, commonTags.length * 5);
-      }
-
-      const myCategories = [...new Set([...(currentUserSkills.offering || []), ...(currentUserSkills.seeking || [])].map(s => s.category))];
-      if (theirCategory && myCategories.includes(theirCategory)) {
-        score += weights.categoryOverlap;
-      }
-
-      let completenessBonus = 0;
-      if (recommendedUser.avatar && recommendedUser.avatar.type !== 'default' && recommendedUser.avatar.url) {
-        completenessBonus += 3;
-      }
-      score += Math.min(weights.profileCompleteness, completenessBonus);
-
-      if (updatedAt) {
-        const skillDate = new Date(updatedAt);
-        const now = new Date();
-        const daysSinceUpdate = (now - skillDate) / (1000 * 60 * 60 * 24);
-        if (daysSinceUpdate < 7) score += weights.recency;
-        else if (daysSinceUpdate < 30) score += weights.recency / 2;
-      }
-
-      return Math.min(100, Math.ceil(score));
-    };
-
-    const fetchInitialData = async () => {
+    const fetchRecommendations = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -105,57 +50,68 @@ const SkillRecommendations = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         };
-        
-        const fetchOptions = { headers, cache: 'no-store' };
 
-        const timestamp = new Date().getTime();
-        const recommendationsUrl = `http://localhost:5000/api/skills/search?offering=true&t=${timestamp}`;
+        // Use the new personalized recommendations endpoint
+        const response = await fetch('http://localhost:5000/api/skills/recommendations', {
+          headers,
+          cache: 'no-store'
+        });
 
-        const [recsResponse, userSkillsResponse] = await Promise.all([
-          fetch(recommendationsUrl, fetchOptions),
-          fetch('http://localhost:5000/api/skills/my-skills', fetchOptions)
-        ]);
-
-        if (!recsResponse.ok) throw new Error(`Failed to fetch recommendations: ${recsResponse.statusText}`);
-        if (!userSkillsResponse.ok) throw new Error(`Failed to fetch user skills: ${userSkillsResponse.statusText}`);
-
-        const recommendationsData = await recsResponse.json();
-        const userSkillsData = await userSkillsResponse.json();
-
-        let currentUserData = { offering: [], seeking: [] };
-        let currentUserId = null;
-
-        if (userSkillsData.success && userSkillsData.data) {
-          currentUserData = userSkillsData.data;
-          const firstSkill = (currentUserData.offering && currentUserData.offering[0]) || (currentUserData.seeking && currentUserData.seeking[0]);
-          if (firstSkill) {
-            currentUserId = firstSkill.user;
-          }
+        if (!response.ok) {
+          throw new Error(`Failed to fetch recommendations: ${response.statusText}`);
         }
 
-        const rawRecommendations = recommendationsData.data || recommendationsData || [];
+        const data = await response.json();
 
-        const filteredRecommendations = currentUserId
-          ? rawRecommendations.filter(skill => skill.user._id !== currentUserId)
-          : rawRecommendations;
-
-        const scoredRecommendations = filteredRecommendations
-          .map(skill => ({
-            ...skill,
-            matchScore: calculateMatchScore(skill, currentUserData)
-          }))
-          .sort((a, b) => b.matchScore - a.matchScore);
-
-        setRecommendations(scoredRecommendations);
+        if (data.success) {
+          // Store user profile info for UI enhancements
+          localStorage.setItem('userSkillsProfile', JSON.stringify(data.userProfile || {}));
+          
+          // Set recommendations with enhanced data
+          setRecommendations(data.data || []);
+          
+          console.log('Advanced Recommendations Loaded:', {
+            total: data.data?.length || 0,
+            userProfile: data.userProfile,
+            metadata: data.metadata
+          });
+        } else {
+          throw new Error(data.message || 'Failed to get recommendations');
+        }
 
       } catch (err) {
-        setError(err);
+        console.error('Recommendation fetch error:', err);
+        setError(err.message || 'Failed to load recommendations');
+        
+        // Fallback to basic search if advanced recommendations fail
+        try {
+          const token = localStorage.getItem('token');
+          const fallbackResponse = await fetch('http://localhost:5000/api/skills/search?offering=true', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            const basicRecommendations = (fallbackData.data || []).map(skill => ({
+              ...skill,
+              recommendationScore: Math.floor(Math.random() * 50) + 30, // Basic random scoring
+              recommendationReason: 'Basic match'
+            }));
+            setRecommendations(basicRecommendations.slice(0, 12));
+            setError(null); // Clear error if fallback works
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback failed:', fallbackErr);
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInitialData();
+    fetchRecommendations();
   }, []);
 
   const handleBackToBrowse = () => {
@@ -183,6 +139,36 @@ const SkillRecommendations = () => {
       'Other': 'bg-gray-100 text-gray-800'
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getMatchScoreDetails = (score) => {
+    if (score >= 90) return { text: 'Perfect Match', color: 'from-emerald-500 to-green-600', icon: '🎯' };
+    if (score >= 80) return { text: 'Excellent Match', color: 'from-blue-500 to-indigo-600', icon: '⭐' };
+    if (score >= 70) return { text: 'Great Match', color: 'from-purple-500 to-violet-600', icon: '✨' };
+    if (score >= 60) return { text: 'Good Match', color: 'from-orange-500 to-amber-600', icon: '👍' };
+    if (score >= 50) return { text: 'Fair Match', color: 'from-yellow-500 to-orange-500', icon: '📚' };
+    return { text: 'Basic Match', color: 'from-gray-500 to-slate-600', icon: '🔍' };
+  };
+
+  const getRecommendationBadge = (skill) => {
+    // Use backend recommendation reason if available
+    if (skill.recommendationReason) {
+      const reasonMap = {
+        'directMatch': { text: 'Perfect for you', type: 'direct' },
+        'categoryAffinity': { text: 'Matches your interests', type: 'high' },
+        'instructorQuality': { text: 'Top rated instructor', type: 'rated' },
+        'socialProof': { text: 'Popular choice', type: 'experienced' },
+        'priceCompatibility': { text: 'Great value', type: 'free' },
+        'diversityBonus': { text: 'Explore new skills', type: 'explore' }
+      };
+      return reasonMap[skill.recommendationReason] || { text: 'Recommended', type: 'high' };
+    }
+    
+    // Fallback logic
+    if (skill.offering?.price === 0) return { text: 'Free to learn', type: 'free' };
+    if (skill.offering?.rating >= 4.5) return { text: 'Top rated', type: 'rated' };
+    if (skill.offering?.sessions >= 10) return { text: 'Experienced tutor', type: 'experienced' };
+    return { text: 'Worth exploring', type: 'explore' };
   };
 
   if (loading) {
@@ -236,65 +222,117 @@ const SkillRecommendations = () => {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {recommendations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {recommendations.map(skill => (
-              <div key={skill._id} className="bg-gradient-to-br from-violet-50 via-white to-indigo-50 rounded-2xl shadow-lg overflow-hidden 
-                transform transition-all duration-300 hover:scale-[1.03] hover:shadow-xl flex flex-col">
-                
-                <div className="p-5 flex flex-col flex-grow">
+            {recommendations.map(skill => {
+              const matchScore = skill.recommendationScore || skill.matchScore || 0;
+              const matchDetails = getMatchScoreDetails(matchScore);
+              const recommendation = getRecommendationBadge(skill);
+              
+              return (
+                <div key={skill._id} className="bg-gradient-to-br from-violet-50 via-white to-indigo-50 rounded-2xl shadow-lg overflow-hidden 
+                  transform transition-all duration-300 hover:scale-[1.03] hover:shadow-xl flex flex-col group">
                   
-                  <div className="flex justify-between items-center mb-4">
-                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getCategoryColor(skill.category)}`}>
-                          {skill.category}
+                  <div className="p-5 flex flex-col flex-grow">
+                    
+                    {/* Category and Match Score */}
+                    <div className="flex justify-between items-center mb-4">
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getCategoryColor(skill.category)}`}>
+                            {skill.category}
+                        </span>
+                        <div className={`flex items-center gap-1 text-xs font-semibold bg-gradient-to-r ${matchDetails.color} text-white px-2 py-0.5 rounded-full shadow-sm`}>
+                            <span>{matchDetails.icon}</span>
+                            <span>{matchScore}%</span>
+                            {skill.isTrending && <TrendingUp className="w-3 h-3 ml-1" />}
+                        </div>
+                    </div>
+
+                    {/* Recommendation Badge */}
+                    <div className="mb-3">
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full
+                        ${recommendation.type === 'direct' ? 'bg-emerald-100 text-emerald-800' :
+                          recommendation.type === 'high' ? 'bg-blue-100 text-blue-800' :
+                          recommendation.type === 'free' ? 'bg-green-100 text-green-800' :
+                          recommendation.type === 'rated' ? 'bg-amber-100 text-amber-800' :
+                          recommendation.type === 'experienced' ? 'bg-purple-100 text-purple-800' :
+                          'bg-gray-100 text-gray-800'}`}>
+                        {recommendation.text}
                       </span>
-                      <div className="flex items-center gap-1 text-xs font-semibold bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 px-2 py-0.5 rounded-full">
-                          {skill.matchScore > 90 ? <Award className="w-3 h-3 text-amber-500"/> : <Zap className="w-3 h-3 text-purple-600"/>}
-                          <span>{skill.matchScore}% Match</span>
+                    </div>
+
+                    {/* Instructor Info */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-200 to-purple-200 flex items-center justify-center text-xl shadow font-semibold text-indigo-700 group-hover:scale-110 transition-transform">
+                        {skill.user?.name?.charAt(0).toUpperCase() || '?'}
                       </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-800">{skill.user?.name || 'Anonymous'}</h3>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                          <span>{skill.offering?.rating?.toFixed(1) || skill.user?.rating?.average?.toFixed(1) || 'N/A'}</span>
+                          <span>•</span>
+                          <span>{skill.offering?.sessions || skill.user?.totalSessions || 0} sessions</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Skill Details */}
+                    <div className="flex-grow">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-indigo-700 transition-colors">{skill.name}</h4>
+                      <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3">
+                        {skill.offering?.description || 'Discover this skill with an experienced instructor.'}
+                      </p>
+                    </div>
+                    
+                    {/* Skill Metadata */}
+                    <div className="flex items-center gap-3 text-xs text-gray-700 mt-auto">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-indigo-600" />
+                        <span>{skill.offering?.duration || 'Flexible'}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-indigo-600" />
+                        <span>{skill.offering?.level || 'All levels'}</span>
+                      </div>
+                    </div>
+
+                    {/* Match Score Details */}
+                    <div className="mt-3 text-xs text-gray-500">
+                      <span className="font-medium">{matchDetails.text}</span>
+                      {matchScore >= 80 && (
+                        <span className="ml-2 text-emerald-600">• Highly recommended</span>
+                      )}
+                      {skill.scoreBreakdown && (
+                        <div className="mt-1 text-xs text-gray-400">
+                          Based on: {Object.entries(skill.scoreBreakdown)
+                            .filter(([_, score]) => score > 0)
+                            .map(([key, _]) => key.replace(/([A-Z])/g, ' $1').toLowerCase())
+                            .join(', ')}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-200 to-purple-200 flex items-center justify-center text-xl shadow font-semibold text-indigo-700">
-                      {skill.user?.name?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold text-gray-800">{skill.user?.name || 'Anonymous'}</h3>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                        <span>{skill.offering?.rating?.toFixed(1) || 'N/A'}</span>
-                        <span>({skill.offering?.sessions || 0} reviews)</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex-grow">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{skill.name}</h4>
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">{skill.offering?.description || 'No description provided.'}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 text-xs text-gray-700 mt-auto">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-indigo-600" />
-                      <span>{skill.offering?.duration || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="w-3 h-3 text-indigo-600" />
-                      <span>{skill.offering?.level || 'N/A'}</span>
-                    </div>
+                  {/* Action Button */}
+                  <div className="p-5 pt-2">
+                    <button className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold text-sm 
+                      hover:shadow-md hover:scale-[1.02] transition-all duration-300 group-hover:from-indigo-700 group-hover:to-purple-700">
+                      Book Session • {skill.offering?.price > 0 ? `$${skill.offering.price}/hr` : 'Free'}
+                    </button>
                   </div>
                 </div>
-
-                <div className="p-5 pt-2">
-                  <button className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold text-sm 
-                    hover:shadow-md hover:scale-[1.02] transition-all duration-300">
-                    Book • {skill.offering?.price > 0 ? `$${skill.offering.price}/hr` : 'Free'}
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-10">
-            <p>No recommendations found at the moment. Try adding skills you want to learn to your profile!</p>
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-indigo-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No recommendations yet</h3>
+              <p className="text-gray-600 text-sm">
+                Add skills you want to learn to your profile to get personalized recommendations!
+              </p>
+            </div>
           </div>
         )}
       </div>
