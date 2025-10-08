@@ -210,9 +210,8 @@ const SkillRecommendations = () => {
   return (
       <div className="min-h-screen bg-slate-50">
         <MainNavbar />
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      <main className="pt-24 max-w-7xl mx-auto px-4">
+        <div className="mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
@@ -221,7 +220,8 @@ const SkillRecommendations = () => {
               >
                 <ArrowLeft className="w-4 h-4 text-gray-700" />
               </button>
-              <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+              {/* Discover Skills Icon with Deeper Lavender-Purple Gradient */}
+              <div className="w-9 h-9 bg-gradient-to-br from-sky-500 to-purple-700 rounded-full flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>

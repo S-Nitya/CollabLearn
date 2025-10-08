@@ -89,9 +89,8 @@ app.get('/api/messages/:chatId', async (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/skills', require('./routes/skills'));
-
-// ✅ New Booking route
-app.use('/api/bookings', require('./routes/booking'));  // <-- Add this line
+app.use('/api/booking', require('./routes/booking'));
+app.use('/api/dashboard', require('./routes/dashboard'));
 
 // Root
 app.get('/', (req, res) => {

@@ -12,7 +12,7 @@ export default function CollabLearnLanding() {
       <section className="relative px-6 py-20 md:py-32">
         <div className="max-w-6xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-purple-100 rounded-full text-indigo-600 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-purple-100 rounded-full text-sky-600 text-sm font-medium">
             <span className="text-purple-600">⚡</span>
             Join 10,000+ active learners
           </div>
@@ -20,7 +20,7 @@ export default function CollabLearnLanding() {
           {/* Main Heading */}
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
             Learn Skills,{' '}
-            <span className="bg-gradient-to-r from-indigo-600 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
+             <span className="bg-gradient-to-r from-sky-600 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
               Teach Others
             </span>
             ,<br />
@@ -36,12 +36,12 @@ export default function CollabLearnLanding() {
 
           {/* Email Signup */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto mb-8">
-            <input
+              <input
               type="email"
               placeholder="Enter your email to get started"
-              className="w-full px-6 py-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-6 py-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
-            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+            <Link to="/signup" className="w-full sm:w-auto px-8 py-4 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition whitespace-nowrap">
               Join Free
             </Link>
           </div>
@@ -63,8 +63,8 @@ export default function CollabLearnLanding() {
           </div>
 
           {/* Decorative Icons */}
-          <div className="absolute left-8 top-32 bg-purple-100 p-4 rounded-2xl hidden lg:block">
-            <Code className="w-8 h-8 text-indigo-600" />
+            <div className="absolute left-8 top-32 bg-purple-100 p-4 rounded-2xl hidden lg:block">
+              <Code className="w-8 h-8 text-sky-600" />
           </div>
           <div className="absolute right-8 top-48 bg-cyan-100 p-4 rounded-2xl hidden lg:block">
             <Music className="w-8 h-8 text-cyan-600" />
@@ -86,7 +86,7 @@ export default function CollabLearnLanding() {
             {/* Programming */}
             <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition border border-gray-100">
               <div className="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
-                <Code className="w-8 h-8 text-indigo-600" />
+                  <Code className="w-8 h-8 text-sky-600" />
               </div>
               <h3 className="text-2xl font-bold mb-2">Programming</h3>
               <p className="text-gray-600">2.5k+ skills</p>
@@ -136,7 +136,7 @@ export default function CollabLearnLanding() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Learn from Peers */}
             <div className="text-center">
-              <div className="bg-indigo-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
+                <div className="bg-sky-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
                 <Users className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4">Learn from Peers</h3>
@@ -147,7 +147,7 @@ export default function CollabLearnLanding() {
 
             {/* Flexible Scheduling */}
             <div className="text-center">
-              <div className="bg-indigo-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
+                <div className="bg-sky-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
                 <Calendar className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4">Flexible Scheduling</h3>
@@ -158,7 +158,7 @@ export default function CollabLearnLanding() {
 
             {/* Earn Rewards */}
             <div className="text-center">
-              <div className="bg-indigo-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
+                <div className="bg-sky-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
                 <Trophy className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4">Earn Rewards</h3>
@@ -169,7 +169,7 @@ export default function CollabLearnLanding() {
 
             {/* Safe & Secure */}
             <div className="text-center">
-              <div className="bg-indigo-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
+                <div className="bg-sky-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg">
                 <Shield className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4">Safe & Secure</h3>
@@ -256,7 +256,7 @@ export default function CollabLearnLanding() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-24 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500">
+  <section className="px-6 py-24 bg-gradient-to-r from-purple-600 via-sky-600 to-cyan-500">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Start Your Learning Journey?
@@ -265,7 +265,7 @@ export default function CollabLearnLanding() {
             Join thousands of learners and teachers who are already growing their
             skills together.
           </p>
-          <Link to="/signup" className="px-10 py-4 bg-white text-indigo-600 rounded-lg font-bold text-lg hover:bg-gray-50 transition shadow-lg">
+          <Link to="/signup" className="px-10 py-4 bg-white text-sky-600 rounded-lg font-bold text-lg hover:bg-gray-50 transition shadow-lg">
             Get Started for Free
           </Link>
         </div>
@@ -282,12 +282,12 @@ export default function CollabLearnLanding() {
                 alt="CollabLearn Logo" 
                 className="w-10 h-10 rounded-lg object-cover" 
               />
-              <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
+              <span className="text-2xl font-bold text-sky-600">CollabLearn</span>
             </div>
             <div className="flex gap-8 text-gray-600">
-              <a href="#" className="hover:text-indigo-600 transition">Privacy</a>
-              <a href="#" className="hover:text-indigo-600 transition">Terms</a>
-              <a href="#" className="hover:text-indigo-600 transition">Support</a>
+              <a href="#" className="hover:text-sky-600 transition">Privacy</a>
+              <a href="#" className="hover:text-sky-600 transition">Terms</a>
+              <a href="#" className="hover:text-sky-600 transition">Support</a>
             </div>
           </div>
           <div className="text-center text-gray-600">

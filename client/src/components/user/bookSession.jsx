@@ -57,7 +57,7 @@ const BookingModal = ({
 
         <p className="text-gray-700 mb-4">
           Instructor:{" "}
-          <span className="font-semibold text-indigo-600">
+          <span className="font-semibold text-sky-600">
             {instructorName || "Unknown Instructor"}
           </span>
         </p>
@@ -115,7 +115,7 @@ const BookingModal = ({
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
+            className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700"
           >
             Confirm Booking
           </button>
@@ -219,14 +219,14 @@ export default function BookingSessionPage() {
       )}
       {!isModalVisible && (
         <div className="bg-white p-10 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-bold text-indigo-600">
+          <h2 className="text-2xl font-bold text-sky-600">
             Request Sent
           </h2>
           <p className="text-gray-600 mt-2">
             The instructor has been notified of your request.
           </p>
           <button
-            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700"
+            className="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700"
             onClick={() => window.history.back()}
           >
             Go Back
