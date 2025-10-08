@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X, ChevronDown } from 'lucide-react';
+import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clock, MapPin, Star, UserPlus, X, ChevronDown, Sparkles } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar.jsx';
 import { Link } from 'react-router-dom';
 import { getAvatarDisplayProps, hasCustomAvatar } from '../../utils/avatarUtils';
@@ -556,10 +556,10 @@ export default function SkillSwapBrowse() {
             <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
               <option>All Categories</option>
             </select>
-            <button className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-all hover:border-indigo-400 cursor-pointer">
-              <Filter size={20} />
-              <span className="font-medium">More Filters</span>
-            </button>
+            <Link to="/skill-recommendations" className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-all hover:border-indigo-400 cursor-pointer">
+              <Sparkles size={20} />
+              <span className="font-medium">Recommendations</span>
+            </Link>
             <button 
               className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all hover:shadow-lg font-semibold cursor-pointer"
               onClick={() => setShowPostSkillModal(true)}
