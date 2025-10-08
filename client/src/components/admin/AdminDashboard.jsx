@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Trash2, BarChart2, CheckCircle, X, Loader } from 'lucide-react';
-// Assuming the useTheme hook is available via your context
-import { useTheme } from './context/ThemeContext'; 
-// Assuming MainNavbar exists at this path
-import MainNavbar from '../navbar/mainNavbar'; 
+
+// Assuming AdminNavbar exists at this path
+import AdminNavbar from '../../navbar/adminNavbar'; 
 
 // --- Dummy Data (Replace with API calls) ---
 const initialUsers = [
@@ -19,24 +18,21 @@ const initialPosts = [
     { id: 103, author: 'Alice Johnson', content: 'Completed my first HTML session!', date: '2025-09-30', reports: 0, status: 'Live' },
 ];
 
+// --- Static Theme Classes (Light Mode) ---
+const themeBg = 'bg-gray-50 text-gray-900';
+const primaryText = 'text-indigo-600';
+const subtleText = 'text-gray-600';
+const buttonClass = (isActive) => isActive 
+    ? `py-2 px-4 rounded-lg font-semibold bg-indigo-600 text-white`
+    : `py-2 px-4 rounded-lg font-medium hover:bg-gray-200 ${subtleText}`;
+
+
 // --- Main Component ---
 export default function AdminDashboard() {
-    // Access theme context for dark mode styling
-    const { isDarkMode } = useTheme();
     const [activeTab, setActiveTab] = useState('users'); // users, posts, demographics
     const [users, setUsers] = useState(initialUsers);
     const [posts, setPosts] = useState(initialPosts);
     const [loading, setLoading] = useState(false);
-
-    // --- Theme Utility Classes ---
-    const themeBg = isDarkMode ? 'bg-gray-900 text-gray-50' : 'bg-gray-50 text-gray-900';
-    const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
-    const primaryText = isDarkMode ? 'text-indigo-400' : 'text-indigo-600';
-    const subtleText = isDarkMode ? 'text-gray-400' : 'text-gray-600';
-    const buttonClass = (isActive) => isActive 
-        ? `py-2 px-4 rounded-lg font-semibold ${isDarkMode ? 'bg-indigo-700 text-white' : 'bg-indigo-600 text-white'}`
-        : `py-2 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 ${subtleText}`;
-
 
     // --- Admin Actions ---
 
@@ -62,9 +58,9 @@ export default function AdminDashboard() {
     
     // --- Sub-Component: Users Table ---
     const UserManagement = () => (
-        <div className={`shadow-xl rounded-xl p-6 ${cardBg} overflow-x-auto`}>
+        <div className={`shadow-xl rounded-xl p-6 bg-white border border-gray-200 overflow-x-auto`}>
             <h3 className="text-xl font-bold mb-6">Registered Users ({users.length})</h3>
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
                         {['Name', 'Email', 'Role', 'Status', 'Actions'].map(header => (
@@ -74,13 +70,13 @@ export default function AdminDashboard() {
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="divide-y divide-gray-200">
                     {users.map(user => (
                         <tr key={user.id} className={user.status === 'Blocked' ? 'opacity-50' : ''}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{user.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">{user.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <span className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${user.role === 'Instructor' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'}`}>
+                                <span className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${user.role === 'Instructor' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                                     {user.role}
                                 </span>
                             </td>
@@ -91,7 +87,7 @@ export default function AdminDashboard() {
                                 <button
                                     onClick={() => blockUser(user.id)}
                                     disabled={user.status === 'Blocked' || loading}
-                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 disabled:opacity-50"
+                                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
                                 >
                                     {user.status === 'Blocked' ? 'Blocked' : 'Block'}
                                 </button>
@@ -106,9 +102,9 @@ export default function AdminDashboard() {
     
     // --- Sub-Component: Posts Table ---
     const PostManagement = () => (
-        <div className={`shadow-xl rounded-xl p-6 ${cardBg} overflow-x-auto`}>
+        <div className={`shadow-xl rounded-xl p-6 bg-white border border-gray-200 overflow-x-auto`}>
             <h3 className="text-xl font-bold mb-6">Community Posts ({posts.length})</h3>
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
                         {['Post ID', 'Author', 'Content Preview', 'Reports', 'Actions'].map(header => (
@@ -118,9 +114,9 @@ export default function AdminDashboard() {
                         ))}
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="divide-y divide-gray-200">
                     {posts.map(post => (
-                        <tr key={post.id} className={post.reports > 0 ? 'bg-red-50 dark:bg-red-900/20' : ''}>
+                        <tr key={post.id} className={post.reports > 0 ? 'bg-red-50' : ''}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{post.id}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">{post.author}</td>
                             <td className="px-6 py-4 max-w-xs truncate text-sm">{post.content}</td>
@@ -129,7 +125,7 @@ export default function AdminDashboard() {
                                 <button
                                     onClick={() => deletePost(post.id)}
                                     disabled={loading}
-                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200"
+                                    className="text-red-600 hover:text-red-900"
                                 >
                                     <Trash2 size={16} className="inline mr-1" /> Delete
                                 </button>
@@ -161,7 +157,7 @@ export default function AdminDashboard() {
                 <h3 className="text-xl font-bold mb-6">User Demographics & Platform Health</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {dataCards.map((card, index) => (
-                        <div key={index} className={`p-5 rounded-xl shadow-md ${cardBg}`}>
+                        <div key={index} className={`p-5 rounded-xl shadow-md bg-white border border-gray-200`}>
                             <div className="flex items-center justify-between">
                                 <div className={`${card.color}`}>
                                     {card.icon}
@@ -175,7 +171,7 @@ export default function AdminDashboard() {
                     ))}
                 </div>
                 
-                <div className={`p-6 rounded-xl shadow-md ${cardBg}`}>
+                <div className={`p-6 rounded-xl shadow-md bg-white border border-gray-200`}>
                     <h4 className="text-lg font-semibold mb-4 border-b pb-2">User Role Breakdown</h4>
                     <div className="flex justify-around items-center h-40">
                         {/* Simple Bar/Donut Chart Placeholder */}
@@ -199,7 +195,8 @@ export default function AdminDashboard() {
     // --- Main Render ---
     return (
         <div className={`min-h-screen ${themeBg} font-sans transition-colors duration-500`}>
-            <MainNavbar isDarkMode={isDarkMode} /> 
+            {/* Using the AdminNavbar */}
+            <AdminNavbar /> 
             
             <div className="pt-24 max-w-7xl mx-auto px-6 py-12">
                 <header className="mb-10">
@@ -211,7 +208,7 @@ export default function AdminDashboard() {
                 </header>
 
                 {/* Navigation Tabs */}
-                <div className={`mb-8 p-1 rounded-xl shadow-inner ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'} flex space-x-2`}>
+                <div className={`mb-8 p-1 rounded-xl shadow-inner bg-gray-200 flex space-x-2`}>
                     <button 
                         onClick={() => setActiveTab('users')} 
                         className={buttonClass(activeTab === 'users')}
@@ -243,5 +240,3 @@ export default function AdminDashboard() {
         </div>
     );
 }
-
-// NOTE: You must also modify App.jsx to include a route for this dashboard and protect it.
