@@ -16,6 +16,7 @@ import MessagesPage from './components/user/Messages';
 import PostPage from './components/user/PostPage';
 import BookingSessionPage from './components/user/bookSession';
 import SettingsPage from './components/user/settingsPage';
+import ManageUsers from './components/admin/manageUser';
 
 function App() {
   return (
@@ -35,11 +36,12 @@ function App() {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/book-session" element={<ProtectedRoute><BookingSessionPage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      </Routes> 
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      
+        <Route path="/admin/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />            
+        </Routes> 
       {/* <SettingsPage /> */}
     </div>
   );
 }
 
 export default App;
- 

@@ -65,7 +65,7 @@ export default function AdminNavbar() {
   // Define Admin Navigation Tabs
   const adminNavTabs = [
     { path: '/admin', icon: LayoutDashboard, label: 'Admin Dashboard' },
-    { path: '/admin/users', icon: Users, label: 'Manage Users' }, 
+    { path: '/admin/manage-users', icon: Users, label: 'Manage Users' }, 
     { path: '/admin/posts', icon: Trash2, label: 'Manage Posts' },
     { path: '/admin/demographics', icon: BarChart2, label: 'Analytics' },
     { path: '/settings', icon: Settings, label: 'Settings' },
