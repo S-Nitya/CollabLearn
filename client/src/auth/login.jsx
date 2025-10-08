@@ -12,13 +12,13 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // 1. Send Login Request
+      // 1. Send Login Request with role information
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role }),
       });
 
       const data = await response.json();
@@ -29,30 +29,17 @@ const LoginPage = () => {
         localStorage.setItem('username', data.user.name);
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('userAvatar', data.user.avatar || '');
-        // IMPORTANT: Store the user's actual role returned by the server
-        localStorage.setItem('userRole', data.user.role || 'user'); 
+        // Store the user's role returned by the server
+        localStorage.setItem('userRole', data.user.role); 
         
         toast.success('Login successful!');
 
-        // 3. Conditional Redirection based on user's ACTUAL role and selected role
-        
-        const actualRole = data.user.role || 'user';
-        
-        if (actualRole === 'admin' && role === 'admin') {
-          // If the user is an admin AND they selected "Login as Admin"
+        // 3. Conditional Redirection based on role
+        if (data.user.role === 'admin') {
+          // Admin login - redirect to admin dashboard
           navigate('/admin');
-        } else if (actualRole === 'admin' && role === 'user') {
-          // If a user is an admin but chooses to log in as a regular user (optional)
-          navigate('/dashboard');
-        } else if (actualRole !== 'admin' && role === 'admin') {
-            // Error if a regular user tries to login as admin
-            toast.error("You do not have administrative privileges.");
-            // Clear token and redirect to prevent unauthorized session
-            localStorage.clear();
-            navigate('/login');
-        }
-        else {
-          // Regular user login (most common case)
+        } else {
+          // Regular user login - redirect to user dashboard
           navigate('/dashboard');
         }
       } else {
