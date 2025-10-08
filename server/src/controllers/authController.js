@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 const Availability = require('../models/Availability');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -84,7 +85,7 @@ const authController = {
 
   login: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, role = 'user' } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ 
@@ -93,50 +94,90 @@ const authController = {
         });
       }
 
-      const user = await User.findOne({ email: email.toLowerCase() });
-      if (!user) {
-        return res.status(401).json({ 
-          success: false,
-          message: 'Invalid email or password'
-        });
-      }
+      let user;
+      let userRole;
 
-      if (!user.isActive) {
-        return res.status(401).json({ 
-          success: false,
-          message: 'Account is deactivated. Please contact support.' 
-        });
+      if (role === 'admin') {
+        // Authenticate against Admin model
+        user = await Admin.findOne({ email: email.toLowerCase() });
+        userRole = 'admin';
+        
+        if (!user) {
+          return res.status(401).json({ 
+            success: false,
+            message: 'Invalid admin credentials'
+          });
+        }
+
+        if (!user.isActive) {
+          return res.status(401).json({ 
+            success: false,
+            message: 'Admin account is deactivated. Please contact support.' 
+          });
+        }
+      } else {
+        // Authenticate against User model
+        user = await User.findOne({ email: email.toLowerCase() });
+        userRole = 'user';
+        
+        if (!user) {
+          return res.status(401).json({ 
+            success: false,
+            message: 'Invalid email or password'
+          });
+        }
+
+        if (!user.isActive) {
+          return res.status(401).json({ 
+            success: false,
+            message: 'Account is deactivated. Please contact support.' 
+          });
+        }
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ 
           success: false,
-          message: 'Invalid email or password'
+          message: role === 'admin' ? 'Invalid admin credentials' : 'Invalid email or password'
         });
       }
 
       const token = jwt.sign(
         { 
           userId: user._id,
-          email: user.email 
+          email: user.email,
+          role: userRole
         },
         process.env.JWT_SECRET || 'your-secret-key-change-this',
         { expiresIn: '7d' }
       );
 
+      const responseUser = {
+        id: user._id,
+        email: user.email,
+        role: userRole
+      };
+
+      // Add additional fields for regular users
+      if (role === 'user') {
+        responseUser.name = user.name;
+        responseUser.avatar = user.getAvatarUrl();
+        responseUser.avatarType = user.avatar?.type;
+        responseUser.createdAt = user.createdAt;
+      } else {
+        // For admin, set a default name
+        responseUser.name = 'Admin';
+        responseUser.avatar = null;
+        responseUser.avatarType = 'default';
+        responseUser.createdAt = user.createdAt;
+      }
+
       res.json({
         success: true,
         message: 'Login successful',
         token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          avatar: user.getAvatarUrl(),
-          avatarType: user.avatar?.type,
-          createdAt: user.createdAt
-        }
+        user: responseUser
       });
 
     } catch (error) {
