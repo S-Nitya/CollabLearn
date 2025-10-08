@@ -155,7 +155,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
           </div>
 
           <Link to={`/post/${post._id}`}>
-            <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-700">
+            <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-sky-700">
               {post.title}
             </h3>
             <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
@@ -173,14 +173,14 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
             <div className="flex items-center space-x-5">
               <button
                 onClick={() => setIsCommentVisible(!isCommentVisible)}
-                className="flex items-center space-x-1.5 cursor-pointer hover:text-indigo-600"
+                className="flex items-center space-x-1.5 cursor-pointer hover:text-sky-600"
               >
                 <FiMessageCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.comments}</span>
               </button>
               <button
                 onClick={handleLike}
-                className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer"
+                className="flex items-center space-x-1.5 hover:text-sky-600 cursor-pointer"
               >
                 <FiThumbsUp className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.likes}</span>
@@ -200,7 +200,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={handleAddComment}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
               />
               <div className="mt-2 text-sm text-gray-700 space-y-2">
                 {post.comments && post.comments.slice(-2).map((c, idx) => {
@@ -291,23 +291,23 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
           <div className="p-6 space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="What's on your mind?" />
+              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="What's on your mind?" />
             </div>
             <div>
               <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-              <textarea id="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Elaborate on your topic..."></textarea>
+              <textarea id="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="Elaborate on your topic..."></textarea>
             </div>
             <div>
               <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">Tags (Optional)</label>
-              <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="e.g., react, tailwind, webdev" />
+              <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="e.g., react, tailwind, webdev" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Category (Required)</label>
               {category && (
                 <div className="mb-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-sky-100 text-sky-800">
                     {category}
-                    <button type="button" onClick={() => setCategory('')} className="ml-2 text-indigo-500 hover:text-indigo-700">
+                    <button type="button" onClick={() => setCategory('')} className="ml-2 text-sky-500 hover:text-sky-700">
                       <FiX size={16} />
                     </button>
                   </span>
@@ -315,7 +315,7 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
               )}
               <div className="flex flex-wrap gap-2">
                 {availableCategories.map(cat => (
-                  <button key={cat} type="button" onClick={() => setCategory(cat)} disabled={!!category} className={`px-3 py-1 border rounded-full text-sm font-medium transition-colors ${category === cat ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'}`}>
+                  <button key={cat} type="button" onClick={() => setCategory(cat)} disabled={!!category} className={`px-3 py-1 border rounded-full text-sm font-medium transition-colors ${category === cat ? 'bg-sky-600 text-white border-sky-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'}`}>
                     {cat}
                   </button>
                 ))}
@@ -324,7 +324,7 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
           </div>
           <div className="flex justify-end items-center p-5 border-t space-x-3">
             <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-gray-50">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm">Publish Post</button>
+            <button type="submit" className="px-4 py-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 shadow-sm">Publish Post</button>
           </div>
         </form>
       </div>
@@ -344,7 +344,7 @@ const CommunityPage = () => {
   
   // Create a dynamic list of categories including "All Posts"
   const categoriesForFilter = [
-      { name: 'All Posts', count: allPosts.length, color: 'bg-indigo-500' },
+      { name: 'All Posts', count: allPosts.length, color: 'bg-sky-500' },
       ...initialCategories
   ];
 
@@ -491,14 +491,14 @@ const CommunityPage = () => {
               <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
                 <div className="relative w-full sm:w-auto flex-grow">
                   <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" placeholder="Search discussions..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                  <input type="text" placeholder="Search discussions..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" />
                 </div>
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
                   <button className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 transition">
                     <FiFilter className="text-gray-600" />
                     <span className="text-gray-700 font-medium">Filter</span>
                   </button>
-                  <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                  <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition shadow-sm">
                     <FiPlus />
                     <span className="font-medium">New Post</span>
                   </button>
@@ -508,7 +508,7 @@ const CommunityPage = () => {
               <div className="border-b border-gray-200 mb-6">
                 <nav className="-mb-px flex space-x-6">
                   {tabs.map(tab => (
-                    <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 text-sm font-semibold transition-colors duration-200 ${activeTab === tab ? 'border-b-2 border-indigo-600 text-indigo-600' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                    <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 text-sm font-semibold transition-colors duration-200 ${activeTab === tab ? 'border-b-2 border-sky-600 text-sky-600' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
                       {tab}
                     </button>
                   ))}
@@ -528,13 +528,13 @@ const CommunityPage = () => {
                   <button 
                     key={cat.name}
                     onClick={() => setSelectedCategory(cat.name)}
-                    className={`w-full flex justify-between items-center text-sm p-2 rounded-md transition-all duration-200 ${selectedCategory === cat.name ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`w-full flex justify-between items-center text-sm p-2 rounded-md transition-all duration-200 ${selectedCategory === cat.name ? 'bg-sky-100 text-sky-700 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
                   >
                     <div className="flex items-center">
                       <span className={`w-2 h-2 rounded-full mr-3 ${cat.color}`}></span>
                       <span className={`${selectedCategory === cat.name ? 'font-semibold' : 'font-normal'}`}>{cat.name}</span>
                     </div>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedCategory === cat.name ? 'bg-indigo-200 text-indigo-800' : 'bg-gray-200 text-gray-700'}`}>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${selectedCategory === cat.name ? 'bg-sky-200 text-sky-800' : 'bg-gray-200 text-gray-700'}`}>
                         {cat.name === 'All Posts' ? allPosts.length : allPosts.filter(p => p.category === cat.name).length}
                     </span>
                   </button>
@@ -555,7 +555,7 @@ const CommunityPage = () => {
                         </div>
                       </div>
                     </div>
-                    <span className="text-sm font-semibold text-indigo-600">{user.contributions}</span>
+                    <span className="text-sm font-semibold text-sky-600">{user.contributions}</span>
                   </div>
                 ))}
               </SidebarCard>

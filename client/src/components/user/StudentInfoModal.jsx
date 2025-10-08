@@ -127,7 +127,7 @@ const StudentInfoModal = ({ student, skill, onClose, onMessage }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-xl">
+  <div className="bg-gradient-to-r from-sky-600 to-purple-600 text-white p-6 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="bg-white bg-opacity-20 rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold">
@@ -135,8 +135,8 @@ const StudentInfoModal = ({ student, skill, onClose, onMessage }) => {
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{student.name || 'Unknown Student'}</h2>
-                <p className="text-indigo-100">Learning {skill?.name || 'Unknown Skill'}</p>
-                <p className="text-sm text-indigo-200">
+                <p className="text-sky-100">Learning {skill?.name || 'Unknown Skill'}</p>
+                <p className="text-sm text-sky-200">
                   Student since {studentDetails?.joinDate ? formatDate(studentDetails.joinDate) : 'Unknown'}
                 </p>
               </div>
@@ -152,7 +152,7 @@ const StudentInfoModal = ({ student, skill, onClose, onMessage }) => {
 
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading student details...</p>
           </div>
         ) : (
@@ -271,7 +271,7 @@ const StudentInfoModal = ({ student, skill, onClose, onMessage }) => {
               </button>
               <button 
                 onClick={() => onMessage && onMessage(student)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
               >
                 Send Message
               </button>

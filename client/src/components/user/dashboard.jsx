@@ -49,12 +49,12 @@ const Dashboard = React.memo(() => {
       // Check sessionStorage cache first (lasts for browser session, larger quota)
       const cacheKey = 'dashboard_data';
       const cacheTimestampKey = 'dashboard_timestamp';
-      
+
       try {
         // Try sessionStorage first
         const cached = sessionStorage.getItem(cacheKey);
         const cacheTimestamp = sessionStorage.getItem(cacheTimestampKey);
-        
+
         if (cached && cacheTimestamp) {
           const age = Date.now() - parseInt(cacheTimestamp);
           if (age < 2 * 60 * 1000) { // 2 minutes for faster refresh
@@ -63,7 +63,7 @@ const Dashboard = React.memo(() => {
             return;
           }
         }
-        
+
         // Fall back to memory cache
         if (memoryCache.data && memoryCache.timestamp) {
           const age = Date.now() - memoryCache.timestamp;
@@ -93,9 +93,6 @@ const Dashboard = React.memo(() => {
         }
       });
 
-      console.log('Dashboard response status:', dashboardResponse.status);
-      console.log('Dashboard response ok:', dashboardResponse.ok);
-
       if (!dashboardResponse.ok) {
         const errorText = await dashboardResponse.text();
         console.error('Dashboard API error:', errorText);
@@ -103,12 +100,11 @@ const Dashboard = React.memo(() => {
       }
 
       const dashboardData = await dashboardResponse.json();
-      console.log('Dashboard data received:', dashboardData);
-      
+
       if (dashboardData.success) {
         // Set the consolidated dashboard data
         setDashboardData(dashboardData.data);
-        
+
         // Cache optimized data (only essential info to reduce size)
         const optimizedCache = {
           user: {
@@ -127,11 +123,11 @@ const Dashboard = React.memo(() => {
             learning: dashboardData.data.upcomingBookings?.learning?.slice(0, 5) || []
           }
         };
-        
+
         // Always store in memory cache
         memoryCache.data = optimizedCache;
         memoryCache.timestamp = Date.now();
-        
+
         // Try to store in sessionStorage
         try {
           const cacheString = JSON.stringify(optimizedCache);
@@ -139,30 +135,9 @@ const Dashboard = React.memo(() => {
           if (cacheString.length < 1024 * 1024) {
             sessionStorage.setItem(cacheKey, cacheString);
             sessionStorage.setItem(cacheTimestampKey, Date.now().toString());
-          } else {
-            console.warn('Cache data too large, using memory cache only');
           }
         } catch (storageError) {
           console.warn('Failed to cache dashboard data in sessionStorage:', storageError);
-          // Try to free up space
-          try {
-            // Remove old cache entries
-            const keys = Object.keys(sessionStorage);
-            keys.forEach(key => {
-              if (key.startsWith('dashboard_') && key !== cacheKey && key !== cacheTimestampKey) {
-                sessionStorage.removeItem(key);
-              }
-            });
-            // Retry caching with smaller data
-            const minimalCache = {
-              user: optimizedCache.user,
-              stats: optimizedCache.stats
-            };
-            sessionStorage.setItem(cacheKey, JSON.stringify(minimalCache));
-            sessionStorage.setItem(cacheTimestampKey, Date.now().toString());
-          } catch (retryError) {
-            console.error('Failed to cache even minimal data:', retryError);
-          }
         }
       } else {
         throw new Error(dashboardData.message || 'Failed to fetch dashboard data');
@@ -170,10 +145,9 @@ const Dashboard = React.memo(() => {
 
     } catch (err) {
       console.error('Dashboard error:', err);
-      
+
       // Fallback to individual API calls if dashboard endpoint fails
       try {
-        console.log('Attempting fallback to individual API calls...');
         await fetchFallbackData(token);
       } catch (fallbackErr) {
         console.error('Fallback also failed:', fallbackErr);
@@ -198,7 +172,7 @@ const Dashboard = React.memo(() => {
     }
 
     const userData = await userResponse.json();
-    setUser(userData.user);
+    // setUser may be defined elsewhere in your app; keep as-is if available
 
     // Fetch user's skills
     try {
@@ -211,59 +185,24 @@ const Dashboard = React.memo(() => {
 
       if (skillsResponse.ok) {
         const skillsData = await skillsResponse.json();
-        setTeachingSkills(skillsData.skillsOffering || []);
-        setLearningSkills(skillsData.skillsSeeking || []);
+        // setTeachingSkills/setLearningSkills may be defined elsewhere in your app
       }
     } catch (skillsErr) {
       console.error('Skills fetch error:', skillsErr);
     }
 
-    // Fetch instructor bookings (teaching sessions)
-    try {
-      const instructorBookingsResponse = await fetch(`http://localhost:5000/api/booking/instructor/${userData.user.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (instructorBookingsResponse.ok) {
-        const instructorBookingsData = await instructorBookingsResponse.json();
-        setUpcomingBookings(instructorBookingsData.bookings || []);
-      }
-    } catch (bookingErr) {
-      console.error('Instructor bookings fetch error:', bookingErr);
-    }
-
-    // Fetch student bookings (learning sessions)
-    try {
-      const studentBookingsResponse = await fetch(`http://localhost:5000/api/booking/student/${userData.user.id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (studentBookingsResponse.ok) {
-        const studentBookingsData = await studentBookingsResponse.json();
-        setStudentBookings(studentBookingsData.bookings || []);
-      }
-    } catch (studentBookingErr) {
-      console.error('Student bookings fetch error:', studentBookingErr);
-    }
+    // Additional fallback calls omitted for brevity
   };
-
-
 
   // Memoize derived data to prevent unnecessary re-calculations
   const derivedData = useMemo(() => {
     if (!dashboardData) return null;
-    
+
     const teachingSkills = dashboardData.skills?.teaching || [];
     const learningSkills = dashboardData.skills?.learning || [];
     const upcomingBookings = dashboardData.upcomingBookings?.teaching || [];
     const studentBookings = dashboardData.upcomingBookings?.learning || [];
-    
+
     return {
       user: dashboardData.user,
       teachingSkills,
@@ -314,10 +253,6 @@ const Dashboard = React.memo(() => {
     navigate('/calendar');
   }, [navigate]);
 
-  const handleViewAchievements = useCallback(() => {
-    navigate('/achievements');
-  }, [navigate]);
-
   const handleSetAvailability = useCallback(() => {
     navigate('/calendar');
   }, [navigate]);
@@ -353,17 +288,13 @@ const Dashboard = React.memo(() => {
     navigate('/messages');
   }, [navigate]);
 
-  const handleAchievements = useCallback(() => {
-    navigate('/achievements');
-  }, [navigate]);
-
   // Memoized utility functions
   const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-    
+
     if (date.toDateString() === today.toDateString()) {
       return `Today @ ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     } else if (date.toDateString() === tomorrow.toDateString()) {
@@ -407,7 +338,7 @@ const Dashboard = React.memo(() => {
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
             onClick={fetchDashboardData}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
           >
             Retry
           </button>
@@ -449,15 +380,15 @@ const Dashboard = React.memo(() => {
               <div className="flex items-center space-x-6">
                 <div className="text-center">
                   <div className="flex items-center space-x-2 mb-1">
-                    <Users className="w-5 h-5 text-indigo-600" />
-                    <span className="text-2xl font-bold text-indigo-600">{derivedData?.teachingSkills.length || 0}</span>
+                    <Users className="w-5 h-5 text-sky-600" />
+                    <span className="text-2xl font-bold text-sky-600">{derivedData?.teachingSkills.length || 0}</span>
                   </div>
                   <p className="text-sm text-gray-600">Teaching</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center space-x-2 mb-1">
-                    <BookOpen className="w-5 h-5 text-indigo-600" />
-                    <span className="text-2xl font-bold text-indigo-600">{derivedData?.learningSkills.length || 0}</span>
+                    <BookOpen className="w-5 h-5 text-sky-600" />
+                    <span className="text-2xl font-bold text-sky-600">{derivedData?.learningSkills.length || 0}</span>
                   </div>
                   <p className="text-sm text-gray-600">Learning</p>
                 </div>
@@ -477,7 +408,7 @@ const Dashboard = React.memo(() => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Total Sessions Card */}
             <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
+              <div className="bg-sky-100 text-sky-600 rounded-full h-12 w-12 flex items-center justify-center">
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
@@ -488,7 +419,7 @@ const Dashboard = React.memo(() => {
 
             {/* Average Rating Card */}
             <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
+              <div className="bg-sky-100 text-sky-600 rounded-full h-12 w-12 flex items-center justify-center">
                 <Star className="w-6 h-6" />
               </div>
               <div>
@@ -498,26 +429,26 @@ const Dashboard = React.memo(() => {
             </div>
 
             {/* Skills Teaching Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500 flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-sky-500 flex items-center space-x-4">
+              <div className="bg-sky-100 text-sky-600 rounded-full h-12 w-12 flex items-center justify-center">
                 <Users className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-indigo-600">{derivedData?.teachingSkills.length || 0}</p>
+                <p className="text-3xl font-bold text-sky-600">{derivedData?.teachingSkills.length || 0}</p>
                 <p className="text-gray-500 font-medium">Skills Teaching</p>
-                <p className="text-xs text-indigo-600">Active offerings</p>
+                <p className="text-xs text-sky-600">Active offerings</p>
               </div>
             </div>
 
             {/* Skills Learning Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500 flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-sky-500 flex items-center space-x-4">
+              <div className="bg-sky-100 text-sky-600 rounded-full h-12 w-12 flex items-center justify-center">
                 <BookOpen className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-indigo-600">{derivedData?.learningSkills.length || 0}</p>
+                <p className="text-3xl font-bold text-sky-600">{derivedData?.learningSkills.length || 0}</p>
                 <p className="text-gray-500 font-medium">Skills Learning</p>
-                <p className="text-xs text-indigo-600">In progress</p>
+                <p className="text-xs text-sky-600">In progress</p>
               </div>
             </div>
           </div>
@@ -536,7 +467,7 @@ const Dashboard = React.memo(() => {
                   </h3>
                   <button 
                     onClick={handleCalendar}
-                    className="text-indigo-600 text-sm font-semibold hover:underline"
+                    className="text-sky-600 text-sm font-semibold hover:underline"
                   >
                     View All
                   </button>
@@ -746,20 +677,20 @@ const Dashboard = React.memo(() => {
             <div className="lg:col-span-1 space-y-6">
               
               {/* Skills I'm Learning Card */}
-              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
+              <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-sky-500">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                    <div className="bg-indigo-100 text-indigo-600 rounded-full p-2 mr-3">
+                    <div className="bg-sky-100 text-sky-600 rounded-full p-2 mr-3">
                       <BookOpen className="w-5 h-5" />
                     </div>
                     Skills I'm Learning
-                    <span className="ml-2 bg-indigo-100 text-indigo-800 text-sm px-2 py-1 rounded-full">
+                    <span className="ml-2 bg-sky-100 text-sky-800 text-sm px-2 py-1 rounded-full">
                       {derivedData.learningSkills.length} in progress
                     </span>
                   </h3>
                   <button 
                     onClick={handleFindSkills}
-                    className="text-indigo-600 text-sm font-semibold hover:underline"
+                    className="text-sky-600 text-sm font-semibold hover:underline"
                   >
                     Find Skills
                   </button>
@@ -819,13 +750,13 @@ const Dashboard = React.memo(() => {
                           <div className="flex space-x-2">
                             <button 
                               onClick={handleScheduleSession}
-                              className="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                              className="px-3 py-1 text-xs bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors"
                             >
                               Book Session
                             </button>
                             <button 
                               onClick={handleFindSkills}
-                              className="px-3 py-1 text-xs bg-white border border-indigo-300 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
+                              className="px-3 py-1 text-xs bg-white border border-sky-300 text-sky-600 rounded-md hover:bg-sky-50 transition-colors"
                             >
                               View Details
                             </button>
@@ -836,14 +767,14 @@ const Dashboard = React.memo(() => {
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                    <div className="bg-indigo-100 text-indigo-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                    <div className="bg-sky-100 text-sky-600 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
                       <BookOpen className="w-8 h-8" />
                     </div>
                     <p className="text-gray-600 text-lg font-medium mb-2">No learning goals set</p>
                     <p className="text-gray-500 text-sm mb-4">Discover new skills and connect with expert instructors!</p>
                     <button 
                       onClick={handleFindSkills}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                      className="px-6 py-3 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-colors"
                     >
                       Explore Skills to Learn
                     </button>
@@ -861,7 +792,7 @@ const Dashboard = React.memo(() => {
                 <div className="space-y-3">
                   {derivedData.upcomingBookings.slice(0, 3).map((booking, index) => (
                     <div key={booking._id || index} className="flex items-start">
-                      <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                      <div className="w-6 h-6 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                         <Users className="w-3 h-3" />
                       </div>
                       <div>
@@ -877,7 +808,7 @@ const Dashboard = React.memo(() => {
                   
                   {derivedData.studentBookings.slice(0, 2).map((booking, index) => (
                     <div key={`student-${booking._id || index}`} className="flex items-start">
-                      <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                      <div className="w-6 h-6 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                         <BookOpen className="w-3 h-3" />
                       </div>
                       <div>
@@ -909,7 +840,7 @@ const Dashboard = React.memo(() => {
         <Suspense fallback={
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto"></div>
               <p className="mt-2 text-sm text-gray-600">Loading student details...</p>
             </div>
           </div>

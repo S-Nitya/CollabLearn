@@ -102,7 +102,7 @@ const PostPage = () => {
       <div className="bg-gray-50 min-h-screen font-sans pt-20">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
-            <Link to="/community" className="flex items-center text-indigo-600 hover:text-indigo-800 mb-4">
+            <Link to="/community" className="flex items-center text-sky-600 hover:text-sky-800 mb-4">
               <FiArrowLeft className="mr-2" />
               Back to Community
             </Link>
@@ -150,7 +150,7 @@ const PostPage = () => {
                     <FiMessageCircle className="w-5 h-5" />
                     <span className="text-sm font-medium">{comments.length} Comments</span>
                   </span>
-                  <button onClick={handleLike} className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer">
+                  <button onClick={handleLike} className="flex items-center space-x-1.5 hover:text-sky-600 cursor-pointer">
                     <FiThumbsUp className="w-5 h-5" />
                     <span className="text-sm font-medium">{post.stats.likes}</span>
                   </button>
@@ -168,14 +168,14 @@ const PostPage = () => {
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
                       onKeyDown={handleAddComment}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500"
                       rows="3"
                     ></textarea>
                     <div className="mt-2 flex justify-end">
                       <button 
                         onClick={handleAddComment}
                         disabled={!commentText.trim()}
-                        className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 shadow-sm disabled:bg-indigo-300 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 shadow-sm disabled:bg-sky-300 disabled:cursor-not-allowed"
                       >
                         Post Comment
                       </button>

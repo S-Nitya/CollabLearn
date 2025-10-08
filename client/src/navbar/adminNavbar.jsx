@@ -24,7 +24,7 @@ export default function AdminNavbar() {
   // Link styling helper function for admin tabs
   const getLinkClass = (path) => {
     return location.pathname === path
-      ? `${linkBase} bg-indigo-600 text-white`
+  ? `${linkBase} bg-sky-600 text-white`
       : `${linkBase} text-gray-600 hover:text-gray-900 hover:bg-gray-100`;
   };
 
@@ -84,7 +84,7 @@ export default function AdminNavbar() {
               alt="CollabLearn Logo" 
               className="w-12 h-12 rounded-xl object-cover"
             />
-            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
+            <span className="text-2xl font-bold text-sky-600">CollabLearn</span>
           </div>
 
           {/* Admin Navigation Tabs */}

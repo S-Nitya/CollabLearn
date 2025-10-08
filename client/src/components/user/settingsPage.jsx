@@ -28,8 +28,8 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
     // --- Theme Utility Classes ---
     const themeBg = isDarkMode ? 'bg-gray-900 text-gray-50' : 'bg-gray-50 text-gray-900';
     const cardBg = isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200';
-    const iconColor = isDarkMode ? 'text-indigo-400' : 'text-indigo-600';
-    const switchColor = isDarkMode ? 'bg-indigo-600' : 'bg-gray-200';
+    const iconColor = isDarkMode ? 'text-sky-400' : 'text-sky-600';
+    const switchColor = isDarkMode ? 'bg-sky-600' : 'bg-gray-200';
 
     // --- Button Handler Functions ---
     
@@ -81,7 +81,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
         <div className={`p-6 rounded-xl shadow-md ${cardBg} border transition-all duration-300`}>
             <div className="flex items-start justify-between">
                 <div className="flex items-center">
-                    <div className={`p-3 rounded-full ${isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100'} mr-4`}>
+                    <div className={`p-3 rounded-full ${isDarkMode ? 'bg-sky-900' : 'bg-sky-100'} mr-4`}>
                         {icon}
                     </div>
                     <div>
@@ -111,7 +111,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                     
                     {/* 1. APPEARANCE SECTION */}
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Appearance</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-sky-500">Appearance</h2>
                         
                         <FeatureCard
                             icon={isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
@@ -120,7 +120,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                             action={
                                 <button
                                     onClick={toggleDarkMode}
-                                    className={`relative inline-flex flex-shrink-0 h-7 w-14 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${switchColor} focus:ring-indigo-600`}
+                                    className={`relative inline-flex flex-shrink-0 h-7 w-14 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${switchColor} focus:ring-sky-600`}
                                     aria-checked={isDarkMode}
                                 >
                                     <span className="sr-only">Toggle Dark Mode</span>
@@ -137,7 +137,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
 
                     {/* 2. ACCOUNT & PROFILE SECTION */}
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Account & Profile</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-sky-500">Account & Profile</h2>
                         
                         <div className="space-y-4">
                             <FeatureCard
@@ -147,7 +147,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                                 action={
                                     <button 
                                         onClick={handleManageProfile}
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors"
+                                        className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm font-semibold hover:bg-sky-700 transition-colors"
                                     >
                                         Manage
                                     </button>
@@ -186,7 +186,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
 
                     {/* 3. NOTIFICATIONS SECTION */}
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Notifications</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-sky-500">Notifications</h2>
                         
                         <div className="space-y-4">
                             <FeatureCard
@@ -218,7 +218,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                     
                     {/* 4. PAYMENT AND BILLING */}
                     <section>
-                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-500">Billing</h2>
+                        <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-sky-500">Billing</h2>
                         
                         <FeatureCard
                             icon={<CreditCard size={24} />}
@@ -278,8 +278,8 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
 const ToggleSwitch = ({ isOn, onToggle, isDarkMode }) => (
     <button
         onClick={onToggle}
-        className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 ${
-            isOn ? 'bg-indigo-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
+        className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-600 ${
+            isOn ? 'bg-sky-600' : isDarkMode ? 'bg-gray-600' : 'bg-gray-200'
         }`}
         aria-checked={isOn}
     >

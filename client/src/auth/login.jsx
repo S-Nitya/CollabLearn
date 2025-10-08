@@ -57,7 +57,7 @@ const LoginPage = () => {
       
       <div className="bg-white p-10 rounded-xl shadow-lg border border-gray-200 max-w-md w-full">
         <div className="text-left mb-8">
-          <Link to="/" className="text-sm text-gray-600 hover:text-indigo-600 transition">
+          <Link to="/" className="text-sm text-gray-600 hover:text-sky-600 transition">
             &larr; Back to Home
           </Link>
         </div>
@@ -73,7 +73,7 @@ const LoginPage = () => {
                 id="role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 bg-white appearance-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200 bg-white appearance-none"
             >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
@@ -91,7 +91,7 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
@@ -106,20 +106,20 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01]"
+            className="w-full py-3 bg-sky-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-sky-700 transition-all duration-300 transform hover:scale-[1.01]"
           >
             {role === 'admin' ? 'Log In as Admin' : 'Log In'}
           </button>
 
           <a 
             href="#" 
-            className="block mt-4 text-sm text-indigo-600 hover:underline text-center"
+            className="block mt-4 text-sm text-sky-600 hover:underline text-center"
             onClick={(e) => { e.preventDefault(); alert('Forgot Password functionality TBD'); }}
           >
             Forgot Password?
@@ -129,7 +129,7 @@ const LoginPage = () => {
             Don't have an account? 
             <Link 
                 to="/signup" 
-                className="text-indigo-600 font-semibold hover:underline ml-1"
+                className="text-sky-600 font-semibold hover:underline ml-1"
             >
                 Sign Up
             </Link>

@@ -217,7 +217,7 @@ export default function MainNavbar() {
   const getLinkClass = (path) => {
     const baseClasses = 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5';
     return location.pathname === path
-      ? `${baseClasses} bg-indigo-600 text-white`
+  ? `${baseClasses} bg-sky-600 text-white`
       : `${baseClasses} text-gray-600 hover:text-gray-900 hover:bg-gray-100`;
   };
 
@@ -233,7 +233,7 @@ export default function MainNavbar() {
               alt="CollabLearn Logo" 
               className="w-12 h-12 rounded-xl object-cover"
             />
-            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
+            <span className="text-2xl font-bold text-sky-600">CollabLearn</span>
           </div>
 
           {/* Navigation Items */}
@@ -258,10 +258,10 @@ export default function MainNavbar() {
               <Users size={20} />
               <span className="font-medium">Community</span>
             </Link>
-            <Link to="/achievements" className={getLinkClass('/achievements')}>
+            {/* <Link to="/achievements" className={getLinkClass('/achievements')}>
               <Trophy size={20} />
               <span className="font-medium">Achievements</span>
-            </Link>
+            </Link> */}
           </div>
 
           {/* User Section */}

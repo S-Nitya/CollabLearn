@@ -45,7 +45,7 @@ const SignupPage = () => {
       
       <div className="bg-white p-10 rounded-xl shadow-lg border border-gray-200 max-w-md w-full">
         <div className="text-left mb-8">
-          <Link to="/" className="text-sm text-gray-600 hover:text-indigo-600 transition">
+          <Link to="/" className="text-sm text-gray-600 hover:text-sky-600 transition">
             &larr; Back to Home
           </Link>
         </div>
@@ -64,7 +64,7 @@ const SignupPage = () => {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Choose a username"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
@@ -79,7 +79,7 @@ const SignupPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
@@ -94,7 +94,7 @@ const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Create a password"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
@@ -109,13 +109,13 @@ const SignupPage = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition duration-200"
             />
           </div>
 
           <button 
             type="submit" 
-            className="w-full py-3 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-300 transform hover:scale-[1.01]"
+            className="w-full py-3 bg-sky-600 text-white font-bold text-lg rounded-lg shadow-md hover:bg-sky-700 transition-all duration-300 transform hover:scale-[1.01]"
           >
             Sign Up
           </button>
@@ -124,7 +124,7 @@ const SignupPage = () => {
             Already have an account? 
             <Link 
                 to="/login" 
-                className="text-indigo-600 font-semibold hover:underline ml-1"
+                className="text-sky-600 font-semibold hover:underline ml-1"
             >
                 Log In
             </Link>

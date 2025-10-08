@@ -246,7 +246,7 @@ const MessagesPage = () => {
       >
         <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl text-white shadow-lg transform transition-all duration-200 hover:scale-102 ${
           isSent 
-            ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-br-none hover:shadow-xl' 
+            ? 'bg-gradient-to-br from-sky-600 to-sky-700 rounded-br-none hover:shadow-xl' 
             : 'bg-gradient-to-br from-gray-700 to-gray-800 rounded-tl-none hover:shadow-xl'
         }`}>
           <p className="text-sm">{message.text}</p>
@@ -294,9 +294,9 @@ const MessagesPage = () => {
             
             {/* Sidebar */}
             <div className="w-full lg:w-1/4 bg-white border-r overflow-y-auto">
-              <div className="p-4 border-b bg-gradient-to-r from-indigo-50 to-white">
+              <div className="p-4 border-b bg-gradient-to-r from-sky-50 to-white">
                 <input type="text" placeholder="Search contacts..."
-                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 transition-all duration-300"/>
+                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-sky-400 transition-all duration-300"/>
               </div>
               {loadingContacts ? (
                 <>
@@ -313,7 +313,7 @@ const MessagesPage = () => {
               ) : (
                 contacts.map((user) => (
                   <div key={user._id}
-                    className={`contact-item flex items-center justify-between p-4 cursor-pointer ${user._id === activeContactId ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
+                    className={`contact-item flex items-center justify-between p-4 cursor-pointer ${user._id === activeContactId ? 'bg-sky-50 border-l-4 border-sky-600' : ''}`}
                     onClick={() => setActiveContactId(user._id)}>
                     <div className="flex items-center">
                       <div className="relative">
@@ -329,7 +329,7 @@ const MessagesPage = () => {
                       </div>
                     </div>
                     {user.unread > 0 && (
-                      <span className="ml-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                      <span className="ml-2 bg-sky-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
                         {user.unread}
                       </span>
                     )}
@@ -340,12 +340,12 @@ const MessagesPage = () => {
 
             {/* Chat window */}
             <div className="w-full lg:w-2/4 flex flex-col bg-white">
-              <div className="p-4 border-b flex items-center bg-gradient-to-r from-indigo-50 to-white shadow-sm">
+              <div className="p-4 border-b flex items-center bg-gradient-to-r from-sky-50 to-white shadow-sm">
                 {activeContactId ? (
                   <div className="flex items-center">
                     <div className="relative">
                       <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/32?u=' + activeContactId}
-                           alt="avatar" className="h-10 w-10 rounded-full mr-3 ring-2 ring-indigo-200 shadow-md"/>
+                           alt="avatar" className="h-10 w-10 rounded-full mr-3 ring-2 ring-sky-200 shadow-md"/>
                       <div className="online-dot absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                     </div>
                     <div>
@@ -386,7 +386,7 @@ const MessagesPage = () => {
                     className="message-input flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none transition-all duration-300"
                     disabled={!activeContactId}/>
                   <button type="submit"
-                    className="send-button p-3 bg-indigo-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-md"
+                    className="send-button p-3 bg-sky-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-md"
                     disabled={!messageInput.trim() || !activeContactId}>
                     ➤
                   </button>
@@ -401,7 +401,7 @@ const MessagesPage = () => {
                 <div className="flex flex-col items-center">
                   <div className="relative">
                     <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/80?u=' + activeContactId}
-                         alt="avatar" className="h-20 w-20 rounded-full mb-3 ring-4 ring-indigo-100 shadow-lg"/>
+                        alt="avatar" className="h-20 w-20 rounded-full mb-3 ring-4 ring-sky-100 shadow-lg"/>
                     <div className="online-dot absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
                   <h4 className="font-bold text-gray-800">{contacts.find(u => u._id === activeContactId)?.name}</h4>

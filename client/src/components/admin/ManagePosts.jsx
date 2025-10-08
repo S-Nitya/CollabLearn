@@ -14,7 +14,7 @@ const initialPosts = [
 // --- Static Theme Classes (Light Mode) ---
 const themeBg = 'bg-gray-50 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-indigo-600';
+const primaryText = 'text-sky-600';
 
 
 // --- Main Component: Manage Posts Page ---
@@ -94,7 +94,7 @@ export default function ManagePosts() {
                     </table>
                     
                     {loading && (
-                        <div className="text-center py-4 text-indigo-600 font-medium">
+                        <div className="text-center py-4 text-sky-600 font-medium">
                             <Loader size={20} className="animate-spin inline mr-2" /> Deleting post...
                         </div>
                     )}
