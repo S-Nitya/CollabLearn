@@ -66,9 +66,9 @@ export default function AdminNavbar() {
   const adminNavTabs = [
     { path: '/admin', icon: LayoutDashboard, label: 'Admin Dashboard' },
     { path: '/admin/manage-users', icon: Users, label: 'Manage Users' }, 
-    { path: '/admin/posts', icon: Trash2, label: 'Manage Posts' },
-    { path: '/admin/demographics', icon: BarChart2, label: 'Analytics' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/admin/manage-posts', icon: Trash2, label: 'Manage Posts' },
+    { path: '/admin/analytics', icon: BarChart2, label: 'Analytics' },
+    { path: '/admin/settings', icon: Settings, label: 'Admin Settings' },
   ];
 
   // --- Render ---

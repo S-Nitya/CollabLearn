@@ -17,6 +17,9 @@ import PostPage from './components/user/PostPage';
 import BookingSessionPage from './components/user/bookSession';
 import SettingsPage from './components/user/settingsPage';
 import ManageUsers from './components/admin/manageUser';
+import ManagePosts from './components/admin/ManagePosts';
+import AnalyticsDashboard from './components/admin/Analytics';
+import AdminSettings from './components/admin/AdminSettings';
 
 function App() {
   return (
@@ -38,6 +41,9 @@ function App() {
         <Route path="/book-session" element={<ProtectedRoute><BookingSessionPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      
         <Route path="/admin/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />            
+        <Route path="/admin/manage-posts" element={<ProtectedRoute><ManagePosts /></ProtectedRoute>} />            
+        <Route path="/admin/analytics" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />            
+        <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />            
         </Routes> 
       {/* <SettingsPage /> */}
     </div>
