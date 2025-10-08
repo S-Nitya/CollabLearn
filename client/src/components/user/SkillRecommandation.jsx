@@ -231,7 +231,6 @@ const SkillRecommendations = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Main Content - Grid View */}
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -299,6 +298,7 @@ const SkillRecommendations = () => {
           </div>
         )}
       </div>
+      </main>
     </div>
   );
 };
