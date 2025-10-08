@@ -286,6 +286,53 @@ const authController = {
         message: 'Internal server error' 
       });
     }
+  },
+
+  // Get user by ID (public route for profile viewing)
+  getUserById: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const user = await User.findById(userId)
+        .select('-password')
+        .populate('skillsOffering')
+        .populate('skillsSeeking');
+      
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'User not found' 
+        });
+      }
+
+      res.json({
+        success: true,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          avatarUrl: user.getAvatarUrl(),
+          avatarType: user.avatar?.type,
+          bio: user.bio,
+          skillsOffering: user.skillsOffering,
+          skillsSeeking: user.skillsSeeking,
+          rating: user.rating,
+          totalSessions: user.totalSessions,
+          badges: user.badges,
+          joinDate: user.createdAt,
+          createdAt: user.createdAt
+        }
+      });
+
+    } catch (error) {
+      console.error('Get user by ID error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
   }
 
 };

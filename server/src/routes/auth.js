@@ -14,6 +14,9 @@ router.post('/register', authController.register);
 // POST /api/auth/login - User login
 router.post('/login', authController.login);
 
+// GET /api/auth/user/:userId - Get user by ID (public for profile viewing)
+router.get('/user/:userId', authController.getUserById);
+
 // ===== PROTECTED ROUTES (Authentication required) =====
 
 // GET /api/auth/me - Get current user profile

@@ -7,6 +7,7 @@ import { FaFire } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import MainNavbar from '../../navbar/mainNavbar';
 import { Link } from 'react-router-dom';
+import { getAvatarDisplayProps } from '../../utils/avatarUtils';
 
 // --- Static Data ---
 const initialCategories = [
@@ -36,6 +37,16 @@ const trendingTopics = [
 const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUser }) => {
   const [commentText, setCommentText] = useState("");
   const [isCommentVisible, setIsCommentVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Get avatar display props for the post author
+  const avatarProps = getAvatarDisplayProps(
+    { 
+      name: post.author, 
+      avatar: post.userInfo?.avatar || post.authorAvatar || post.avatar 
+    }, 
+    44
+  );
 
   const handleLike = async () => {
     await fetch(`http://localhost:5000/api/posts/${post._id}/like`, {
@@ -62,10 +73,39 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
     }
   };
 
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await handleDeletePost(post._id);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 animate-fade-in-up">
       <div className="flex items-start space-x-4">
-        <img src={post.avatar} alt={post.author} className="w-11 h-11 rounded-full object-cover" />
+        {/* User Avatar */}
+        <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0">
+          {avatarProps.hasCustom && avatarProps.avatarUrl ? (
+            <img 
+              src={avatarProps.avatarUrl} 
+              alt={post.author} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm ${avatarProps.hasCustom && avatarProps.avatarUrl ? 'hidden' : 'flex'}`}
+            style={{ backgroundColor: avatarProps.initialsColor }}
+          >
+            {avatarProps.initials}
+          </div>
+        </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
@@ -81,12 +121,18 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                   <span className="text-sm font-semibold">Hot</span>
                 </div>
               )}
-              {post.userId === currentUserId && (
+              {(post.userId === currentUserId || post.userId?.toString() === currentUserId || post.userId === currentUserId?.toString()) && (
                 <button 
-                  onClick={() => handleDeletePost(post._id)} 
-                  className="text-gray-400 hover:text-red-500 cursor-pointer"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className={`transition-colors duration-200 p-1 rounded-full ${
+                    isDeleting 
+                      ? 'text-gray-300 cursor-not-allowed' 
+                      : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                  }`}
+                  title={isDeleting ? "Deleting..." : "Delete post"}
                 >
-                  <FiTrash2 size={18} />
+                  <FiTrash2 size={18} className={isDeleting ? 'animate-pulse' : ''} />
                 </button>
               )}
             </div>
@@ -156,10 +202,36 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                 onKeyDown={handleAddComment}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
-              <div className="mt-2 text-sm text-gray-700 space-y-1">
-                {post.comments && post.comments.slice(-2).map((c, idx) => (
-                  <div key={idx}><b>{c.author}</b>: {c.text}</div>
-                ))}
+              <div className="mt-2 text-sm text-gray-700 space-y-2">
+                {post.comments && post.comments.slice(-2).map((c, idx) => {
+                  const commentAvatarProps = getAvatarDisplayProps({ name: c.author }, 24);
+                  return (
+                    <div key={idx} className="flex items-start space-x-2">
+                      <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                        {commentAvatarProps.hasCustom && commentAvatarProps.avatarUrl ? (
+                          <img 
+                            src={commentAvatarProps.avatarUrl} 
+                            alt={c.author} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs ${commentAvatarProps.hasCustom && commentAvatarProps.avatarUrl ? 'hidden' : 'flex'}`}
+                          style={{ backgroundColor: commentAvatarProps.initialsColor }}
+                        >
+                          {commentAvatarProps.initials}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-semibold">{c.author}</span>: {c.text}
+                      </div>
+                    </div>
+                  );
+                })}
                 {post.stats.comments > 2 && (
                   <div className="text-xs text-gray-500">
                     ...and {post.stats.comments - 2} more
@@ -197,7 +269,6 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
     }
     onAddPost({
       author: currentUser.name,
-      avatar: currentUser.avatar,
       title,
       excerpt,
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
@@ -268,6 +339,7 @@ const CommunityPage = () => {
   const [filteredPosts, setFilteredPosts] = useState([]); // Holds posts to be displayed
   const [selectedCategory, setSelectedCategory] = useState('All Posts'); // For filtering
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const tabs = ['Recent', 'Popular', 'Trending', 'Unanswered'];
   
   // Create a dynamic list of categories including "All Posts"
@@ -279,14 +351,42 @@ const CommunityPage = () => {
   const getCurrentUser = () => {
     const username = localStorage.getItem('username');
     const userId = localStorage.getItem('userId');
-    const userAvatar = localStorage.getItem('userAvatar');
     if (!username || !userId) {
-      return { id: 'anonymous', name: 'Anonymous User', avatar: 'https://i.pravatar.cc/150?u=default' };
+      return { id: 'anonymous', name: 'Anonymous User', avatar: null };
     }
-    return { id: userId, name: username, avatar: userAvatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(username)}` };
+    return { id: userId, name: username, avatar: null };
   };
 
-  const currentUser = getCurrentUser();
+  // Fetch current user data including avatar
+  const fetchCurrentUser = async () => {
+    const localUser = getCurrentUser();
+    if (localUser.id === 'anonymous') {
+      setCurrentUser(localUser);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/auth/user/${localUser.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          setCurrentUser({
+            id: data.user.id,
+            name: data.user.name,
+            avatar: data.user.avatar,
+            avatarUrl: data.user.avatarUrl
+          });
+        } else {
+          setCurrentUser(localUser);
+        }
+      } else {
+        setCurrentUser(localUser);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+      setCurrentUser(localUser);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -300,6 +400,7 @@ const CommunityPage = () => {
   };
 
   useEffect(() => {
+    fetchCurrentUser();
     fetchPosts();
   }, []);
   
@@ -329,14 +430,30 @@ const CommunityPage = () => {
   };
 
   const handleDeletePost = async (postId) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
+    if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/posts/${postId}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch(`http://localhost:5000/api/posts/${postId}`, { 
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'user-id': currentUser?.id || ''
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
+        // Show success message
+        const result = await response.json();
+        console.log('Post deleted successfully:', result.message);
+        
+        // Refresh posts
         fetchPosts();
       } catch (error) {
         console.error('Failed to delete post:', error);
-        alert('Failed to delete post. Please try again.');
+        alert(`Failed to delete post: ${error.message}. Please try again.`);
       }
     }
   };
@@ -399,7 +516,7 @@ const CommunityPage = () => {
               </div>
 
               <div className="space-y-6">
-                {filteredPosts.map((post) => (
+                {currentUser && filteredPosts.map((post) => (
                   <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} fetchPosts={fetchPosts} currentUser={currentUser} />
                 ))}
               </div>
@@ -456,7 +573,7 @@ const CommunityPage = () => {
         </div>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen && currentUser && (
         <NewPostModal 
           onAddPost={handleAddPost} 
           onClose={() => setIsModalOpen(false)} 
