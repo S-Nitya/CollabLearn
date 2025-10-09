@@ -38,13 +38,25 @@ const CalendarPage = () => {
     const fetchAllData = async () => {
         setLoadingRequests(true);
         try {
-            const [instructorBookingsRes, studentBookingsRes] = await Promise.all([
-                fetch(`http://localhost:5000/api/bookings/instructor/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(`http://localhost:5000/api/bookings/student/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
-            ]);
+      const [instructorBookingsRes, studentBookingsRes] = await Promise.all([
+        fetch(`http://localhost:5000/api/booking/instructor/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`http://localhost:5000/api/booking/student/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+      ]);
 
-            const instructorBookingsData = await instructorBookingsRes.json();
-            const studentBookingsData = await studentBookingsRes.json();
+      let instructorBookingsData = { success: false, bookings: [] };
+      let studentBookingsData = { success: false, bookings: [] };
+
+      if (instructorBookingsRes.ok) {
+        try { instructorBookingsData = await instructorBookingsRes.json(); } catch (err) { console.error('Invalid JSON from instructor bookings response', err); }
+      } else {
+        console.error('Failed to fetch instructor bookings:', instructorBookingsRes.status);
+      }
+
+      if (studentBookingsRes.ok) {
+        try { studentBookingsData = await studentBookingsRes.json(); } catch (err) { console.error('Invalid JSON from student bookings response', err); }
+      } else {
+        console.error('Failed to fetch student bookings:', studentBookingsRes.status);
+      }
 
             let pending = [];
             let confirmed = [];
@@ -100,7 +112,7 @@ const CalendarPage = () => {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+    const response = await fetch(`http://localhost:5000/api/booking/${bookingId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,9 +121,14 @@ const CalendarPage = () => {
             body: JSON.stringify({ status })
         });
 
-        const data = await response.json();
+  let data = null;
+  if (response.ok) {
+      try { data = await response.json(); } catch (err) { console.error('Failed to parse booking update JSON', err); }
+  } else {
+      console.error('Failed booking update, status:', response.status);
+  }
 
-        if (data.success && data.booking) {
+  if (data && data.success && data.booking) {
             if (status === 'confirmed') {
                 const confirmedSession = bookingRequests.find(req => req._id === bookingId);
                 if (confirmedSession) {

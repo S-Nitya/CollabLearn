@@ -181,7 +181,7 @@ export default function BookingSessionPage() {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/bookings", {
+      const res = await fetch("http://localhost:5000/api/booking", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

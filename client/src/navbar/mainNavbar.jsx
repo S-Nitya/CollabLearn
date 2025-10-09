@@ -126,14 +126,14 @@ export default function MainNavbar() {
       if (!userId || !token) return;
 
       try {
-        const [studentResponse, instructorResponse] = await Promise.all([
-            fetch(`http://localhost:5000/api/bookings/student/${userId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }),
-            fetch(`http://localhost:5000/api/bookings/instructor/${userId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-        ]);
+    const [studentResponse, instructorResponse] = await Promise.all([
+      fetch(`http://localhost:5000/api/booking/student/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }),
+      fetch(`http://localhost:5000/api/booking/instructor/${userId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+    ]);
 
         let allNotifications = [];
 
