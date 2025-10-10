@@ -1,11 +1,10 @@
 A. User Profiles
-Sign Up & Login: Simple registration via email, social media, or single sign-on (SSO) options (Google, Facebook, etc.).
+Sign Up & Login: Simple registration via email
 Personalized Profiles: Users can fill out their profile with:
 Skills they are offering to teach/share.
 Skills they are looking to learn.
 Experience level (Beginner, Intermediate, Advanced).
 Availability and preferred time for sessions.
-Ratings and reviews (based on past experiences).
 
 B. Skill Listings & Search
 
@@ -21,22 +20,8 @@ Automatic Notifications: Remind users of upcoming sessions, confirm bookings, an
 
 Session Duration: Allow flexibility in setting the duration (e.g., 30 minutes, 1 hour, etc.).
 
-E. Learning Materials & Resources
-
-Shared Documents: Allow users to share PDFs, slides, and other learning materials.
-Video Integration: Option to share YouTube videos or link to other learning resources.
-Live Sessions: Integrate video calling APIs (Zoom, Google Meet, or in-built chat) for real-time skill sharing.{*}
-
 F. Rating & Feedback System
 
 After each skill swap, both users can rate each other based on the experience.
 
 Collect feedback to continuously improve the experience.
-
-G. Gamification and Rewards
-
-Achievements/Badges: Earn badges or rewards for completing skill swaps, teaching multiple sessions, or learning a new skill.
-
-H. Discussion Forums/Community
-
-Build forums or a space where users can interact, share knowledge, ask questions, and support each other in their learning journey.

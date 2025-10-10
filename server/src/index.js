@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -11,7 +10,12 @@ const PORT = process.env.PORT || 5000;
 // Create HTTP server and initialize Socket.IO
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] }
+  cors: { 
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
+  }
 });
 
 // --- Models (ensure paths are correct) ---
@@ -19,8 +23,37 @@ const User = require('./models/User');
 const Message = require('./models/Message');
 
 // --- Socket.IO Real-time Logic ---
+// Track online users
+const onlineUsers = new Map(); // userId -> socketId
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
+
+  // Handle user going online
+  socket.on("user_online", (userId) => {
+    if (!userId) {
+      console.log("Warning: user_online event received without userId");
+      return;
+    }
+
+    // Remove any existing entry for this user (in case of reconnection)
+    for (const [existingUserId, existingSocketId] of onlineUsers.entries()) {
+      if (existingUserId === userId && existingSocketId !== socket.id) {
+        onlineUsers.delete(existingUserId);
+      }
+    }
+
+    onlineUsers.set(userId, socket.id);
+    socket.userId = userId;
+    
+    // Send current online users list to the newly connected user
+    const currentOnlineUsers = Array.from(onlineUsers.keys());
+    socket.emit("online_users_list", { onlineUsers: currentOnlineUsers });
+    
+    // Broadcast to all OTHER connected clients that this user is online
+    socket.broadcast.emit("user_status_change", { userId, isOnline: true });
+    console.log(`User ${userId} is now online. Total online users: ${onlineUsers.size}`);
+  });
 
   socket.on("joinRoom", (chatId) => {
     socket.join(chatId);
@@ -35,8 +68,8 @@ io.on("connection", (socket) => {
   socket.on("chat message", async (msg) => {
     try {
       const saved = await Message.create(msg);
-      // Emit back to the sender and everyone else in the room
-      io.to(msg.chatId).emit("chat message", saved);
+      // Emit to everyone in the room EXCEPT the sender to avoid duplication
+      socket.to(msg.chatId).emit("chat message", saved);
     } catch (err) {
       console.error("Error saving message:", err);
     }
@@ -51,12 +84,32 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    if (socket.userId) {
+      onlineUsers.delete(socket.userId);
+      // Broadcast to all connected clients that this user is offline
+      socket.broadcast.emit("user_status_change", { userId: socket.userId, isOnline: false });
+      console.log(`User ${socket.userId} is now offline. Total online users: ${onlineUsers.size}`);
+    }
   });
 });
 
 // --- Middleware ---
-app.use(cors());
+// Simple and robust CORS configuration
+app.use((req, res, next) => {
+  // Set CORS headers for all requests
+  res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
