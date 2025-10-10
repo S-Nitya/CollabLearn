@@ -73,6 +73,7 @@ const BookingModal = ({
               <input
                 type="date"
                 value={date}
+                onChange={(e) => setDate(e.target.value)}
                 className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
               />
             </div>

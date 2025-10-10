@@ -492,11 +492,11 @@ const Dashboard = React.memo(() => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <button onClick={() => isTeaching ? {} : handleJoinSession(booking)} className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${isTeaching
+                          <button onClick={() => handleJoinSession(booking)} className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${isTeaching
                               ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                               : 'bg-purple-600 text-white hover:bg-purple-700'
                             }`}>
-                            {isTeaching ? 'Prepare' : 'Join'}
+                            Join
                           </button>
                           <button className="text-gray-400 hover:text-gray-600 p-1">
                             <span className="text-lg">⋮</span>
