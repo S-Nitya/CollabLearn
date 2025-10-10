@@ -21,11 +21,11 @@ export default function AdminNavbar() {
   // Base class for navigation links
   const linkBase = 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5';
   
-  // Link styling helper function for admin tabs
+  // Link styling helper function for admin tabs (match mainNavbar colors)
   const getLinkClass = (path) => {
-    return location.pathname === path
-  ? `${linkBase} bg-sky-600 text-white`
-      : `${linkBase} text-gray-600 hover:text-gray-900 hover:bg-gray-100`;
+    const active = `${linkBase} bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md`;
+    const inactive = `${linkBase} text-gray-600 hover:text-indigo-700 hover:bg-indigo-50`;
+    return location.pathname === path ? active : inactive;
   };
 
   // Dropdown menu item styling
@@ -84,7 +84,7 @@ export default function AdminNavbar() {
               alt="CollabLearn Logo" 
               className="w-12 h-12 rounded-xl object-cover"
             />
-            <span className="text-2xl font-bold text-sky-600">CollabLearn</span>
+            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
           </div>
 
           {/* Admin Navigation Tabs */}
@@ -132,7 +132,7 @@ export default function AdminNavbar() {
                   </div>
 
                   {/* Admin Menu Items */}
-                  <div className="p-2">
+                    <div className="p-2">
                     {/* Link back to regular dashboard (Optional for quick switching) */}
                     {userRole === 'admin' && (
                         <button
@@ -164,7 +164,7 @@ export default function AdminNavbar() {
                   <div className="px-4 pb-2 pt-1 border-t border-gray-200">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
                     >
                       <LogOut size={18} />
                       <span>Sign Out</span>

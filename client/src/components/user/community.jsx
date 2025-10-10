@@ -11,7 +11,7 @@ import { getAvatarDisplayProps } from '../../utils/avatarUtils';
 
 // --- Static Data ---
 const initialCategories = [
-  { name: 'C/C++', count: 120, color: 'bg-blue-500' },
+  { name: 'C/C++', count: 120, color: 'bg-indigo-500' },
   { name: 'Python', count: 95, color: 'bg-green-500' },
   { name: 'Java', count: 80, color: 'bg-red-500' },
   { name: 'React', count: 70, color: 'bg-purple-500' },
@@ -141,21 +141,21 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
           <div className="text-sm text-gray-500 mb-2 flex items-center flex-wrap gap-2">
             <span
               className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                post.authorRole === "Expert Teacher" ? "bg-cyan-100 text-cyan-800"
-                : post.authorRole === "Community Star" ? "bg-blue-100 text-blue-800"
+                post.authorRole === "Expert Teacher" ? "bg-indigo-100 text-indigo-800"
+                : post.authorRole === "Community Star" ? "bg-indigo-100 text-indigo-800"
                 : post.authorRole === "New Contributor" ? "bg-green-100 text-green-800"
                 : "bg-purple-100 text-purple-800"
               }`}
             >
               {post.authorRole}
             </span>
-            <span className="bg-blue-100 text-blue-600 text-xs font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-indigo-100 text-indigo-600 text-xs font-semibold px-2 py-0.5 rounded-full">
               #{post.category}
             </span>
           </div>
 
           <Link to={`/post/${post._id}`}>
-            <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-sky-700">
+            <h3 className="text-lg font-bold text-gray-900 mt-1 cursor-pointer hover:text-indigo-600">
               {post.title}
             </h3>
             <p className="text-gray-600 mt-1 text-sm">{post.excerpt}</p>
@@ -171,16 +171,16 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
 
           <div className="mt-4 flex items-center text-gray-500">
             <div className="flex items-center space-x-5">
-              <button
+                <button
                 onClick={() => setIsCommentVisible(!isCommentVisible)}
-                className="flex items-center space-x-1.5 cursor-pointer hover:text-sky-600"
+                className="flex items-center space-x-1.5 cursor-pointer hover:text-indigo-600"
               >
                 <FiMessageCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.comments}</span>
               </button>
               <button
                 onClick={handleLike}
-                className="flex items-center space-x-1.5 hover:text-sky-600 cursor-pointer"
+                className="flex items-center space-x-1.5 hover:text-indigo-600 cursor-pointer"
               >
                 <FiThumbsUp className="w-4 h-4" />
                 <span className="text-sm font-medium">{post.stats.likes}</span>
@@ -200,7 +200,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 onKeyDown={handleAddComment}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
               />
               <div className="mt-2 text-sm text-gray-700 space-y-2">
                 {post.comments && post.comments.slice(-2).map((c, idx) => {
@@ -291,23 +291,23 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
           <div className="p-6 space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="What's on your mind?" />
+              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600" placeholder="What's on your mind?" />
             </div>
             <div>
               <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-              <textarea id="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="Elaborate on your topic..."></textarea>
+              <textarea id="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} rows="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600" placeholder="Elaborate on your topic..."></textarea>
             </div>
             <div>
               <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">Tags (Optional)</label>
-              <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" placeholder="e.g., react, tailwind, webdev" />
+              <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600" placeholder="e.g., react, tailwind, webdev" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Category (Required)</label>
               {category && (
                 <div className="mb-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-sky-100 text-sky-800">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
                     {category}
-                    <button type="button" onClick={() => setCategory('')} className="ml-2 text-sky-500 hover:text-sky-700">
+                    <button type="button" onClick={() => setCategory('')} className="ml-2 text-indigo-500 hover:text-indigo-700">
                       <FiX size={16} />
                     </button>
                   </span>
@@ -315,7 +315,7 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
               )}
               <div className="flex flex-wrap gap-2">
                 {availableCategories.map(cat => (
-                  <button key={cat} type="button" onClick={() => setCategory(cat)} disabled={!!category} className={`px-3 py-1 border rounded-full text-sm font-medium transition-colors ${category === cat ? 'bg-sky-600 text-white border-sky-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'}`}>
+                  <button key={cat} type="button" onClick={() => setCategory(cat)} disabled={!!category} className={`px-3 py-1 border rounded-full text-sm font-medium transition-colors ${category === cat ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed'}`}>
                     {cat}
                   </button>
                 ))}
@@ -324,7 +324,7 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
           </div>
           <div className="flex justify-end items-center p-5 border-t space-x-3">
             <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:bg-gray-50">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 shadow-sm">Publish Post</button>
+            <button type="submit" className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 shadow-sm">Publish Post</button>
           </div>
         </form>
       </div>

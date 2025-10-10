@@ -12,9 +12,9 @@ const initialUsers = [
 ];
 
 // --- Static Theme Classes (Light Mode) ---
-const themeBg = 'bg-gray-50 text-gray-900';
+const themeBg = 'bg-gray-100 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-sky-600';
+const primaryText = 'text-indigo-600';
 
 
 // --- Main Component: Manage Users Page ---
@@ -95,7 +95,7 @@ export default function ManageUsers() {
                                             <button
                                                 onClick={() => unblockUser(user.id)}
                                                 disabled={loading}
-                                                className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                                className="text-indigo-600 hover:text-indigo-900 disabled:opacity-50"
                                             >
                                                 Unblock
                                             </button>

@@ -20,9 +20,9 @@ const reportedPostsCount = 18;
 const activeUsersCount = 95;
 
 // --- Static Theme Classes (Light Mode) ---
-const themeBg = 'bg-gray-50 text-gray-900';
+const themeBg = 'bg-gray-100 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-sky-600';
+const primaryText = 'text-indigo-600';
 
 // --- Utility Functions ---
 const calculateChange = (data) => {
@@ -54,14 +54,14 @@ const MonthlyUserChart = ({ data }) => {
                 {data.map((d, index) => (
                     <div key={index} className="flex-1 flex flex-col items-center h-full justify-end">
                         <div className="text-xs text-gray-500 mb-1">{d.registered}</div>
-                        {/* Registered Bar (sky colors) */}
+                        {/* Registered Bar (admin: indigo colors) */}
                         <div 
-                            className="w-full bg-sky-300 rounded-t-lg transition-all duration-700 hover:bg-sky-400 relative" 
+                            className="w-full bg-indigo-200 rounded-t-lg transition-all duration-700 hover:bg-indigo-300 relative" 
                             style={{ height: `${(d.registered / maxVal) * 80 + 10}%` }} // Scale to 80% of container height + 10% base
                         >
-                            {/* Active Bar (sky) */}
+                            {/* Active Bar (indigo) */}
                             <div 
-                                className="absolute bottom-0 w-full bg-sky-600 rounded-t-lg" 
+                                className="absolute bottom-0 w-full bg-indigo-600 rounded-t-lg" 
                                 style={{ height: `${(d.active / d.registered) * 100}%` }}
                                 title={`Active: ${d.active}`}
                             />
@@ -71,8 +71,8 @@ const MonthlyUserChart = ({ data }) => {
                 ))}
             </div>
             <div className="flex justify-center mt-4 space-x-6 text-sm py-5">
-                <div className="flex items-center"><span className="w-3 h-3 bg-sky-300 mr-2 border"></span>Registered</div>
-                <div className="flex items-center"><span className="w-3 h-3 bg-sky-600 mr-2"></span>Active</div>
+                <div className="flex items-center"><span className="w-3 h-3 bg-indigo-200 mr-2 border"></span>Registered</div>
+                <div className="flex items-center"><span className="w-3 h-3 bg-indigo-600 mr-2"></span>Active</div>
             </div>
         </div>
     );
@@ -86,7 +86,7 @@ export default function AnalyticsDashboard() {
             title: "Total Users", 
             value: totalUsers, 
             icon: <Users size={24} />, 
-            color: 'text-sky-600', 
+            color: 'text-indigo-600', 
             footer: `${userGrowthChange.change}% vs. last month`,
             footerColor: userGrowthChange.color,
             footerIcon: userGrowthChange.icon
@@ -150,7 +150,7 @@ export default function AnalyticsDashboard() {
                                     <p className={`text-lg font-medium ${subtleText}`}>{card.title}</p>
                                     <p className="text-4xl font-extrabold mt-1">{card.value}</p>
                                 </div>
-                                <div className={`p-3 rounded-full ${card.color} bg-gray-100`}>
+                                <div className={`p-3 rounded-full ${card.color || 'text-indigo-600'} bg-gray-100`}>
                                     {card.icon}
                                 </div>
                             </div>
@@ -177,9 +177,9 @@ export default function AnalyticsDashboard() {
                     <div className="flex flex-col lg:flex-row items-center justify-around h-64">
                         
                         {/* Instructor Card */}
-                        <div className="text-center p-4 border border-green-200 rounded-lg w-full lg:w-1/3 hover:shadow-md transition-shadow">
-                            <p className="text-sm uppercase font-semibold text-green-600">Instructors</p>
-                            <p className="text-6xl font-extrabold text-green-500 my-3">{instructors}</p>
+                        <div className="text-center p-4 border border-indigo-200 rounded-lg w-full lg:w-1/3 hover:shadow-md transition-shadow">
+                            <p className="text-sm uppercase font-semibold text-indigo-600">Instructors</p>
+                            <p className="text-6xl font-extrabold text-indigo-500 my-3">{instructors}</p>
                             <p className="text-lg font-medium opacity-80">({instructorPercent}% of total)</p>
                         </div>
 
@@ -190,9 +190,9 @@ export default function AnalyticsDashboard() {
                         <div className="w-full lg:hidden border-b border-gray-200 my-4"></div>
 
                         {/* Learner Card */}
-                        <div className="text-center p-4 border border-blue-200 rounded-lg w-full lg:w-1/3 hover:shadow-md transition-shadow">
-                            <p className="text-sm uppercase font-semibold text-blue-600">Learners</p>
-                            <p className="text-6xl font-extrabold text-blue-500 my-3">{learners}</p>
+                        <div className="text-center p-4 border border-indigo-200 rounded-lg w-full lg:w-1/3 hover:shadow-md transition-shadow">
+                            <p className="text-sm uppercase font-semibold text-indigo-600">Learners</p>
+                            <p className="text-6xl font-extrabold text-indigo-500 my-3">{learners}</p>
                             <p className="text-lg font-medium opacity-80">({learnerPercent}% of total)</p>
                         </div>
                     </div>
