@@ -12,9 +12,9 @@ const initialPosts = [
 ];
 
 // --- Static Theme Classes (Light Mode) ---
-const themeBg = 'bg-gray-50 text-gray-900';
+const themeBg = 'bg-gray-100 text-gray-900';
 const subtleText = 'text-gray-600';
-const primaryText = 'text-sky-600';
+const primaryText = 'text-indigo-600';
 
 
 // --- Main Component: Manage Posts Page ---
@@ -66,7 +66,7 @@ export default function ManagePosts() {
                                 <tr 
                                     key={post.id} 
                                     // Highlight rows with reports
-                                    className={post.reports > 0 ? 'bg-red-50 hover:bg-red-100 transition-colors' : 'hover:bg-gray-50 transition-colors'}
+                                    className={post.reports > 0 ? 'bg-red-50 hover:bg-red-100 transition-colors' : 'hover:bg-gray-100 transition-colors'}
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{post.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">{post.author}</td>

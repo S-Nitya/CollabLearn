@@ -1,242 +1,274 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Trash2, BarChart2, CheckCircle, X, Loader } from 'lucide-react';
-
-// Assuming AdminNavbar exists at this path
+import React from 'react';
+import { Users, FileText, BarChart2, MessageSquare, Clock, LayoutDashboard, TrendingUp, TrendingDown, CheckCircle, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AdminNavbar from '../../navbar/adminNavbar'; 
 
-// --- Dummy Data (Replace with API calls) ---
-const initialUsers = [
-    { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'Learner', registered: '2023-01-15', sessions: 5, status: 'Active' },
-    { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'Instructor', registered: '2022-11-20', sessions: 12, status: 'Active' },
-    { id: 3, name: 'Charlie Brown', email: 'charlie@example.com', role: 'Learner', registered: '2024-03-01', sessions: 1, status: 'Inactive' },
-    { id: 4, name: 'Diana Prince', email: 'diana@example.com', role: 'Instructor', registered: '2023-07-10', sessions: 20, status: 'Active' },
+// --- DUMMY DATA ---
+const summaryData = {
+    totalUsers: 120,
+    newRequests: 5, // e.g., new instructor/report requests
+    pendingBookings: 8,
+    activePosts: 450,
+};
+
+// Simulate monthly data for registered users and active users
+const monthlyData = [
+    { month: 'Jan', registered: 10, active: 8 },
+    { month: 'Feb', registered: 15, active: 10 },
+    { month: 'Mar', registered: 25, active: 18 },
+    { month: 'Apr', registered: 40, active: 30 },
+    { month: 'May', registered: 60, active: 45 },
+    { month: 'Jun', registered: 85, active: 70 },
 ];
 
-const initialPosts = [
-    { id: 101, author: 'Bob Smith', content: 'Looking for a Java tutor!', date: '2025-10-01', reports: 0, status: 'Live' },
-    { id: 102, author: 'Scammer Bot', content: 'Click here for free crypto!', date: '2025-10-02', reports: 5, status: 'Reported' },
-    { id: 103, author: 'Alice Johnson', content: 'Completed my first HTML session!', date: '2025-09-30', reports: 0, status: 'Live' },
-];
+const totalUsers = 120;
+const instructors = 30;
+const learners = totalUsers - instructors;
+const reportedPostsCount = 18;
+const activeUsersCount = 95;
 
 // --- Static Theme Classes (Light Mode) ---
-const themeBg = 'bg-gray-50 text-gray-900';
-const primaryText = 'text-sky-600';
+const themeBg = 'bg-slate-50';
 const subtleText = 'text-gray-600';
-const buttonClass = (isActive) => isActive 
-    ? `py-2 px-4 rounded-lg font-semibold bg-sky-600 text-white`
-    : `py-2 px-4 rounded-lg font-medium hover:bg-gray-200 ${subtleText}`;
+const primaryText = 'text-indigo-600';
+
+// --- Utility Functions ---
+const calculateChange = (data) => {
+    if (data.length < 2) return { change: 0, icon: <TrendingUp size={20} className="text-gray-500" />, color: 'text-gray-500' };
+    
+    const latest = data[data.length - 1].registered;
+    const previous = data[data.length - 2].registered;
+    const percentage = ((latest - previous) / previous) * 100;
+
+    if (percentage > 0) {
+        return { change: percentage.toFixed(1), icon: <TrendingUp size={20} className="text-green-600" />, color: 'text-green-600' };
+    } else if (percentage < 0) {
+        return { change: percentage.toFixed(1), icon: <TrendingDown size={20} className="text-red-600" />, color: 'text-red-600' };
+    }
+    return { change: 0, icon: <TrendingUp size={20} className="text-gray-500" />, color: 'text-gray-500' };
+};
+
+const userGrowthChange = calculateChange(monthlyData);
 
 
-// --- Main Component ---
+// --- Sub-Component: Simple Bar Chart for Monthly Activity ---
+const MonthlyUserChart = ({ data }) => {
+    const maxVal = Math.max(...data.map(d => d.registered));
+    
+    return (
+        <div className="h-64 pt-6">
+            <h4 className="text-xl font-bold mb-4 border-b pb-2 text-gray-800">Monthly User Registration & Activity</h4>
+            <div className="flex justify-between items-end h-48 space-x-4">
+                {data.map((d, index) => (
+                    <div key={index} className="flex-1 flex flex-col items-center h-full justify-end">
+                        <div className="text-xs text-gray-500 mb-1">{d.registered}</div>
+                        {/* Registered Bar (indigo light) */}
+                        <div 
+                            className="w-full bg-indigo-200 rounded-t-lg transition-all duration-700 hover:bg-indigo-300 relative" 
+                            style={{ height: `${(d.registered / maxVal) * 80 + 10}%` }}
+                        >
+                            {/* Active Bar (indigo dark) */}
+                            <div 
+                                className="absolute bottom-0 w-full bg-gradient-to-t from-indigo-600 to-purple-700 rounded-t-lg" 
+                                style={{ height: `${(d.active / d.registered) * 100}%` }}
+                                title={`Active: ${d.active}`}
+                            />
+                        </div>
+                        <span className="text-sm font-medium mt-1">{d.month}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="flex justify-center mt-4 space-x-6 text-sm py-5">
+                <div className="flex items-center"><span className="w-3 h-3 bg-indigo-200 mr-2 border"></span>Registered</div>
+                <div className="flex items-center"><span className="w-3 h-3 bg-indigo-600 mr-2"></span>Active</div>
+            </div>
+        </div>
+    );
+}
+
+// --- Main Component: Admin Dashboard (Unified) ---
 export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState('users'); // users, posts, demographics
-    const [users, setUsers] = useState(initialUsers);
-    const [posts, setPosts] = useState(initialPosts);
-    const [loading, setLoading] = useState(false);
 
-    // --- Admin Actions ---
+    // Unified List of All 8 Metrics
+    // Unified neutral style for all metric cards to match project theme
+    const defaultBorder = 'border-l-indigo-500';
+    const defaultIconColor = 'text-indigo-600';
+    const defaultFooterColor = 'text-gray-500';
 
-    const deletePost = (postId) => {
-        setLoading(true);
-        setTimeout(() => {
-            setPosts(posts.filter(post => post.id !== postId));
-            console.log(`Post ID ${postId} deleted.`);
-            setLoading(false);
-        }, 500); // Simulate API call
-    };
+    const allMetrics = [
+        { 
+            title: "Total Registered Users", 
+            value: totalUsers, 
+            detail: "All accounts, active and inactive.", 
+            icon: <Users size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `${(totalUsers > 0 ? (activeUsersCount / totalUsers * 100).toFixed(0) : 0)}% are active`,
+            footerColor: defaultFooterColor,
+            footerIcon: <span className="w-4"></span>
+        },
+        { 
+            title: "Pending Bookings", 
+            value: summaryData.pendingBookings, 
+            detail: "Sessions awaiting instructor confirmation.", 
+            icon: <Clock size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: "Immediate action required.",
+            footerColor: defaultFooterColor,
+            footerIcon: <span className="w-4"></span>
+        },
+        { 
+            title: "New Reports/Requests", 
+            value: summaryData.newRequests + reportedPostsCount, // Combining requests and reported posts
+            detail: "Items requiring moderation/response.", 
+            icon: <MessageSquare size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `${reportedPostsCount} reported posts`,
+            footerColor: defaultFooterColor,
+            footerIcon: <X size={20} />
+        },
+        { 
+            title: "Active Skills/Posts", 
+            value: summaryData.activePosts, 
+            detail: "Total number of live offerings.", 
+            icon: <FileText size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: "Platform content health is good.",
+            footerColor: defaultFooterColor,
+            footerIcon: <CheckCircle size={20} />
+        },
+        { 
+            title: "Active Users (Current)", 
+            value: activeUsersCount, 
+            detail: "Users logged in the last 7 days.", 
+            icon: <CheckCircle size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `${(activeUsersCount / totalUsers * 100).toFixed(0)}% engagement rate`,
+            footerColor: defaultFooterColor,
+            footerIcon: <span className="w-4"></span>
+        },
+        { 
+            title: "Total Instructors", 
+            value: instructors, 
+            detail: "Users registered as skill providers.", 
+            icon: <BarChart2 size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `${(instructors / totalUsers * 100).toFixed(0)}% of total users`,
+            footerColor: defaultFooterColor,
+            footerIcon: <span className="w-4"></span>
+        },
+        { 
+            title: "User Growth (MoM)", 
+            value: `${userGrowthChange.change}%`, 
+            detail: "New user registrations vs. last month.", 
+            icon: userGrowthChange.icon, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `vs. last month (${monthlyData.slice(-2)[0].registered} users)`,
+            footerColor: defaultFooterColor,
+            footerIcon: userGrowthChange.icon
+        },
+        { 
+            title: "Learners", 
+            value: learners, 
+            detail: "Users primarily seeking sessions.", 
+            icon: <Users size={24} />, 
+            iconColor: defaultIconColor,
+            borderColor: defaultBorder,
+            footer: `${(learners / totalUsers * 100).toFixed(0)}% of total users`,
+            footerColor: defaultFooterColor,
+            footerIcon: <span className="w-4"></span>
+        },
+    ];
 
-    const blockUser = (userId) => {
-        setLoading(true);
-        setTimeout(() => {
-            setUsers(users.map(user => 
-                user.id === userId ? { ...user, status: 'Blocked' } : user
-            ));
-            console.log(`User ID ${userId} blocked.`);
-            setLoading(false);
-        }, 500); // Simulate API call
-    };
-    
-    // --- Sub-Component: Users Table ---
-    const UserManagement = () => (
-        <div className={`shadow-xl rounded-xl p-6 bg-white border border-gray-200 overflow-x-auto`}>
-            <h3 className="text-xl font-bold mb-6">Registered Users ({users.length})</h3>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        {['Name', 'Email', 'Role', 'Status', 'Actions'].map(header => (
-                            <th key={header} className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${subtleText}`}>
-                                {header}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    {users.map(user => (
-                        <tr key={user.id} className={user.status === 'Blocked' ? 'opacity-50' : ''}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{user.name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">{user.email}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <span className={`inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${user.role === 'Instructor' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                                    {user.role}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                {user.status}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button
-                                    onClick={() => blockUser(user.id)}
-                                    disabled={user.status === 'Blocked' || loading}
-                                    className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                                >
-                                    {user.status === 'Blocked' ? 'Blocked' : 'Block'}
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            {loading && <div className="text-center py-4"><Loader size={20} className="animate-spin inline mr-2" /> Processing...</div>}
-        </div>
-    );
-    
-    // --- Sub-Component: Posts Table ---
-    const PostManagement = () => (
-        <div className={`shadow-xl rounded-xl p-6 bg-white border border-gray-200 overflow-x-auto`}>
-            <h3 className="text-xl font-bold mb-6">Community Posts ({posts.length})</h3>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                    <tr>
-                        {['Post ID', 'Author', 'Content Preview', 'Reports', 'Actions'].map(header => (
-                            <th key={header} className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${subtleText}`}>
-                                {header}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    {posts.map(post => (
-                        <tr key={post.id} className={post.reports > 0 ? 'bg-red-50' : ''}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{post.id}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">{post.author}</td>
-                            <td className="px-6 py-4 max-w-xs truncate text-sm">{post.content}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-500">{post.reports}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button
-                                    onClick={() => deletePost(post.id)}
-                                    disabled={loading}
-                                    className="text-red-600 hover:text-red-900"
-                                >
-                                    <Trash2 size={16} className="inline mr-1" /> Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            {loading && <div className="text-center py-4"><Loader size={20} className="animate-spin inline mr-2" /> Processing...</div>}
-        </div>
-    );
+    const instructorPercent = (instructors / totalUsers * 100).toFixed(0);
+    const learnerPercent = (learners / totalUsers * 100).toFixed(0);
 
-    // --- Sub-Component: Demographics ---
-    const DemographicsView = () => {
-        const totalUsers = users.length;
-        const instructors = users.filter(u => u.role === 'Instructor').length;
-        const learners = totalUsers - instructors;
-        const activeUsers = users.filter(u => u.status === 'Active').length;
-        
-        const dataCards = [
-            { title: "Total Users", value: totalUsers, icon: <Users size={24} />, color: 'text-sky-500' },
-            { title: "Active Users", value: activeUsers, icon: <CheckCircle size={24} />, color: 'text-green-500' },
-            { title: "Reported Posts", value: posts.filter(p => p.reports > 0).length, icon: <X size={24} />, color: 'text-red-500' },
-            { title: "Instructors", value: instructors, icon: <BarChart2 size={24} />, color: 'text-yellow-500' },
-        ];
-        
-        return (
-            <div>
-                <h3 className="text-xl font-bold mb-6">User Demographics & Platform Health</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {dataCards.map((card, index) => (
-                        <div key={index} className={`p-5 rounded-xl shadow-md bg-white border border-gray-200`}>
-                            <div className="flex items-center justify-between">
-                                <div className={`${card.color}`}>
+
+    return (
+        <div className={`min-h-screen ${themeBg} font-sans`}>
+            <AdminNavbar /> 
+            
+            <main className="pt-24 max-w-7xl mx-auto px-6 py-12">
+                <header className="mb-12">
+                    <h1 className="text-4xl font-bold text-gray-900 flex items-center">
+                        <LayoutDashboard size={30} className={`mr-3 ${primaryText}`} />
+                        Admin Dashboard & Platform Metrics
+                    </h1>
+                    <p className={`mt-2 ${subtleText}`}>
+                        The central control panel showing key performance indicators, operational metrics, and user analytics.
+                    </p>
+                </header>
+
+                {/* --- UNIFIED PLATFORM METRICS KPI SECTION --- */}
+                <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Platform Metrics</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    {allMetrics.map((card, index) => (
+                        <div 
+                            key={`metric-${index}`} 
+                            // New Unified Card Styling: Clean BG, Shadow, Border-Left Color
+                            className={`p-5 rounded-xl shadow-lg bg-white border border-gray-200 border-l-4 ${card.borderColor || 'border-l-indigo-500'} flex flex-col justify-between transition-shadow duration-300 hover:shadow-xl`}
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex-grow">
+                                    <p className={`text-sm font-medium ${subtleText}`}>{card.title}</p>
+                                    {/* Main metric value should be plain black to match UI */}
+                                    <p className="text-3xl font-extrabold mt-1 text-black">
+                                        {card.value}
+                                    </p>
+                                </div>
+                                {/* Icon with a neutral gray background circle */}
+                                <div className={`p-2 rounded-full ${card.iconColor || 'text-indigo-600'} bg-gray-100 flex-shrink-0`}>
                                     {card.icon}
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium opacity-75">{card.title}</p>
-                                    <p className="text-3xl font-bold mt-1">{card.value}</p>
-                                </div>
+                            </div>
+                            
+                            {/* Card Footer/Detail */}
+                            <div className={`flex items-center text-xs font-semibold pt-3 border-t border-gray-100 ${card.footerColor}`}>
+                                {card.footerIcon}
+                                <span className="ml-1">{card.footer}</span>
                             </div>
                         </div>
                     ))}
                 </div>
-                
-                <div className={`p-6 rounded-xl shadow-md bg-white border border-gray-200`}>
-                    <h4 className="text-lg font-semibold mb-4 border-b pb-2">User Role Breakdown</h4>
-                    <div className="flex justify-around items-center h-40">
-                        {/* Simple Bar/Donut Chart Placeholder */}
-                        <div className="text-center">
-                            <p className="text-4xl font-extrabold text-green-500">{instructors}</p>
-                            <p className="font-medium mt-1">Instructors</p>
-                            <p className="text-xs opacity-75">({((instructors / totalUsers) * 100).toFixed(0)}%)</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-4xl font-extrabold text-blue-500">{learners}</p>
-                            <p className="font-medium mt-1">Learners</p>
-                            <p className="text-xs opacity-75">({((learners / totalUsers) * 100).toFixed(0)}%)</p>
+
+
+                {/* --- CHARTING SECTION --- */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Monthly User Activity Chart */}
+                    <div className={`lg:col-span-2 p-8 rounded-xl shadow-lg bg-white border border-gray-200`}>
+                        <MonthlyUserChart data={monthlyData} />
+                    </div>
+
+                    {/* User Role Breakdown Section */}
+                    <div className={`p-8 rounded-xl shadow-lg bg-white border border-gray-200 flex flex-col justify-between`}>
+                        <h3 className="text-xl font-bold mb-4 border-b pb-3 text-gray-800">User Role Distribution</h3>
+                        
+                        <div className="flex flex-col flex-grow items-center justify-around space-y-4">
+                            
+                            {/* Instructor Card */}
+                            <div className="text-center p-4 border border-indigo-200 rounded-lg w-full hover:shadow-md transition-shadow">
+                                <p className="text-sm uppercase font-semibold text-indigo-600">Instructors</p>
+                                <p className="text-5xl font-extrabold text-indigo-500 my-2">{instructors}</p>
+                                <p className="text-base font-medium opacity-80">({instructorPercent}% of total)</p>
+                            </div>
+
+                            {/* Learner Card */}
+                            <div className="text-center p-4 border border-purple-200 rounded-lg w-full hover:shadow-md transition-shadow">
+                                <p className="text-sm uppercase font-semibold text-purple-600">Learners</p>
+                                <p className="text-5xl font-extrabold text-purple-500 my-2">{learners}</p>
+                                <p className="text-base font-medium opacity-80">({learnerPercent}% of total)</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        );
-    };
 
-
-    // --- Main Render ---
-    return (
-        <div className={`min-h-screen ${themeBg} font-sans transition-colors duration-500`}>
-            {/* Using the AdminNavbar */}
-            <AdminNavbar /> 
-            
-            <div className="pt-24 max-w-7xl mx-auto px-6 py-12">
-                <header className="mb-10">
-                    <h1 className="text-4xl font-bold flex items-center">
-                        <BarChart2 size={30} className={`mr-3 ${primaryText}`} />
-                        Admin Dashboard
-                    </h1>
-                    {/* <p className={`mt-2 ${subtleText}`}>Manage platform content, users, and view key metrics.</p> */}
-                </header>
-
-                {/* Navigation Tabs */}
-                <div className={`mb-8 p-1 rounded-xl shadow-inner bg-gray-200 flex space-x-2`}>
-                    <button 
-                        onClick={() => setActiveTab('users')} 
-                        className={buttonClass(activeTab === 'users')}
-                    >
-                        <Users size={18} className="inline mr-2" /> All Users
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('posts')} 
-                        className={buttonClass(activeTab === 'posts')}
-                    >
-                        <Trash2 size={18} className="inline mr-2" /> Community Posts
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('demographics')} 
-                        className={buttonClass(activeTab === 'demographics')}
-                    >
-                        <BarChart2 size={18} className="inline mr-2" /> Demographics
-                    </button>
-                </div>
-                
-                {/* Content Area */}
-                <div>
-                    {activeTab === 'users' && <UserManagement />}
-                    {activeTab === 'posts' && <PostManagement />}
-                    {activeTab === 'demographics' && <DemographicsView />}
-                </div>
-
-            </div>
+            </main>
         </div>
     );
 }
