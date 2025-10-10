@@ -1,46 +1,87 @@
-import React, { useState } from 'react';
-import { Settings, Lock, Database, Globe, RefreshCw, AlertTriangle, Save } from 'lucide-react';
-import AdminNavbar from '../../navbar/adminNavbar'; 
+import React, { useState, useEffect } from 'react';
+import { Settings, Lock, Database, Globe, RefreshCw, AlertTriangle, Save, Loader, CheckCircle, XCircle } from 'lucide-react';
+import AdminNavbar from '../../navbar/adminNavbar.jsx';
 
-// --- Static Theme Classes (Light Mode) ---
-// Align admin theme with user palette: indigo/purple accents and neutral gray background
+// --- Static Theme Classes ---
 const themeBg = 'bg-gray-100 text-gray-900';
 const subtleText = 'text-gray-600';
 const primaryText = 'text-indigo-600';
 
 // --- Main Component: AdminSettings Page ---
 export default function AdminSettings() {
-    // State for form fields (simplified)
-    const [siteName, setSiteName] = useState('CollabLearn');
-    const [maintenanceMode, setMaintenanceMode] = useState(false);
-    const [minPasswordLength, setMinPasswordLength] = useState(8);
+    const [settings, setSettings] = useState({
+        siteName: 'CollabLearn',
+        maintenanceMode: false,
+        minPasswordLength: 8,
+    });
+    const [loading, setLoading] = useState(true);
     const [saveStatus, setSaveStatus] = useState(null); // null, 'saving', 'success', 'error'
 
-    const handleSave = (e) => {
+    // Fetch initial settings on component mount
+    useEffect(() => {
+        const fetchSettings = async () => {
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/admin/settings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setSettings(result.data);
+                } else {
+                    console.error("Failed to fetch settings:", result.message);
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const handleInputChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setSettings(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSave = async (e) => {
         e.preventDefault();
         setSaveStatus('saving');
-        console.log('Saving admin settings...');
-        
-        // Simulate API call delay
-        setTimeout(() => {
-            // In a real app, you would send: 
-            // { siteName, maintenanceMode, minPasswordLength } to the backend
-            console.log('Settings saved:', { siteName, maintenanceMode, minPasswordLength });
-            setSaveStatus('success');
-            setTimeout(() => setSaveStatus(null), 3000); // Clear status after 3 seconds
-        }, 1000); 
-    };
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/admin/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(settings)
+            });
+            const result = await response.json();
 
-    const handleDataAction = (actionName) => {
-        if (window.confirm(`Are you sure you want to proceed with ${actionName}? This action is irreversible.`)) {
-            console.log(`Executing data action: ${actionName}`);
-            // Logic for DB backup/clear cache here
-            alert(`${actionName} simulation complete.`);
+            if (result.success) {
+                setSaveStatus('success');
+            } else {
+                setSaveStatus('error');
+            }
+        } catch (error) {
+            setSaveStatus('error');
+            console.error('Failed to save settings:', error);
+        } finally {
+            setTimeout(() => setSaveStatus(null), 3000);
         }
     };
+    
+    // NOTE: These data actions are simulated. Real implementation requires complex backend logic.
+    const handleDataAction = (actionName) => {
+        alert(`Simulating '${actionName}'. In a real app, this would trigger a secure backend process.`);
+    };
 
-
-    // --- Sub-Component: Settings Section Card ---
     const SettingsSection = ({ icon: Icon, title, description, children }) => (
         <div className="mb-8 p-6 bg-white border border-gray-200 rounded-xl shadow-lg">
             <div className="flex items-center mb-4 border-b pb-3">
@@ -52,9 +93,16 @@ export default function AdminSettings() {
         </div>
     );
 
-    // --- Render ---
+    if (loading) {
+        return (
+            <div className={`min-h-screen ${themeBg} flex items-center justify-center`}>
+                <Loader size={48} className="animate-spin text-indigo-600" />
+            </div>
+        );
+    }
+
     return (
-        <div className={`min-h-screen ${themeBg} font-sans transition-colors duration-500`}>
+        <div className={`min-h-screen ${themeBg} font-sans`}>
             <AdminNavbar /> 
             
             <div className="pt-24 max-w-7xl mx-auto px-6 py-12">
@@ -63,12 +111,9 @@ export default function AdminSettings() {
                         <Settings size={30} className={`mr-3 ${primaryText}`} />
                         Admin Settings
                     </h1>
-                    {/* <p className={`mt-2 ${subtleText}`}>Configure global platform parameters and management tools.</p> */}
                 </header>
 
                 <form onSubmit={handleSave}>
-
-                    {/* General Settings */}
                     <SettingsSection 
                         icon={Globe} 
                         title="General Platform Settings" 
@@ -79,13 +124,13 @@ export default function AdminSettings() {
                             <input
                                 type="text"
                                 id="siteName"
-                                value={siteName}
-                                onChange={(e) => setSiteName(e.target.value)}
+                                name="siteName"
+                                value={settings.siteName}
+                                onChange={handleInputChange}
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                                 required
                             />
                         </div>
-
                         <div className="flex items-center justify-between p-3 border border-gray-300 rounded-lg">
                             <label htmlFor="maintenanceMode" className="text-sm font-medium text-gray-700 flex items-center">
                                 <AlertTriangle size={16} className="text-red-500 mr-2" />
@@ -94,14 +139,14 @@ export default function AdminSettings() {
                             <input
                                 type="checkbox"
                                 id="maintenanceMode"
-                                checked={maintenanceMode}
-                                onChange={(e) => setMaintenanceMode(e.target.checked)}
+                                name="maintenanceMode"
+                                checked={settings.maintenanceMode}
+                                onChange={handleInputChange}
                                 className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                             />
                         </div>
                     </SettingsSection>
 
-                    {/* Security Settings */}
                     <SettingsSection 
                         icon={Lock} 
                         title="Security and Access" 
@@ -112,8 +157,9 @@ export default function AdminSettings() {
                             <input
                                 type="number"
                                 id="minPasswordLength"
-                                value={minPasswordLength}
-                                onChange={(e) => setMinPasswordLength(e.target.value)}
+                                name="minPasswordLength"
+                                value={settings.minPasswordLength}
+                                onChange={handleInputChange}
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 max-w-sm"
                                 min="6"
                                 max="16"
@@ -122,13 +168,12 @@ export default function AdminSettings() {
                         </div>
                     </SettingsSection>
 
-                    {/* Data Management Section */}
                     <SettingsSection 
                         icon={Database} 
                         title="Data Management Tools" 
-                        description="Perform administrative actions related to system data and caching."
+                        description="Perform administrative actions related to system data and caching. These actions are simulated."
                     >
-                         <div className="flex space-x-4">
+                        <div className="flex space-x-4">
                             <button
                                 type="button"
                                 onClick={() => handleDataAction('Full Database Backup')}
@@ -148,18 +193,13 @@ export default function AdminSettings() {
                         </div>
                     </SettingsSection>
                     
-                    {/* Submit Button & Status */}
                     <div className="flex items-center justify-end mt-8">
-                        {saveStatus === 'saving' && (
-                            <div className="flex items-center text-indigo-600 font-medium mr-4">
-                                <Loader size={18} className="animate-spin mr-2" />
-                                Saving...
-                            </div>
-                        )}
-                        {saveStatus === 'success' && (
-                            <div className="flex items-center text-green-600 font-medium mr-4">
-                                <Save size={18} className="mr-2" />
-                                Settings Saved!
+                        {saveStatus && (
+                            <div className={`flex items-center font-medium mr-4 ${saveStatus === 'success' ? 'text-green-600' : saveStatus === 'error' ? 'text-red-600' : 'text-indigo-600'}`}>
+                                {saveStatus === 'saving' && <Loader size={18} className="animate-spin mr-2" />}
+                                {saveStatus === 'success' && <CheckCircle size={18} className="mr-2" />}
+                                {saveStatus === 'error' && <XCircle size={18} className="mr-2" />}
+                                {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'success' ? 'Settings Saved!' : 'Save Failed!'}
                             </div>
                         )}
                         <button
@@ -176,3 +216,4 @@ export default function AdminSettings() {
         </div>
     );
 }
+

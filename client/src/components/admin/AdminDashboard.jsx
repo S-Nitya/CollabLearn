@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, FileText, BarChart2, MessageSquare, Clock, LayoutDashboard, TrendingUp, TrendingDown, CheckCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AdminNavbar from '../../navbar/adminNavbar'; 
 
 // --- DUMMY DATA ---
-const summaryData = {
-    totalUsers: 120,
-    newRequests: 5, // e.g., new instructor/report requests
-    pendingBookings: 8,
-    activePosts: 450,
+const initialSummaryData = {
+    totalUsers: 0,
+    newRequests: 0,
+    pendingBookings: 0,
+    activePosts: 0,
+    instructors: 0,
+    learners: 0,
+    reportedPostsCount: 0,
+    activeUsersCount: 0,
+    monthlyData: [],
 };
 
 // Simulate monthly data for registered users and active users
@@ -20,12 +25,6 @@ const monthlyData = [
     { month: 'May', registered: 60, active: 45 },
     { month: 'Jun', registered: 85, active: 70 },
 ];
-
-const totalUsers = 120;
-const instructors = 30;
-const learners = totalUsers - instructors;
-const reportedPostsCount = 18;
-const activeUsersCount = 95;
 
 // --- Static Theme Classes (Light Mode) ---
 const themeBg = 'bg-slate-50';
@@ -47,9 +46,6 @@ const calculateChange = (data) => {
     }
     return { change: 0, icon: <TrendingUp size={20} className="text-gray-500" />, color: 'text-gray-500' };
 };
-
-const userGrowthChange = calculateChange(monthlyData);
-
 
 // --- Sub-Component: Simple Bar Chart for Monthly Activity ---
 const MonthlyUserChart = ({ data }) => {
@@ -88,6 +84,33 @@ const MonthlyUserChart = ({ data }) => {
 
 // --- Main Component: Admin Dashboard (Unified) ---
 export default function AdminDashboard() {
+    const [summaryData, setSummaryData] = useState(initialSummaryData);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/admin/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setSummaryData(result.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch admin stats:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
+    const userGrowthChange = calculateChange(summaryData.monthlyData);
 
     // Unified List of All 8 Metrics
     // Unified neutral style for all metric cards to match project theme
@@ -98,12 +121,12 @@ export default function AdminDashboard() {
     const allMetrics = [
         { 
             title: "Total Registered Users", 
-            value: totalUsers, 
+            value: summaryData.totalUsers, 
             detail: "All accounts, active and inactive.", 
             icon: <Users size={24} />, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `${(totalUsers > 0 ? (activeUsersCount / totalUsers * 100).toFixed(0) : 0)}% are active`,
+            footer: `${(summaryData.totalUsers > 0 ? (summaryData.activeUsers / summaryData.totalUsers * 100).toFixed(0) : 0)}% are active`,
             footerColor: defaultFooterColor,
             footerIcon: <span className="w-4"></span>
         },
@@ -120,12 +143,12 @@ export default function AdminDashboard() {
         },
         { 
             title: "New Reports/Requests", 
-            value: summaryData.newRequests + reportedPostsCount, // Combining requests and reported posts
+            value: summaryData.newRequests + summaryData.reportedPostsCount, // Combining requests and reported posts
             detail: "Items requiring moderation/response.", 
             icon: <MessageSquare size={24} />, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `${reportedPostsCount} reported posts`,
+            footer: `${summaryData.reportedPostsCount} reported posts`,
             footerColor: defaultFooterColor,
             footerIcon: <X size={20} />
         },
@@ -142,23 +165,23 @@ export default function AdminDashboard() {
         },
         { 
             title: "Active Users (Current)", 
-            value: activeUsersCount, 
+            value: summaryData.activeUsers, 
             detail: "Users logged in the last 7 days.", 
             icon: <CheckCircle size={24} />, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `${(activeUsersCount / totalUsers * 100).toFixed(0)}% engagement rate`,
+            footer: `${(summaryData.activeUsers / summaryData.totalUsers * 100).toFixed(0)}% engagement rate`,
             footerColor: defaultFooterColor,
             footerIcon: <span className="w-4"></span>
         },
         { 
             title: "Total Instructors", 
-            value: instructors, 
+            value: summaryData.instructors, 
             detail: "Users registered as skill providers.", 
             icon: <BarChart2 size={24} />, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `${(instructors / totalUsers * 100).toFixed(0)}% of total users`,
+            footer: `${(summaryData.instructors / summaryData.totalUsers * 100).toFixed(0)}% of total users`,
             footerColor: defaultFooterColor,
             footerIcon: <span className="w-4"></span>
         },
@@ -169,25 +192,25 @@ export default function AdminDashboard() {
             icon: userGrowthChange.icon, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `vs. last month (${monthlyData.slice(-2)[0].registered} users)`,
+            footer: `vs. last month (${summaryData.monthlyData.slice(-2)[0]?.registered || 0} users)`,
             footerColor: defaultFooterColor,
             footerIcon: userGrowthChange.icon
         },
         { 
             title: "Learners", 
-            value: learners, 
+            value: summaryData.learners, 
             detail: "Users primarily seeking sessions.", 
             icon: <Users size={24} />, 
             iconColor: defaultIconColor,
             borderColor: defaultBorder,
-            footer: `${(learners / totalUsers * 100).toFixed(0)}% of total users`,
+            footer: `${(summaryData.learners / summaryData.totalUsers * 100).toFixed(0)}% of total users`,
             footerColor: defaultFooterColor,
             footerIcon: <span className="w-4"></span>
         },
     ];
 
-    const instructorPercent = (instructors / totalUsers * 100).toFixed(0);
-    const learnerPercent = (learners / totalUsers * 100).toFixed(0);
+    const instructorPercent = (summaryData.instructors / summaryData.totalUsers * 100).toFixed(0);
+    const learnerPercent = (summaryData.learners / summaryData.totalUsers * 100).toFixed(0);
 
 
     return (
@@ -242,7 +265,7 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Monthly User Activity Chart */}
                     <div className={`lg:col-span-2 p-8 rounded-xl shadow-lg bg-white border border-gray-200`}>
-                        <MonthlyUserChart data={monthlyData} />
+                        <MonthlyUserChart data={summaryData.monthlyData.length > 0 ? summaryData.monthlyData : monthlyData} />
                     </div>
 
                     {/* User Role Breakdown Section */}
@@ -254,14 +277,14 @@ export default function AdminDashboard() {
                             {/* Instructor Card */}
                             <div className="text-center p-4 border border-indigo-200 rounded-lg w-full hover:shadow-md transition-shadow">
                                 <p className="text-sm uppercase font-semibold text-indigo-600">Instructors</p>
-                                <p className="text-5xl font-extrabold text-indigo-500 my-2">{instructors}</p>
+                                <p className="text-5xl font-extrabold text-indigo-500 my-2">{summaryData.instructors}</p>
                                 <p className="text-base font-medium opacity-80">({instructorPercent}% of total)</p>
                             </div>
 
                             {/* Learner Card */}
                             <div className="text-center p-4 border border-purple-200 rounded-lg w-full hover:shadow-md transition-shadow">
                                 <p className="text-sm uppercase font-semibold text-purple-600">Learners</p>
-                                <p className="text-5xl font-extrabold text-purple-500 my-2">{learners}</p>
+                                <p className="text-5xl font-extrabold text-purple-500 my-2">{summaryData.learners}</p>
                                 <p className="text-base font-medium opacity-80">({learnerPercent}% of total)</p>
                             </div>
                         </div>
