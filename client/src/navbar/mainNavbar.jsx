@@ -217,8 +217,8 @@ export default function MainNavbar() {
   const getLinkClass = (path) => {
     const baseClasses = 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5';
     return location.pathname === path
-  ? `${baseClasses} bg-sky-600 text-white`
-      : `${baseClasses} text-gray-600 hover:text-gray-900 hover:bg-gray-100`;
+  ? `${baseClasses} bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md`
+      : `${baseClasses} text-gray-600 hover:text-indigo-700 hover:bg-indigo-50`;
   };
 
   return (
@@ -233,7 +233,7 @@ export default function MainNavbar() {
               alt="CollabLearn Logo" 
               className="w-12 h-12 rounded-xl object-cover"
             />
-            <span className="text-2xl font-bold text-sky-600">CollabLearn</span>
+            <span className="text-2xl font-bold text-indigo-600">CollabLearn</span>
           </div>
 
           {/* Navigation Items */}

@@ -227,7 +227,7 @@ const CalendarPage = () => {
   }, [scheduledSessions]);
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex h-screen bg-slate-50 font-sans">
       
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-auto">
@@ -235,7 +235,7 @@ const CalendarPage = () => {
         <MainNavbar />
         
         {/* Main Calendar Content */}
-        <main className="flex-1 p-6 bg-gray-100 pt-24">
+        <main className="flex-1 p-6 bg-slate-50 pt-24">
           {feedback.show && (
             <div className={`${feedback.type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'} px-4 py-3 rounded relative mb-4`} role="alert">
                 <span className="block sm:inline">{feedback.message}</span>
@@ -255,7 +255,7 @@ const CalendarPage = () => {
                 <select 
                   value={currentView}
                   onChange={handleViewChange}
-                  className="appearance-none border border-gray-300 rounded-lg py-2 px-4 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="appearance-none border border-gray-300 rounded-lg py-2 px-4 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option>Day</option>
                     <option>Week</option>
@@ -271,7 +271,7 @@ const CalendarPage = () => {
               </button>
               
               {/* Block Time Button (Sky-Themed) */}
-              <button className="flex items-center px-4 py-2 bg-sky-600 text-white rounded-lg shadow-md hover:bg-sky-700 transition-colors duration-200 font-semibold">
+              <button className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200 font-semibold">
                 <span className="material-icons-outlined text-xl mr-2">&#x2B;</span> Block Time
               </button>
             </div>
@@ -339,7 +339,7 @@ const CalendarPage = () => {
                           className={`h-32 p-1 border-b border-r border-gray-200 ${!isSameMonth(day, currentDate) ? 'bg-gray-50' : 'bg-white'} transition-colors duration-300 hover:bg-gray-100`}
                         >
                           <div className={`text-sm font-medium h-6 w-6 flex items-center justify-center rounded-full 
-                            ${isToday(day) ? 'bg-sky-600 text-white' : 'text-gray-700'} 
+                            ${isToday(day) ? 'bg-indigo-600 text-white' : 'text-gray-700'} 
                             ${!isSameMonth(day, currentDate) ? 'text-gray-400' : ''}
                           `}>
                             {format(day, 'd')}
@@ -428,7 +428,7 @@ const CalendarPage = () => {
                         <img src={`https://i.pravatar.cc/32?u=${studentId}`} alt={studentName} className="h-8 w-8 rounded-full" />
                         <div>
                           <p className="font-semibold text-gray-800">{studentName}</p>
-                          <p className="text-xs text-sky-600">{skillName}</p>
+                          <p className="text-xs text-indigo-600">{skillName}</p>
                         </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
@@ -441,7 +441,7 @@ const CalendarPage = () => {
                       <div className="flex justify-between space-x-2">
                         <button 
                           onClick={() => handleBookingAction(request._id, 'confirmed')}
-                          className="flex-1 px-3 py-2 bg-sky-600 text-white rounded-lg shadow-sm hover:bg-sky-700 transition-colors duration-200 text-sm font-medium">
+                          className="flex-1 px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-sm hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200 text-sm font-medium">
                           Accept
                         </button>
                         <button 
@@ -472,7 +472,7 @@ const CalendarPage = () => {
                     <span>Total hours</span>
                     <span className="font-semibold">{weekStats.totalHours.toFixed(1)}</span>
                   </div>
-                  <div className="flex justify-between text-sky-600 font-bold pt-2 border-t border-gray-200">
+                  <div className="flex justify-between text-indigo-600 font-bold pt-2 border-t border-gray-200">
                     <span>Earnings</span>
                     <span>${weekStats.earnings.toFixed(2)}</span>
                   </div>

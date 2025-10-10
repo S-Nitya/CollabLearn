@@ -57,7 +57,7 @@ const BookingModal = ({
 
         <p className="text-gray-700 mb-4">
           Instructor:{" "}
-          <span className="font-semibold text-sky-600">
+          <span className="font-semibold text-indigo-600">
             {instructorName || "Unknown Instructor"}
           </span>
         </p>
@@ -73,8 +73,7 @@ const BookingModal = ({
               <input
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
               />
             </div>
             <div>
@@ -83,7 +82,7 @@ const BookingModal = ({
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
               />
             </div>
           </div>
@@ -93,7 +92,7 @@ const BookingModal = ({
             <select
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              className="border rounded p-2 w-full"
+              className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
             >
               <option value="30">30</option>
               <option value="45">45</option>
@@ -109,13 +108,13 @@ const BookingModal = ({
               rows="3"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="border rounded p-2 w-full"
+              className="border rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-sky-600 text-white py-2 rounded hover:bg-sky-700"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 rounded hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg"
           >
             Confirm Booking
           </button>
@@ -205,7 +204,7 @@ export default function BookingSessionPage() {
   if (loading) return <p className="text-center p-10">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       {isModalVisible && (
         <BookingModal
           skillTitle={skillDetails.title}
@@ -219,14 +218,14 @@ export default function BookingSessionPage() {
       )}
       {!isModalVisible && (
         <div className="bg-white p-10 rounded-lg shadow-md text-center">
-          <h2 className="text-2xl font-bold text-sky-600">
+          <h2 className="text-2xl font-bold text-indigo-600">
             Request Sent
           </h2>
           <p className="text-gray-600 mt-2">
             The instructor has been notified of your request.
           </p>
           <button
-            className="mt-4 bg-sky-600 text-white py-2 px-4 rounded hover:bg-sky-700"
+            className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 px-4 rounded hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg"
             onClick={() => window.history.back()}
           >
             Go Back

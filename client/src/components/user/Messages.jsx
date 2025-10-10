@@ -55,16 +55,15 @@ const MessagesPage = () => {
         const withMeta = users.map(u => ({ ...u, latestMessage: "", unread: 0 }));
         setContacts(withMeta);
         setLoadingContacts(false);
-        if (users.length > 0) {
-          const firstOther = users.find(u => u._id !== loggedInUserId);
-          setActiveContactId(firstOther ? firstOther._id : users[0]._id);
-        }
       })
       .catch(() => setLoadingContacts(false));
   }, [loggedInUserId]);
 
   useEffect(() => {
-    if (!activeContactId || !loggedInUserId) return;
+    if (!activeContactId || !loggedInUserId) {
+      setMessages([]); // Clear messages when no contact is active
+      return;
+    }
     const chatId = [loggedInUserId, activeContactId].sort().join('_');
     fetch(`${API_URL}/messages/${chatId}`)
       .then(res => res.json())
@@ -246,7 +245,7 @@ const MessagesPage = () => {
       >
         <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-xl text-white shadow-lg transform transition-all duration-200 hover:scale-102 ${
           isSent 
-            ? 'bg-gradient-to-br from-sky-600 to-sky-700 rounded-br-none hover:shadow-xl' 
+            ? 'bg-gradient-to-br from-indigo-600 to-purple-600 rounded-br-none hover:shadow-xl' 
             : 'bg-gradient-to-br from-gray-700 to-gray-800 rounded-tl-none hover:shadow-xl'
         }`}>
           <p className="text-sm">{message.text}</p>
@@ -263,7 +262,7 @@ const MessagesPage = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
+    <div className="flex h-screen bg-slate-50 font-sans">
       <style>
         {`
           @keyframes fade-in-up {
@@ -272,8 +271,7 @@ const MessagesPage = () => {
           }
           .animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; }
           .contact-item { transition: all 0.2s ease; }
-          .contact-item:hover { transform: translateX(2px); background-color: #f9fafb; }
-          .message-input:focus { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); border-color: #818cf8; }
+          .contact-item:hover { transform: translateX(2px); background-color: #f8fafc; }
           .send-button { transition: all 0.2s ease; }
           .send-button:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
           .send-button:active:not(:disabled) { transform: scale(0.95); }
@@ -289,14 +287,14 @@ const MessagesPage = () => {
       </style>
       <div className="flex-1 flex flex-col overflow-auto">
         <MainNavbar />
-        <main className="flex-1 p-6 bg-gray-100 mt-20">
+        <main className="flex-1 p-6 bg-slate-50 mt-20">
           <div className="flex h-[calc(100vh-160px)] rounded-xl shadow-lg overflow-hidden">
             
             {/* Sidebar */}
             <div className="w-full lg:w-1/4 bg-white border-r overflow-y-auto">
-              <div className="p-4 border-b bg-gradient-to-r from-sky-50 to-white">
+              <div className="p-4 border-b bg-gradient-to-r from-indigo-50 to-white">
                 <input type="text" placeholder="Search contacts..."
-                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-sky-400 transition-all duration-300"/>
+                  className="w-full p-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-400 transition-all duration-300"/>
               </div>
               {loadingContacts ? (
                 <>
@@ -313,12 +311,18 @@ const MessagesPage = () => {
               ) : (
                 contacts.map((user) => (
                   <div key={user._id}
-                    className={`contact-item flex items-center justify-between p-4 cursor-pointer ${user._id === activeContactId ? 'bg-sky-50 border-l-4 border-sky-600' : ''}`}
+                    className={`contact-item flex items-center justify-between p-4 cursor-pointer ${user._id === activeContactId ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
                     onClick={() => setActiveContactId(user._id)}>
                     <div className="flex items-center">
                       <div className="relative">
-                        <img src={user.avatar || 'https://i.pravatar.cc/32?u=' + user._id}
-                             alt={user.name} className="h-10 w-10 rounded-full mr-3 ring-2 ring-white shadow-md"/>
+                        <img src={user.avatar || `https://i.pravatar.cc/40?u=${user._id}`}
+                             alt={user.name}
+                             className="h-10 w-10 rounded-full mr-3 ring-2 ring-white shadow-md"
+                             onError={(e) => {
+                               if (!e.target.src.includes('pravatar.cc')) {
+                                 e.target.src = `https://i.pravatar.cc/40?u=${user._id}`;
+                               }
+                             }}/>
                         <div className="online-dot absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                       </div>
                       <div>
@@ -329,7 +333,7 @@ const MessagesPage = () => {
                       </div>
                     </div>
                     {user.unread > 0 && (
-                      <span className="ml-2 bg-sky-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
+                      <span className="ml-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-full shadow-lg">
                         {user.unread}
                       </span>
                     )}
@@ -340,12 +344,19 @@ const MessagesPage = () => {
 
             {/* Chat window */}
             <div className="w-full lg:w-2/4 flex flex-col bg-white">
-              <div className="p-4 border-b flex items-center bg-gradient-to-r from-sky-50 to-white shadow-sm">
+              <div className="p-4 border-b flex items-center bg-gradient-to-r from-indigo-50 to-white shadow-sm">
                 {activeContactId ? (
                   <div className="flex items-center">
                     <div className="relative">
-                      <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/32?u=' + activeContactId}
-                           alt="avatar" className="h-10 w-10 rounded-full mr-3 ring-2 ring-sky-200 shadow-md"/>
+                      <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || `https://i.pravatar.cc/40?u=${activeContactId}`}
+                           alt="avatar"
+                           className="h-10 w-10 rounded-full mr-3 ring-2 ring-indigo-200 shadow-md"
+                           onError={(e) => {
+                            const activeContact = contacts.find(u => u._id === activeContactId);
+                            if (activeContact && !e.target.src.includes('pravatar.cc')) {
+                                e.target.src = `https://i.pravatar.cc/40?u=${activeContact._id}`;
+                            }
+                         }}/>
                       <div className="online-dot absolute bottom-0 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                     </div>
                     <div>
@@ -359,23 +370,33 @@ const MessagesPage = () => {
                 ) : <span>Select a contact to chat</span>}
               </div>
               
-              <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white">
-                {messages.map((msg, idx) => (
-                  <ChatBubble key={msg._id || idx} message={msg} index={idx}/>
-                ))}
+              <div className="flex-1 p-6 overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
+                {activeContactId ? (
+                  <>
+                    {messages.map((msg, idx) => (
+                      <ChatBubble key={msg._id || idx} message={msg} index={idx}/>
+                    ))}
 
-                {/* Typing indicator */}
-                {isTyping && (
-                  <div className="flex justify-start mb-3">
-                    <div className="bg-gray-200 px-3 py-2 rounded-xl text-gray-600 flex items-center typing-indicator">
-                      <span className="typing-dot"></span>
-                      <span className="typing-dot"></span>
-                      <span className="typing-dot"></span>
-                    </div>
+                    {/* Typing indicator */}
+                    {isTyping && (
+                      <div className="flex justify-start mb-3">
+                        <div className="bg-gray-200 px-3 py-2 rounded-xl text-gray-600 flex items-center typing-indicator">
+                          <span className="typing-dot"></span>
+                          <span className="typing-dot"></span>
+                          <span className="typing-dot"></span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+                    <svg className="w-24 h-24 mb-4 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <h2 className="text-2xl font-semibold text-indigo-700">Welcome to CollabLearn Messages</h2>
+                    <p className="mt-2">Select a conversation to start chatting.</p>
                   </div>
                 )}
-
-                <div ref={messagesEndRef} />
               </div>
 
               <form onSubmit={handleSendMessage} className="p-4 border-t bg-white shadow-lg">
@@ -383,10 +404,10 @@ const MessagesPage = () => {
                   <input type="text" placeholder="Type a message..."
                     value={messageInput}
                     onChange={handleInputChange}
-                    className="message-input flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none transition-all duration-300"
+                    className="flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all duration-300"
                     disabled={!activeContactId}/>
                   <button type="submit"
-                    className="send-button p-3 bg-sky-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-md"
+                    className="send-button p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-md"
                     disabled={!messageInput.trim() || !activeContactId}>
                     ➤
                   </button>
@@ -400,8 +421,15 @@ const MessagesPage = () => {
               {activeContactId ? (
                 <div className="flex flex-col items-center">
                   <div className="relative">
-                    <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || 'https://i.pravatar.cc/80?u=' + activeContactId}
-                        alt="avatar" className="h-20 w-20 rounded-full mb-3 ring-4 ring-sky-100 shadow-lg"/>
+                    <img src={(contacts.find(u => u._id === activeContactId)?.avatar) || `https://i.pravatar.cc/80?u=${activeContactId}`}
+                        alt="avatar"
+                        className="h-20 w-20 rounded-full mb-3 ring-4 ring-indigo-100 shadow-lg"
+                        onError={(e) => {
+                            const activeContact = contacts.find(u => u._id === activeContactId);
+                            if (activeContact && !e.target.src.includes('pravatar.cc')) {
+                                e.target.src = `https://i.pravatar.cc/80?u=${activeContact._id}`;
+                            }
+                        }}/>
                     <div className="online-dot absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
                   <h4 className="font-bold text-gray-800">{contacts.find(u => u._id === activeContactId)?.name}</h4>
