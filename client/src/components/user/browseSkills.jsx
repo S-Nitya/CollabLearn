@@ -90,6 +90,7 @@ export default function SkillSwapBrowse() {
       count: skillCounts['All Categories'] || 0, 
       active: selectedCategory === 'All Categories'
     },
+    
     { 
       icon: (
         <svg className="w-10 h-10" viewBox="0 0 50 50" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -221,6 +222,10 @@ export default function SkillSwapBrowse() {
   // Function to filter skills by category
   const filterSkillsByCategory = (skills, category) => {
     if (category === 'All Categories') {
+      return skills;
+    }
+
+    if (!category) {
       return skills;
     }
 
@@ -553,11 +558,9 @@ export default function SkillSwapBrowse() {
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
               />
             </div>
-            <select className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
-              <option>All Categories</option>
-            </select>
-            <Link to="/skill-recommendations" className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 transition-all hover:border-indigo-400 cursor-pointer">
-              <Sparkles size={20} />
+            {/* category select removed to simplify UI */}
+            <Link to="/skill-recommendations" className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg font-medium cursor-pointer">
+              <Sparkles size={18} className="text-white" />
               <span className="font-medium">Recommendations</span>
             </Link>
             <button 
@@ -596,7 +599,7 @@ export default function SkillSwapBrowse() {
           <div className="mb-8 flex items-center justify-between animate-fadeInUp" style={{animationDelay: '0.5s'}}>
             <h2 className="text-2xl font-bold text-gray-900">
               {filteredSkills.length} Skills Available
-              {selectedCategory !== 'All Categories' && (
+              {selectedCategory && selectedCategory !== 'All Categories' && (
                 <span className="text-lg font-normal text-gray-600 ml-2">
                   in {selectedCategory}
                 </span>
@@ -620,9 +623,7 @@ export default function SkillSwapBrowse() {
                 </div>
                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
               </button>
-              <select className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none text-gray-700 hover:border-indigo-400 transition-all cursor-pointer">
-                <option>Relevance</option>
-              </select>
+              {/* relevance sort removed; keep only refresh and actions */}
             </div>
           </div>
 
