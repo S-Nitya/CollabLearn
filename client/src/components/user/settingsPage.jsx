@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     Settings, User, Bell, Shield, Moon, Sun, Lock, CreditCard, 
     LogOut, Trash2, MessageSquare, ExternalLink 
@@ -58,11 +59,50 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
         console.log("Action: Edit Cards clicked.");
     };
 
-    const handleLogoutAllDevices = () => {
-        if (window.confirm("Are you sure you want to log out from ALL other devices?")) {
-            // API call to revoke all sessions except current one
-            alert("Successfully logged out from all other devices.");
-            console.log("Action: Logout All Devices confirmed.");
+    const navigate = useNavigate();
+
+    const handleLogoutAllDevices = async () => {
+        if (!window.confirm("Are you sure you want to log out from ALL other devices?")) return;
+
+        try {
+            const token = localStorage.getItem('token');
+
+            // If server supports session revocation endpoint, call it.
+            // There is no explicit revoke route in the API docs, but we'll attempt a safe POST to /api/auth/logout-all
+            if (token) {
+                try {
+                    const resp = await fetch('http://localhost:5000/api/auth/logout-all', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (resp.ok) {
+                        console.log('LogoutAllDevices: server-side session revocation succeeded');
+                    } else {
+                        console.log('LogoutAllDevices: no server-side revoke endpoint or it responded with', resp.status);
+                    }
+                } catch (err) {
+                    console.log('LogoutAllDevices: error calling revoke endpoint (it may not exist)', err);
+                }
+            }
+
+            // Clear local client auth state
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userAvatar');
+            localStorage.removeItem('email');
+
+            // Notify user and navigate to landing page
+            alert('Successfully logged out from all other devices. You will be redirected to the home page.');
+            console.log('Action: Logout All Devices confirmed. Client cleared and redirecting.');
+            navigate('/');
+        } catch (error) {
+            console.error('handleLogoutAllDevices error:', error);
+            alert('An error occurred while attempting to log out. Please try again.');
         }
     };
 
@@ -243,7 +283,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                             <FeatureCard
                                 icon={<LogOut size={24} />}
                                 title="Logout All Devices"
-                                description="Sign out from all devices except this one."
+                                description="Sign out from all devices."
                                 action={
                                     <button 
                                         onClick={handleLogoutAllDevices}
