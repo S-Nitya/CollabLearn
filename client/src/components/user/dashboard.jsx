@@ -405,54 +405,7 @@ const Dashboard = React.memo(() => {
             </div>
           </div>
 
-          {/* Stat Cards Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Total Sessions Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-gray-800">{derivedData?.stats?.totalSessions || 0}</p>
-                <p className="text-gray-500">Total Sessions</p>
-              </div>
-            </div>
-
-            {/* Average Rating Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
-                <Star className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-gray-800">{derivedData?.stats?.averageRating?.toFixed(1) || '0.0'}</p>
-                <p className="text-gray-500">Average Rating</p>
-              </div>
-            </div>
-
-            {/* Skills Teaching Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-600 flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
-                <Users className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-indigo-600">{derivedData?.teachingSkills.length || 0}</p>
-                <p className="text-gray-500 font-medium">Skills Teaching</p>
-                <p className="text-xs text-sky-600">Active offerings</p>
-              </div>
-            </div>
-
-            {/* Skills Learning Card */}
-            <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-600 flex items-center space-x-4">
-              <div className="bg-indigo-100 text-indigo-600 rounded-full h-12 w-12 flex items-center justify-center">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-indigo-600">{derivedData?.learningSkills.length || 0}</p>
-                <p className="text-gray-500 font-medium">Skills Learning</p>
-                <p className="text-xs text-indigo-600">In progress</p>
-              </div>
-            </div>
-          </div>
+          {/* Stats removed per design request */}
 
           {/* Grid for two main sections: Upcoming/Skills and Learning Progress/Activity/Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
