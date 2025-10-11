@@ -252,7 +252,7 @@ const CalendarPage = () => {
             <div className="flex items-center space-x-3">
               {/* View Selector Button - MADE FUNCTIONAL */}
               <div className="relative">
-                <select 
+                {/* <select 
                   value={currentView}
                   onChange={handleViewChange}
                   className="appearance-none border border-gray-300 rounded-lg py-2 px-4 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -260,20 +260,18 @@ const CalendarPage = () => {
                     <option>Day</option>
                     <option>Week</option>
                     <option>Month</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <span className="material-icons-outlined text-sm">&#9660;</span> {/* Dropdown arrow */}
-                </div>
+                </select> */}
+                
               </div>
               
-              <button className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-200">
+              {/* <button className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-200">
                 <span className="material-icons-outlined text-xl mr-1">&#x2B;</span> Filter
-              </button>
+              </button> */}
               
               {/* Block Time Button (Sky-Themed) */}
-              <button className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200 font-semibold">
+              {/* <button className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200 font-semibold">
                 <span className="material-icons-outlined text-xl mr-2">&#x2B;</span> Block Time
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -473,8 +471,8 @@ const CalendarPage = () => {
                     <span className="font-semibold">{weekStats.totalHours.toFixed(1)}</span>
                   </div>
                   <div className="flex justify-between text-indigo-600 font-bold pt-2 border-t border-gray-200">
-                    <span>Earnings</span>
-                    <span>${weekStats.earnings.toFixed(2)}</span>
+                    {/* <span>Earnings</span> */}
+                    {/* <span>${weekStats.earnings.toFixed(2)}</span> */}
                   </div>
                 </div>
               </div>
