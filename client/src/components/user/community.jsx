@@ -334,13 +334,13 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
 
 // --- MAIN COMPONENT ---
 const CommunityPage = () => {
-  const [activeTab, setActiveTab] = useState('Recent');
+  
   const [allPosts, setAllPosts] = useState([]); // Holds all posts from the server
   const [filteredPosts, setFilteredPosts] = useState([]); // Holds posts to be displayed
   const [selectedCategory, setSelectedCategory] = useState('All Posts'); // For filtering
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const tabs = ['Recent', 'Popular', 'Trending', 'Unanswered'];
+  
   
   // Create a dynamic list of categories including "All Posts"
   const categoriesForFilter = [
@@ -493,10 +493,10 @@ const CommunityPage = () => {
                   <input type="text" placeholder="Search discussions..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500" />
                 </div>
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
-                  <button className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 transition">
+                  {/* <button className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 transition">
                     <FiFilter className="text-gray-600" />
                     <span className="text-gray-700 font-medium">Filter</span>
-                  </button>
+                  </button> */}
                   <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-1/2 sm:w-auto space-x-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition shadow-sm">
                     <FiPlus />
                     <span className="font-medium">New Post</span>
@@ -504,15 +504,7 @@ const CommunityPage = () => {
                 </div>
               </div>
 
-              <div className="border-b border-gray-200 mb-6">
-                <nav className="-mb-px flex space-x-6">
-                  {tabs.map(tab => (
-                    <button key={tab} onClick={() => setActiveTab(tab)} className={`py-3 px-1 text-sm font-semibold transition-colors duration-200 ${activeTab === tab ? 'border-b-2 border-sky-600 text-sky-600' : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-                      {tab}
-                    </button>
-                  ))}
-                </nav>
-              </div>
+              {/* Tabs removed: showing all posts by default */}
 
               <div className="space-y-6">
                 {currentUser && filteredPosts.map((post) => (

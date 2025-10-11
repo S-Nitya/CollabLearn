@@ -1,5 +1,5 @@
 import React from 'react';
-import { getInitials, getInitialsColor, hasCustomAvatar, getAvatarUrl } from '../../utils/avatarUtils';
+import { getInitials, getInitialsColor, getAvatarUrl } from '../../utils/avatarUtils';
 
 // Avatar component with enhanced functionality
 export default function Avatar({ 
@@ -20,18 +20,36 @@ export default function Avatar({
 
   const baseClasses = `${sizeClasses[size]} rounded-full flex items-center justify-center font-semibold text-white relative overflow-hidden transition-all duration-200 ${className}`;
 
-  // If image source is provided and valid, show image
-  if (src && src.trim() && src !== 'default') {
+  // Resolve a safe image source. `src` can be a string, an avatar object, or a user object.
+  let imageSrc = null;
+
+  if (typeof src === 'string') {
+    // Only treat non-empty trimmed strings that aren't the explicit 'default'
+    const trimmed = src.trim ? src.trim() : src;
+    if (trimmed && trimmed !== 'default') imageSrc = trimmed;
+  } else if (typeof src === 'object' && src) {
+    // If callers passed a full user object, let getAvatarUrl handle it.
+    // If they passed an avatar object, wrap it as `{ avatar: src }` so getAvatarUrl can process it.
+    const possibleUser = src.avatar ? src : { avatar: src };
+    try {
+      imageSrc = getAvatarUrl(possibleUser);
+    } catch (err) {
+      imageSrc = null;
+    }
+  }
+
+  // If we have a usable image URL, show the image
+  if (imageSrc) {
     return (
       <div className={`${baseClasses} ${onClick ? 'cursor-pointer hover:scale-105' : ''}`} onClick={onClick}>
         <img
-          src={src}
+          src={imageSrc}
           alt={name || 'Profile'}
           className="w-full h-full object-cover"
           onError={(e) => {
             // If image fails to load, hide it and show initials instead
             e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
+            if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
           }}
         />
         {/* Fallback initials (hidden by default) */}
