@@ -75,6 +75,7 @@ const VideoCall = () => {
           maxUsers: 2,
           layout: "Auto",
           showLayoutButton: false,
+          showPrejoinView: false,
         });
       } catch (error) {
         console.error("Failed to initialize video call:", error);

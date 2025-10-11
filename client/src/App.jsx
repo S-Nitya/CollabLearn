@@ -43,6 +43,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/book-session" element={<ProtectedRoute><BookingSessionPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />      
+        <Route path="/video-call" element={<ProtectedRoute><VideoCall /></ProtectedRoute>} />
         <Route path="/video-call/:roomID" element={<ProtectedRoute><VideoCall /></ProtectedRoute>} />
         <Route path="/admin/manage-users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />         
         <Route path="/admin/manage-posts" element={<ProtectedRoute><ManagePosts /></ProtectedRoute>} />            
