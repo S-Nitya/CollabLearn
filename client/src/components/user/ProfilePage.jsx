@@ -309,11 +309,6 @@ export default function ProfilePage() {
   const handleProfileUpdate = async (updatedData) => {
     try {
       const token = localStorage.getItem("token");
-      console.log("Sending profile update request:", {
-        url: "http://localhost:5000/api/auth/profile",
-        hasToken: !!token,
-        data: updatedData,
-      });
 
       const response = await fetch("http://localhost:5000/api/auth/profile", {
         method: "PUT",
@@ -324,8 +319,6 @@ export default function ProfilePage() {
         body: JSON.stringify(updatedData),
       });
 
-      console.log("Response status:", response.status);
-
       // Check if response is actually JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
@@ -335,7 +328,6 @@ export default function ProfilePage() {
       }
 
       const data = await response.json();
-      console.log("Response data:", data);
 
       if (data.success) {
         // Update local profile data
@@ -362,7 +354,6 @@ export default function ProfilePage() {
           })
         );
 
-        console.log("Profile updated successfully");
       } else {
         throw new Error(data.message || "Failed to update profile");
       }

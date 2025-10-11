@@ -45,7 +45,6 @@ const PostPage = () => {
   };
 
   useEffect(() => {
-    console.log('Post ID from URL:', postId);
     if (postId) {
       fetchPostAndComments();
     }
