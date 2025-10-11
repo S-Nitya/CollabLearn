@@ -42,9 +42,9 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
     };
 
     const handleManageProfile = () => {
-        // In a real app, this would use React Router to navigate to /profile/edit
-        alert("Navigating to Profile Editor page...");
-        console.log("Action: Manage Profile clicked.");
+        // Navigate to profile and open the edit modal via query param
+        navigate('/profile?edit=true');
+        console.log('Action: Manage Profile clicked. Navigating to /profile?edit=true');
     };
 
     const handleChangePassword = () => {
@@ -259,7 +259,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                     </section>
 
                     {/* 3. NOTIFICATIONS SECTION */}
-                    <section>
+                    {/* <section>
                         <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-indigo-600">Notifications</h2>
                         
                         <div className="space-y-4">
@@ -288,7 +288,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                                 }
                             />
                         </div>
-                    </section>
+                    </section> */}
                     
                     {/* 4. PAYMENT AND BILLING */}
                     {/* <section>

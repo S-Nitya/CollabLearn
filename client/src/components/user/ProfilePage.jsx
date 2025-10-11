@@ -136,6 +136,15 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
+    // If URL contains ?edit=true, open the edit modal
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('edit') === 'true') {
+        setShowEditProfile(true);
+      }
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   // Fetch user skills separately for dynamic updates
@@ -341,6 +350,9 @@ export default function ProfilePage() {
         // Update localStorage to reflect changes in navbar
         if (data.user.name) {
           localStorage.setItem("username", data.user.name);
+        }
+        if (data.user.avatar) {
+          localStorage.setItem('userAvatar', data.user.avatar);
         }
 
         // Dispatch custom event to notify navbar of changes
@@ -721,7 +733,19 @@ export default function ProfilePage() {
       {/* Edit Profile Modal */}
       <EditProfile
         isOpen={showEditProfile}
-        onClose={() => setShowEditProfile(false)}
+        onClose={() => {
+          setShowEditProfile(false);
+          try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('edit')) {
+              params.delete('edit');
+              const base = window.location.pathname + (params.toString() ? `?${params.toString()}` : '');
+              window.history.replaceState({}, '', base);
+            }
+          } catch (e) {
+            // ignore
+          }
+        }}
         profileData={profileData}
         onSave={handleProfileUpdate}
       />
