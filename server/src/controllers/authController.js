@@ -288,6 +288,51 @@ const authController = {
     }
   },
 
+  // DELETE /api/auth/delete - Permanently delete current user's account and related data
+  deleteAccount: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      // Basic safety: ensure user exists
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      // Remove related documents that reference the user.
+      // Use require here to avoid circular requires at module top if any.
+      const Skill = require('../models/Skill');
+      const Post = require('../models/Post');
+      const Message = require('../models/Message');
+      const Booking = require('../models/Booking');
+      const Availability = require('../models/Availability');
+
+      // Delete skills created by user
+      await Skill.deleteMany({ user: userId });
+
+      // Delete posts authored by user
+      await Post.deleteMany({ userId: userId });
+
+      // Delete messages sent by user (chat history may be kept in real apps)
+      await Message.deleteMany({ $or: [ { senderId: String(userId) }, { senderId: user.email } ] });
+
+      // Remove bookings where user is student or instructor
+      await Booking.deleteMany({ $or: [ { student: userId }, { instructor: userId } ] });
+
+      // Remove availability entries
+      await Availability.deleteMany({ userId: userId });
+
+      // Finally remove the user
+      await User.findByIdAndDelete(userId);
+
+      res.json({ success: true, message: 'Account and related data deleted successfully' });
+
+    } catch (error) {
+      console.error('Delete account error:', error);
+      res.status(500).json({ success: false, message: 'Server error deleting account' });
+    }
+  },
+
   // Get user by ID (public route for profile viewing)
   getUserById: async (req, res) => {
     try {

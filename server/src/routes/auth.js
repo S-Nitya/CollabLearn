@@ -25,6 +25,9 @@ router.get('/me', auth, authController.getCurrentUser);
 // PUT /api/auth/profile - Update user profile
 router.put('/profile', auth, authController.updateProfile);
 
+// DELETE /api/auth/delete - Permanently delete current user's account
+router.delete('/delete', auth, authController.deleteAccount);
+
 // ===== ROUTE DOCUMENTATION =====
 // GET /api/auth/ - Show available auth endpoints
 router.get('/', (req, res) => {

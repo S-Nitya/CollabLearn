@@ -109,9 +109,43 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
     const handleDeleteAccount = () => {
         if (window.confirm("WARNING: This action is irreversible. Are you absolutely sure you want to permanently delete your account?")) {
             // API call to delete the account
-            alert("Account deletion initiated. You will be logged out now.");
-            console.log("Action: Delete Account confirmed.");
-            // Force logout or redirect
+            (async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('No authentication token found. Please login and try again.');
+                        return;
+                    }
+
+                    const resp = await fetch('http://localhost:5000/api/auth/delete', {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (resp.ok) {
+                        console.log('Action: Delete Account confirmed. Server removed account.');
+                        // Clear local auth state
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('userId');
+                        localStorage.removeItem('userAvatar');
+                        localStorage.removeItem('email');
+
+                        alert('Your account has been permanently deleted. You will be redirected to the home page.');
+                        navigate('/');
+                    } else {
+                        const data = await resp.json().catch(() => ({}));
+                        console.error('Delete account failed', resp.status, data);
+                        alert(data.message || 'Failed to delete account. Please contact support.');
+                    }
+                } catch (error) {
+                    console.error('handleDeleteAccount error:', error);
+                    alert('An error occurred while deleting your account. Please try again later.');
+                }
+            })();
         }
     };
 
