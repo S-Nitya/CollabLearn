@@ -37,7 +37,7 @@ router.get('/stats', auth, async (req, res) => {
       status: { $in: ['confirmed', 'pending'] }
     })
     .populate('student', 'name email avatar')
-    .populate('skill', 'name')
+    .populate('skill')
     .sort({ date: 1 });
 
     // Get learning bookings
@@ -46,7 +46,7 @@ router.get('/stats', auth, async (req, res) => {
       status: { $in: ['confirmed', 'pending'] }
     })
     .populate('instructor', 'name email avatar')
-    .populate('skill', 'name')
+    .populate('skill')
     .sort({ date: 1 });
 
     // Calculate statistics
@@ -71,15 +71,13 @@ router.get('/stats', auth, async (req, res) => {
     // Get skills being taught
     const teachingSkills = await Skill.find({ 
       user: userId, 
-      isOffering: true, 
-      isPosted: true 
+      isOffering: true
     });
 
     // Get skills being learned
     const learningSkills = await Skill.find({ 
       user: userId, 
-      isSeeking: true, 
-      isPosted: true 
+      isSeeking: true
     }).populate('seeking.currentInstructor', 'name');
 
     res.json({
@@ -205,7 +203,7 @@ router.get('/student/:studentId', auth, async (req, res) => {
         sessionHistory: allBookings.map(booking => ({
           id: booking._id,
           date: booking.date,
-          skill: booking.skill.name,
+          skill: booking.skill ? booking.skill.name : 'Unknown Skill',
           duration: booking.duration,
           status: booking.status,
           notes: booking.notes
@@ -244,12 +242,13 @@ async function getRecentActivity(userId) {
 
     return recentBookings.map(booking => {
       const isTeaching = booking.instructor._id.toString() === userId;
+      const skillName = booking.skill ? booking.skill.name : 'Unknown Skill';
       return {
         type: isTeaching ? 'teaching_completed' : 'learning_completed',
-        description: `${isTeaching ? 'Taught' : 'Learned'} ${booking.skill.name}`,
+        description: `${isTeaching ? 'Taught' : 'Learned'} ${skillName}`,
         otherUser: isTeaching ? booking.student.name : booking.instructor.name,
         date: booking.date,
-        skill: booking.skill.name
+        skill: skillName
       };
     });
   } catch (error) {

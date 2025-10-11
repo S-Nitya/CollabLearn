@@ -345,6 +345,7 @@ const CalendarPage = () => {
                           
                           <div className="mt-1 space-y-1 overflow-y-auto h-20">
                             {daySessions.map(session => {
+                              console.log('Session skill:', session.skill);
                               const skillName = session.skill?.name || 'Unknown Skill';
                               const studentName = session.student?.name || 'Unknown Student';
                               const instructorName = session.instructor?.name || 'Unknown Instructor';
@@ -417,6 +418,7 @@ const CalendarPage = () => {
                 ) : (
                   bookingRequests.map((request, index) => {
                     const studentName = request.student?.name || 'Unknown Student';
+                    console.log('Request skill:', request.skill);
                     const skillName = request.skill?.name || 'Unknown Skill';
                     const studentId = request.student?._id || 'default';
                     

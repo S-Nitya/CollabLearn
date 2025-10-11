@@ -37,7 +37,7 @@ router.get("/student/:id", async (req, res) => {
   try {
     const bookings = await Booking.find({ student: req.params.id })
       .populate("instructor", "name email")
-      .populate("skill", "name");
+      .populate("skill");
     res.json({ success: true, bookings });
   } catch (error) {
     res.status(500).json({ message: "Error fetching bookings", error: error.message });
@@ -49,7 +49,7 @@ router.get("/instructor/:id", async (req, res) => {
   try {
     const bookings = await Booking.find({ instructor: req.params.id })
       .populate("student", "name email")
-      .populate("skill", "name");
+      .populate("skill");
     res.json({ success: true, bookings });
   } catch (error) {
     res.status(500).json({ message: "Error fetching bookings", error: error.message });
