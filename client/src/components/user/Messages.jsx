@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import MainNavbar from "../../navbar/mainNavbar.jsx";
+import Avatar from './Avatar.jsx';
 
 const SOCKET_SERVER_URL = 'http://localhost:5000';
 const API_URL = 'http://localhost:5000/api';
@@ -472,15 +473,11 @@ const MessagesPage = () => {
                     onClick={() => setActiveContactId(user._id)}
                   >
                     <div className="relative mr-3">
-                      <img 
-                        src={user.avatar || `https://i.pravatar.cc/48?u=${user._id}`}
-                        alt={user.name}
-                        className="h-12 w-12 rounded-full ring-2 ring-white shadow-md"
-                        onError={(e) => {
-                          if (!e.target.src.includes('pravatar.cc')) {
-                            e.target.src = `https://i.pravatar.cc/48?u=${user._id}`;
-                          }
-                        }}
+                      <Avatar 
+                        src={user.avatar}
+                        name={user.name}
+                        size="md"
+                        className="ring-2 ring-white shadow-md"
                       />
                       {userIsOnline ? (
                         <div className="online-dot absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -521,16 +518,11 @@ const MessagesPage = () => {
                 {/* Chat Header */}
                 <div className="p-4 border-b flex items-center bg-gradient-to-r from-indigo-50 to-white shadow-sm">
                   <div className="relative mr-3">
-                    <img 
-                      src={(contacts.find(u => u._id === activeContactId)?.avatar) || `https://i.pravatar.cc/40?u=${activeContactId}`}
-                      alt="avatar"
-                      className="h-10 w-10 rounded-full ring-2 ring-indigo-200 shadow-md"
-                      onError={(e) => {
-                        const activeContact = contacts.find(u => u._id === activeContactId);
-                        if (activeContact && !e.target.src.includes('pravatar.cc')) {
-                          e.target.src = `https://i.pravatar.cc/40?u=${activeContact._id}`;
-                        }
-                      }}
+                    <Avatar 
+                      src={contacts.find(u => u._id === activeContactId)?.avatar}
+                      name={contacts.find(u => u._id === activeContactId)?.name}
+                      size="sm"
+                      className="ring-2 ring-indigo-200 shadow-md"
                     />
                     {isUserOnline(activeContactId) ? (
                       <div className="online-dot absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>

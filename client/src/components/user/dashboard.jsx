@@ -405,8 +405,6 @@ const Dashboard = React.memo(() => {
             </div>
           </div>
 
-          {/* Stats removed per design request */}
-
           {/* Grid for two main sections: Upcoming/Skills and Learning Progress/Activity/Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             

@@ -217,7 +217,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                     </section>
                     
                     {/* 4. PAYMENT AND BILLING */}
-                    <section>
+                    {/* <section>
                         <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-sky-500">Billing</h2>
                         
                         <FeatureCard
@@ -233,7 +233,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                                     </button>
                             }
                         />
-                    </section>
+                    </section> */}
                     
                     {/* 5. DANGER ZONE */}
                     <section>
