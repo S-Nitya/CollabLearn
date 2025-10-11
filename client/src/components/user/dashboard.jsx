@@ -268,6 +268,14 @@ const Dashboard = React.memo(() => {
     }
   }, [navigate, derivedData?.user]);
 
+  const handleViewMoreInfo = useCallback((skill) => {
+    if (!skill || !skill._id) {
+      console.error('Invalid skill data:', skill);
+      return;
+    }
+    navigate('/skill-sessions', { state: { skill } });
+  }, [navigate]);
+
   const handleEditSkill = useCallback((skill) => {
     navigate('/browse-skills', { state: { editSkill: skill } });
   }, [navigate]);
@@ -535,16 +543,10 @@ const Dashboard = React.memo(() => {
                         </div>
                         <div className="flex flex-col space-y-2">
                           <button 
-                            onClick={() => handleViewStudents(skill)}
+                            onClick={() => handleViewMoreInfo(skill)}
                             className="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200"
                           >
-                            View Students
-                          </button>
-                          <button 
-                            onClick={() => handleEditSkill(skill)}
-                            className="px-4 py-2 text-sm bg-white border border-indigo-300 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors duration-200"
-                          >
-                            Edit Skill
+                            View More Info
                           </button>
                         </div>
                       </div>
