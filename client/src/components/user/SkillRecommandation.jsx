@@ -70,11 +70,6 @@ const SkillRecommendations = () => {
           // Set recommendations with enhanced data
           setRecommendations(data.data || []);
           
-          console.log('Advanced Recommendations Loaded:', {
-            total: data.data?.length || 0,
-            userProfile: data.userProfile,
-            metadata: data.metadata
-          });
         } else {
           throw new Error(data.message || 'Failed to get recommendations');
         }

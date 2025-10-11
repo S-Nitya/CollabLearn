@@ -69,7 +69,6 @@ const MessagesPage = () => {
       return;
     }
     setLoggedInUserId(userId);
-    console.log('Logged in user ID:', userId);
   }, []);
 
   useEffect(() => {
@@ -148,7 +147,6 @@ const MessagesPage = () => {
         return res.json();
       })
       .then(msgs => {
-    console.log('Loaded messages:', msgs);
         setMessages(msgs);
       })
       .catch(err => console.error('Failed to load messages:', err));
@@ -165,7 +163,7 @@ const MessagesPage = () => {
     });
 
     socketRef.current.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
+      // Silent disconnect handling
     });
 
     socketRef.current.on('reconnect', (attemptNumber) => {
@@ -196,15 +194,6 @@ const MessagesPage = () => {
       const currentChatId = currentActiveId
         ? [loggedInUserId, currentActiveId].sort().join("_")
         : null;
-
-      console.log('📨 Received message:', {
-        text: msg.text,
-        senderId: msg.senderId,
-        chatId: msg.chatId,
-        loggedInUser: loggedInUserId,
-        isFromMe: msg.senderId === loggedInUserId,
-        isCurrentChat: msg.chatId === currentChatId
-      });
 
       // Only add message to UI if it's not from the current user (to avoid duplication)
       if (msg.senderId !== loggedInUserId && msg.chatId === currentChatId) {
@@ -299,7 +288,6 @@ const MessagesPage = () => {
   useEffect(() => {
     if (!activeContactId || !socketRef.current || !loggedInUserId) return;
     const chatId = [loggedInUserId, activeContactId].sort().join('_');
-    console.log('🔗 Joining room:', chatId);
     socketRef.current.emit("joinRoom", chatId);
     
     setIsTyping(false);
@@ -333,7 +321,6 @@ const MessagesPage = () => {
       time: new Date().toISOString(),
     };
     
-    console.log('📤 Sending message:', newMessage);
     socketRef.current.emit('chat message', newMessage);
 
     socketRef.current.emit('stopped typing', { chatId, userId: loggedInUserId });
@@ -377,13 +364,6 @@ const MessagesPage = () => {
     const msgSenderId = String(message.senderId).trim();
     const loggedInId = String(loggedInUserId).trim();
     const isSent = msgSenderId === loggedInId;
-    
-    console.log('💬 Rendering bubble:', {
-      text: message.text,
-      msgSenderId,
-      loggedInId,
-      isSent
-    });
     
     return (
       <div 

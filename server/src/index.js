@@ -27,12 +27,9 @@ const Message = require('./models/Message');
 const onlineUsers = new Map(); // userId -> socketId
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
   // Handle user going online
   socket.on("user_online", (userId) => {
     if (!userId) {
-      console.log("Warning: user_online event received without userId");
       return;
     }
 
@@ -52,17 +49,14 @@ io.on("connection", (socket) => {
     
     // Broadcast to all OTHER connected clients that this user is online
     socket.broadcast.emit("user_status_change", { userId, isOnline: true });
-    console.log(`User ${userId} is now online. Total online users: ${onlineUsers.size}`);
   });
 
   socket.on("joinRoom", (chatId) => {
     socket.join(chatId);
-    console.log(`User ${socket.id} joined room ${chatId}`);
   });
 
   socket.on("leaveRoom", (chatId) => {
     socket.leave(chatId);
-    console.log(`User ${socket.id} left room ${chatId}`);
   });
 
   socket.on("chat message", async (msg) => {
@@ -88,7 +82,6 @@ io.on("connection", (socket) => {
       onlineUsers.delete(socket.userId);
       // Broadcast to all connected clients that this user is offline
       socket.broadcast.emit("user_status_change", { userId: socket.userId, isOnline: false });
-      console.log(`User ${socket.userId} is now offline. Total online users: ${onlineUsers.size}`);
     }
   });
 });

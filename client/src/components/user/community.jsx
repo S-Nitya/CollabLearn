@@ -447,7 +447,6 @@ const CommunityPage = () => {
         
         // Show success message
         const result = await response.json();
-        console.log('Post deleted successfully:', result.message);
         
         // Refresh posts
         fetchPosts();
