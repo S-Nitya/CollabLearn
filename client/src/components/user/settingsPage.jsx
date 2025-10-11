@@ -206,7 +206,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                                     </button>
                                 }
                             />
-                            <FeatureCard
+                            {/* <FeatureCard
                                 icon={<Shield size={24} />}
                                 title="Privacy Settings"
                                 description={`Set your profile visibility. Currently: ${profilePrivacy ? 'Public' : 'Private'}`}
@@ -220,7 +220,7 @@ export default function SettingsPage({ isDarkMode, toggleDarkMode }) {
                                         {profilePrivacy ? 'Set Private' : 'Set Public'}
                                     </button>
                                 }
-                            />
+                            /> */}
                         </div>
                     </section>
 
