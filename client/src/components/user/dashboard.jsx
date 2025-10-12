@@ -642,19 +642,13 @@ const Dashboard = React.memo(() => {
                       {derivedData.learningSkills.length} in progress
                     </span>
                   </h3>
-                  <button 
-                    onClick={handleFindSkills}
-                    className="text-indigo-600 text-sm font-semibold hover:underline"
-                  >
-                    Find Skills
-                  </button>
                 </div>
                 
                 {derivedData.learningSkills.length > 0 ? (
                   <div className="space-y-4">
                     {derivedData.learningSkills.map((skill, index) => (
                       <div key={skill._id || index} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center mb-3">
                           <div className="flex items-center space-x-3">
                             <div className="bg-blue-500 text-white rounded-full h-10 w-10 flex items-center justify-center font-bold">
                               {getSkillInitials(skill.name)}
@@ -669,51 +663,14 @@ const Dashboard = React.memo(() => {
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-blue-600">
-                              {skill.seeking?.progress || 0}%
-                            </p>
-                            <p className="text-xs text-gray-500">Complete</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-2">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm font-medium text-gray-700">Progress</span>
-                            <span className="text-sm text-gray-600">{skill.seeking?.progress || 0}% of 100%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div 
-                              className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(skill.seeking?.progress || 0)}`}
-                              style={{ width: `${skill.seeking?.progress || 0}%` }}
-                            ></div>
-                          </div>
                         </div>
 
-                        <div className="flex justify-between items-center mt-3">
-                          <div className="flex items-center space-x-4 text-xs text-gray-500">
+                        <div className="mt-3">
+                          <div className="text-xs text-gray-500">
                             <span className="flex items-center">
-                              <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                              {Math.floor((skill.seeking?.progress || 0) / 10)} sessions completed
+                              <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                              Currently learning this skill
                             </span>
-                            <span className="flex items-center">
-                              <span className="w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
-                              Target: Advanced level
-                            </span>
-                          </div>
-                          <div className="flex space-x-2">
-                            <button 
-                              onClick={handleScheduleSession}
-                              className="px-3 py-1 text-xs bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                            >
-                              Book Session
-                            </button>
-                            <button 
-                              onClick={handleFindSkills}
-                              className="px-3 py-1 text-xs bg-white border border-indigo-300 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
-                            >
-                              View Details
-                            </button>
                           </div>
                         </div>
                       </div>
@@ -725,13 +682,7 @@ const Dashboard = React.memo(() => {
                       <BookOpen className="w-8 h-8" />
                     </div>
                     <p className="text-gray-600 text-lg font-medium mb-2">No learning goals set</p>
-                    <p className="text-gray-500 text-sm mb-4">Discover new skills and connect with expert instructors!</p>
-                    <button 
-                      onClick={handleFindSkills}
-                      className="px-6 py-3 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition-colors"
-                    >
-                      Explore Skills to Learn
-                    </button>
+                    <p className="text-gray-500 text-sm">Discover new skills and connect with expert instructors!</p>
                   </div>
                 )}
               </div>
