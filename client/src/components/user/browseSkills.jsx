@@ -7,6 +7,8 @@ import { getAvatarDisplayProps, hasCustomAvatar } from '../../utils/avatarUtils'
 
 
 export default function SkillSwapBrowse() {
+  // Current logged-in user id (if logged in)
+  const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
   const [visibleSkills, setVisibleSkills] = useState(6);
   const [showPostSkillModal, setShowPostSkillModal] = useState(false);
   const [postSkillForm, setPostSkillForm] = useState({
@@ -821,12 +823,30 @@ export default function SkillSwapBrowse() {
 
                   {/* Book Button */}
                   <div className="flex items-center gap-2">
-                    <Link 
-                      to={`/book-session?skillId=${skill._id}&instructorId=${skill.user?._id || skill.user?.id}&skillTitle=${encodeURIComponent(skill.name)}&instructorName=${encodeURIComponent(skill.user?.name || 'Unknown User')}`}
-                      className="flex-1 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg cursor-pointer px-28"
-                    >
-                      Book Session
-                    </Link>
+                    {(() => {
+                      const ownerId = skill.user?._id || skill.user?.id;
+                      const isOwnSkill = currentUserId && ownerId && ownerId.toString() === currentUserId.toString();
+                      if (isOwnSkill) {
+                        return (
+                          <button
+                            type="button"
+                            disabled
+                            title="You can't book a session for your own skill"
+                            className="flex-1 text-center py-3 rounded-lg font-semibold cursor-not-allowed px-28 bg-gray-200 text-gray-500 border border-gray-300"
+                          >
+                            Your Skill
+                          </button>
+                        );
+                      }
+                      return (
+                        <Link 
+                          to={`/book-session?skillId=${skill._id}&instructorId=${ownerId}&skillTitle=${encodeURIComponent(skill.name)}&instructorName=${encodeURIComponent(skill.user?.name || 'Unknown User')}`}
+                          className="flex-1 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg cursor-pointer px-28"
+                        >
+                          Book Session
+                        </Link>
+                      );
+                    })()}
                     
                     <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer">
                       <UserPlus size={20} className="text-gray-600" />

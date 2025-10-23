@@ -130,6 +130,7 @@ export default function BookingSessionPage() {
   const [studentId, setStudentId] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [blockedOwnBooking, setBlockedOwnBooking] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -166,6 +167,19 @@ export default function BookingSessionPage() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
+
+  // Prevent booking if the user is trying to book their own skill
+  useEffect(() => {
+    if (studentId && skillDetails?.instructor) {
+      if (studentId.toString() === skillDetails.instructor.toString()) {
+        setBlockedOwnBooking(true);
+        setIsModalVisible(false);
+        try {
+          toast.error("You can't book a session for your own skill.");
+        } catch {}
+      }
+    }
+  }, [studentId, skillDetails]);
 
   const handleBookingConfirm = async (bookingData) => {
     try {
@@ -206,7 +220,7 @@ export default function BookingSessionPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      {isModalVisible && (
+      {isModalVisible && !blockedOwnBooking && (
         <BookingModal
           skillTitle={skillDetails.title}
           instructorName={skillDetails.instructorName}
@@ -217,7 +231,7 @@ export default function BookingSessionPage() {
           onConfirm={handleBookingConfirm}
         />
       )}
-      {!isModalVisible && (
+      {!isModalVisible && !blockedOwnBooking && (
         <div className="bg-white p-10 rounded-lg shadow-md text-center">
           <h2 className="text-2xl font-bold text-indigo-600">
             Request Sent
@@ -227,6 +241,18 @@ export default function BookingSessionPage() {
           </p>
           <button
             className="mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2 px-4 rounded hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg"
+            onClick={() => window.history.back()}
+          >
+            Go Back
+          </button>
+        </div>
+      )}
+      {blockedOwnBooking && (
+        <div className="bg-white p-10 rounded-lg shadow-md text-center max-w-md">
+          <h2 className="text-2xl font-bold text-red-600">Action not allowed</h2>
+          <p className="text-gray-600 mt-2">You can’t book a session for a skill you posted.</p>
+          <button
+            className="mt-4 bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-700 shadow"
             onClick={() => window.history.back()}
           >
             Go Back

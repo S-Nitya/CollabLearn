@@ -1,7 +1,2 @@
-1. Sign Up & Log In
-2. Forgot Password.
-
-C/C++
-Java
-Python
-React
+1. In Community, keep the categories according to all possible skills in user profile
+2. Clear all data in DB and put proper data. (Do it on disc when together)
