@@ -55,4 +55,8 @@ const postSchema = new mongoose.Schema({
   },
 });
 
+// Indexes for faster sorting/filtering
+postSchema.index({ timestamp: -1 });
+postSchema.index({ userId: 1 });
+
 module.exports = mongoose.model('Post', postSchema);

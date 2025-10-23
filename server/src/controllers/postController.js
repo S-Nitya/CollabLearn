@@ -3,14 +3,25 @@ const User = require('../models/User');
 
 exports.getPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate({
-        path: 'userId',
-        select: 'name email avatar',
-        model: 'User'
-      })
-      .sort({ timestamp: -1 });
-    
+    // Pagination params
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const skip = (page - 1) * limit;
+
+    const [posts, total] = await Promise.all([
+      Post.find()
+        .populate({
+          path: 'userId',
+          select: 'name email avatar',
+          model: 'User'
+        })
+        .sort({ timestamp: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Post.countDocuments({})
+    ]);
+
     // Transform posts to include user avatar data
     const transformedPosts = posts.map(post => {
       let userAvatar = null;
@@ -22,6 +33,8 @@ exports.getPosts = async (req, res) => {
             userAvatar = post.userId.avatar;
           } else if (post.userId.avatar.startsWith('data:image/')) {
             userAvatar = post.userId.avatar;
+          } else {
+            userAvatar = `/uploads/avatars/${post.userId.avatar}`;
           }
         } else if (typeof post.userId.avatar === 'object') {
           switch (post.userId.avatar.type) {
@@ -41,7 +54,7 @@ exports.getPosts = async (req, res) => {
       }
       
       return {
-        ...post.toObject(),
+        ...post,
         authorAvatar: userAvatar || post.avatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(post.author)}`,
         userInfo: post.userId ? {
           id: post.userId._id,
@@ -51,9 +64,109 @@ exports.getPosts = async (req, res) => {
       };
     });
     
-    res.json(transformedPosts);
+    res.json({
+      success: true,
+      page,
+      limit,
+      total,
+      posts: transformedPosts
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Get Top Contributors (users with most posts)
+exports.getTopContributors = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 5;
+
+    // Aggregate posts grouped by userId and join with users to get names
+    const agg = await Post.aggregate([
+      { $group: { _id: '$userId', totalPosts: { $sum: 1 } } },
+      { $sort: { totalPosts: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      // Exclude posts where the user no longer exists
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: false } },
+      // Exclude empty names and anonymous users
+      {
+        $match: {
+          'user.name': { $nin: ['', null] },
+          // Case-insensitive filter to remove anonymous names
+          $expr: {
+            $not: {
+              $regexMatch: { input: { $toLower: '$user.name' }, regex: /^anonymous(\s+user)?$/ }
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: '$_id',
+          totalPosts: 1,
+          name: '$user.name',
+          avatar: '$user.avatar'
+        }
+      },
+      { $limit: limit }
+    ]);
+
+    const resolveAvatarUrl = (avatar, name) => {
+      try {
+        if (!avatar) return `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+        if (typeof avatar === 'string') {
+          if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('data:image/')) {
+            return avatar;
+          }
+          // Treat as uploaded filename path
+          return `/uploads/avatars/${avatar}`;
+        }
+        if (typeof avatar === 'object') {
+          switch (avatar.type) {
+            case 'upload':
+              return avatar.filename ? `/uploads/avatars/${avatar.filename}` : `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+            case 'url':
+            case 'base64':
+              return avatar.url || `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+            default:
+              return `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+          }
+        }
+        return `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+      } catch (e) {
+        return `https://i.pravatar.cc/150?u=${encodeURIComponent(name || 'User')}`;
+      }
+    };
+
+    // Final safety filter on server side to ensure no anonymous or duplicates
+    const anonRe = /^anonymous(?:\s+user)?$/i;
+    const seen = new Set();
+    const result = [];
+    for (const row of agg) {
+      if (!row?.userId || !row?.name || anonRe.test(row.name)) continue;
+      const key = row.userId.toString();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push({
+        userId: row.userId,
+        name: row.name,
+        avatar: row.avatar || null,
+        avatarUrl: resolveAvatarUrl(row.avatar, row.name),
+        totalPosts: row.totalPosts
+      });
+    }
+
+    res.json({ success: true, contributors: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

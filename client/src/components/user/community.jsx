@@ -17,11 +17,7 @@ const initialCategories = [
   { name: 'React', count: 70, color: 'bg-purple-500' },
 ];
 
-const topContributors = [
-  { id: 1, name: 'Sarah Chen', contributions: 156, avatar: 'https://i.pravatar.cc/150?u=sarah', roles: ['Community Leader'] },
-  { id: 2, name: 'Marcus Johnson', contributions: 134, avatar: 'https://i.pravatar.cc/150?u=marcus', roles: ['Helpful Helper'] },
-  { id: 3, name: 'Dr. Emily Wang', contributions: 112, avatar: 'https://i.pravatar.cc/150?u=emily', roles: ['Knowledge Expert'] },
-];
+// Removed static top contributors; now fetched from API
 
 const trendingTopics = [
   { name: 'React Hooks', count: 23 },
@@ -92,6 +88,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
               src={avatarProps.avatarUrl} 
               alt={post.author} 
               className="w-full h-full object-cover"
+              loading="lazy"
               onError={(e) => {
                 // Fallback to placeholder if image fails to load
                 e.target.style.display = 'none';
@@ -213,6 +210,7 @@ const PostCard = ({ post, handleDeletePost, currentUserId, fetchPosts, currentUs
                             src={commentAvatarProps.avatarUrl} 
                             alt={c.author} 
                             className="w-full h-full object-cover"
+                            loading="lazy"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'flex';
@@ -335,11 +333,16 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
 // --- MAIN COMPONENT ---
 const CommunityPage = () => {
   
-  const [allPosts, setAllPosts] = useState([]); // Holds all posts from the server
+  const [allPosts, setAllPosts] = useState([]); // Holds posts loaded so far (paginated)
   const [filteredPosts, setFilteredPosts] = useState([]); // Holds posts to be displayed
   const [selectedCategory, setSelectedCategory] = useState('All Posts'); // For filtering
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [topContributors, setTopContributors] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [postsPage, setPostsPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const POSTS_PAGE_SIZE = 10;
   
   
   // Create a dynamic list of categories including "All Posts"
@@ -388,20 +391,50 @@ const CommunityPage = () => {
     }
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page = 1, append = false) => {
     try {
-      const response = await fetch('http://localhost:5000/api/posts');
+      setLoadingPosts(true);
+      const response = await fetch(`http://localhost:5000/api/posts?page=${page}&limit=${POSTS_PAGE_SIZE}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      setAllPosts(data);
+      const incoming = data?.posts || [];
+      setAllPosts(prev => append ? [...prev, ...incoming] : incoming);
+      setHasMorePosts(((data?.page || 1) * (data?.limit || POSTS_PAGE_SIZE)) < (data?.total || 0));
+      setPostsPage(data?.page || page);
     } catch (error) {
-      console.error("Failed to fetch posts:", error);
+      // Silently fail to avoid noisy console logs
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
+  const fetchTopContributors = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/posts/top-contributors?limit=3');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      const contributors = (data && data.contributors) ? data.contributors : [];
+      // Ensure sorted descending by totalPosts just in case
+      contributors.sort((a, b) => (b.totalPosts || 0) - (a.totalPosts || 0));
+      setTopContributors(contributors);
+    } catch (error) {
+      setTopContributors([]);
     }
   };
 
   useEffect(() => {
+    // Fire initial requests in parallel for better TTFB
     fetchCurrentUser();
-    fetchPosts();
+    fetchTopContributors();
+    fetchPosts(1, false);
+  }, []);
+
+  // Keep top contributors dynamic with a light polling interval
+  useEffect(() => {
+    const id = setInterval(() => {
+      fetchTopContributors();
+    }, 60000); // 60s
+    return () => clearInterval(id);
   }, []);
   
   // NEW useEffect for filtering posts when selectedCategory or allPosts changes
@@ -421,10 +454,10 @@ const CommunityPage = () => {
         body: JSON.stringify(newPostData),
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      fetchPosts();
+      fetchPosts(1, false);
+      fetchTopContributors();
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Failed to add post:", error);
       alert("Failed to add post. Please try again.");
     }
   };
@@ -449,9 +482,10 @@ const CommunityPage = () => {
         const result = await response.json();
         
         // Refresh posts
-        fetchPosts();
+        fetchPosts(1, false);
+        // Refresh top contributors dynamically
+        fetchTopContributors();
       } catch (error) {
-        console.error('Failed to delete post:', error);
         alert(`Failed to delete post: ${error.message}. Please try again.`);
       }
     }
@@ -507,9 +541,39 @@ const CommunityPage = () => {
               {/* Tabs removed: showing all posts by default */}
 
               <div className="space-y-6">
+                {/* Skeletons while loading first page */}
+                {loadingPosts && allPosts.length === 0 && (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="bg-white p-6 rounded-lg shadow-sm animate-pulse">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-11 h-11 bg-gray-200 rounded-full"></div>
+                        <div className="flex-1 space-y-3">
+                          <div className="w-1/3 h-4 bg-gray-200 rounded"></div>
+                          <div className="w-2/3 h-4 bg-gray-200 rounded"></div>
+                          <div className="w-full h-4 bg-gray-200 rounded"></div>
+                          <div className="w-5/6 h-4 bg-gray-200 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
                 {currentUser && filteredPosts.map((post) => (
-                  <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} fetchPosts={fetchPosts} currentUser={currentUser} />
+                  <PostCard key={post._id} post={post} handleDeletePost={handleDeletePost} currentUserId={currentUser.id} fetchPosts={(...args) => fetchPosts(1, false)} currentUser={currentUser} />
                 ))}
+
+                {/* Load more */}
+                {hasMorePosts && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => fetchPosts(postsPage + 1, true)}
+                      disabled={loadingPosts}
+                      className={`px-4 py-2 rounded-lg border ${loadingPosts ? 'bg-gray-100 text-gray-400' : 'bg-white hover:bg-gray-50 text-gray-700'} `}
+                    >
+                      {loadingPosts ? 'Loading...' : 'Load more'}
+                    </button>
+                  </div>
+                )}
               </div>
             </main>
 
@@ -533,22 +597,42 @@ const CommunityPage = () => {
               </SidebarCard>
 
               <SidebarCard title="Top Contributors">
-                {topContributors.map(user => (
-                  <div key={user.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
-                      <div>
-                        <p className="font-medium text-gray-800">{user.name}</p>
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles.map((role, i) => (
-                            <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{role}</span>
-                          ))}
+                {topContributors.length === 0 && (
+                  <div className="text-sm text-gray-500">No contributors yet</div>
+                )}
+                {topContributors.slice(0,3).map((user, idx) => {
+                  const avatarProps = getAvatarDisplayProps({ name: user.name, avatar: user.avatar, avatarUrl: user.avatarUrl }, 36);
+                  return (
+                    <div key={user.userId || idx} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+                          {avatarProps.hasCustom && avatarProps.avatarUrl ? (
+                            <img 
+                              src={avatarProps.avatarUrl} 
+                              alt={user.name} 
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs ${avatarProps.hasCustom && avatarProps.avatarUrl ? 'hidden' : 'flex'}`}
+                            style={{ backgroundColor: avatarProps.initialsColor }}
+                          >
+                            {avatarProps.initials}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">{user.name}</p>
                         </div>
                       </div>
+                      <span className="text-sm font-semibold text-sky-600">{user.totalPosts}</span>
                     </div>
-                    <span className="text-sm font-semibold text-sky-600">{user.contributions}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </SidebarCard>
 
               <SidebarCard title="Trending Topics">
