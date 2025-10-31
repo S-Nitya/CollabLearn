@@ -646,14 +646,6 @@ const CommunityPage = () => {
                 })}
               </SidebarCard>
 
-              <SidebarCard title="Trending Topics">
-                {trendingTopics.map((topic, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
-                    <span className="text-gray-700">#{topic.name}</span>
-                    <span className="text-sm text-gray-500">{topic.count}</span>
-                  </div>
-                ))}
-              </SidebarCard>
             </aside>
           </div>
         </div>
