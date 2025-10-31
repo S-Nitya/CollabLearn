@@ -15,6 +15,9 @@ const initialCategories = [
   { name: 'Python', count: 95, color: 'bg-green-500' },
   { name: 'Java', count: 80, color: 'bg-red-500' },
   { name: 'React', count: 70, color: 'bg-purple-500' },
+  { name: 'MongoDB', count: 70, color: 'bg-yellow-500' },
+  { name: 'Node.js', count: 70, color: 'bg-orange-500' },
+  { name: 'Express.js', count: 70, color: 'bg-blue-500' },
 ];
 
 // Removed static top contributors; now fetched from API
@@ -257,7 +260,16 @@ const NewPostModal = ({ onAddPost, onClose, currentUser }) => {
   const [tags, setTags] = useState('');
   const [category, setCategory] = useState('');
 
-  const availableCategories = ["C/C++", "Java", "Python", "React", "General Discussion"];
+  const availableCategories = [
+    "C/C++",
+    "Java",
+    "Python",
+    "React",
+    "MongoDB",
+    "Node.js",
+    "Express.js",
+    "General Discussion",
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
