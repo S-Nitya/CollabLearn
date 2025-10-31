@@ -19,6 +19,7 @@ import {
   X
 } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar';
+import { formatINR } from '../../utils/currencyUtils';
 
 const SkillSessions = () => {
   const location = useLocation();
@@ -411,7 +412,7 @@ const SkillSessions = () => {
                   <div className="text-right">
                     <p className="text-2xl font-bold text-indigo-600">
                       {userRole === 'instructor' 
-                        ? `$${skill?.offering?.price || 0}/hr` 
+                        ? `${formatINR(skill?.offering?.price || 0)}/hr` 
                         : `${sessions.filter(s => s.status === 'completed').length}/${sessions.length}`
                       }
                     </p>

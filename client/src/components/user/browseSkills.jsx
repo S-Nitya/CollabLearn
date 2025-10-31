@@ -3,6 +3,7 @@ import { Search, Home, Calendar, MessageSquare, Users, Trophy, Bell, Filter, Clo
 import MainNavbar from '../../navbar/mainNavbar.jsx';
 import { Link } from 'react-router-dom';
 import { getAvatarDisplayProps, hasCustomAvatar } from '../../utils/avatarUtils';
+import { formatINR } from '../../utils/currencyUtils';
 // Placeholder MainNavbar component
 
 
@@ -817,7 +818,7 @@ export default function SkillSwapBrowse() {
 
                   <div className="flex items-center justify-end mb-4">
                     <span className={`text-lg font-bold ${skill.offering?.price === 0 ? 'text-indigo-600' : 'text-gray-900'}`}>
-                      {skill.offering?.price === 0 ? 'Free' : `$${skill.offering?.price}/hr`}
+                      {skill.offering?.price === 0 ? 'Free' : `${formatINR(skill.offering?.price)}/hr`}
                     </span>
                   </div>
 
@@ -1031,7 +1032,7 @@ export default function SkillSwapBrowse() {
                   name="price"
                   value={postSkillForm.price}
                   onChange={handleInputChange}
-                  placeholder="e.g., $50/hr (leave empty for free)"
+                  placeholder="e.g., ₹50/hr (leave empty for free)"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
                 />
               </div>

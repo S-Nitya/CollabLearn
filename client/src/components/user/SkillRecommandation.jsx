@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, BookOpen, Clock, Star, ArrowLeft, Zap, Award, TrendingUp } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar';
+import { formatINR } from '../../utils/currencyUtils';
 
 // Skeleton Loader Component
 const SkeletonCard = () => (
@@ -310,7 +311,7 @@ const SkillRecommendations = () => {
                   <div className="p-5 pt-2">
                     <button className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold text-sm 
                       hover:shadow-md hover:scale-[1.02] transition-all duration-300 group-hover:from-indigo-700 group-hover:to-purple-700">
-                      Book Session • {skill.offering?.price > 0 ? `$${skill.offering.price}/hr` : 'Free'}
+                      Book Session • {skill.offering?.price > 0 ? `${formatINR(skill.offering.price)}/hr` : 'Free'}
                     </button>
                   </div>
                 </div>
