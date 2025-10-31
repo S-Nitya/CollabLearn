@@ -536,7 +536,6 @@ export default function SkillSwapBrowse() {
           {/* Header Section */}
           <div className="mb-8 animate-fadeInUp">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Discover Amazing Skills</h1>
-            <p className="text-lg text-gray-600">Learn from passionate teachers and share your expertise with others</p>
           </div>
 
           {/* Success Message */}
