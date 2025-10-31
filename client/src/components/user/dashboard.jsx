@@ -532,45 +532,38 @@ const Dashboard = React.memo(() => {
                 
                 {derivedData.teachingSkills.length > 0 ? (
                   <div className="space-y-3">
-                    {derivedData.teachingSkills.map((skill, index) => (
-                      <div key={skill._id || index} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition duration-150">
-                        <div className="flex items-center space-x-4">
-                          <div className="bg-indigo-600 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-lg">
-                            {getSkillInitials(skill.name)}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-800 text-lg">{skill.name}</p>
-                            <div className="flex items-center space-x-4 text-sm text-gray-600">
-                              <span className="flex items-center">
-                                <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                                Level: {skill.offering?.level || 'Not specified'}
-                              </span>
-                              <span className="flex items-center">
-                                <span className="w-2 h-2 bg-cyan-500 rounded-full mr-1"></span>
-                                {skill.offering?.sessions || 0} sessions completed
-                              </span>
-                              <span className="flex items-center">
-                                <span className="text-yellow-500 mr-1">⭐</span>
-                                {skill.offering?.rating?.toFixed(1) || '0.0'} rating
-                              </span>
+                    {derivedData.teachingSkills.map((skill, index) => {
+                      // Determine unique students for this skill from upcoming teaching bookings
+                      const students = (derivedData.upcomingBookings || [])
+                        .filter(b => b.skill && b.skill._id === skill._id && b.student && b.student.name)
+                        .map(b => b.student.name)
+                        .filter((v, i, a) => a.indexOf(v) === i); // dedupe
+
+                      return (
+                        <div key={skill._id || index} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition duration-150">
+                          <div className="flex items-center space-x-4">
+                            <div className="bg-indigo-600 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-lg">
+                              {getSkillInitials(skill.name)}
                             </div>
-                            {skill.offering?.price && (
-                              <p className="text-sm text-blue-600 font-medium">
-                                ${skill.offering.price}/hour
+                            <div>
+                              <p className="font-semibold text-gray-800 text-lg">{skill.name}</p>
+                              <p className="text-sm text-gray-600">Level: {skill.offering?.level || 'Not specified'}</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Teaching: {students.length > 0 ? students.join(', ') : 'No active students'}
                               </p>
-                            )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            <button 
+                              onClick={() => handleViewMoreInfo(skill)}
+                              className="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200"
+                            >
+                              View Info
+                            </button>
                           </div>
                         </div>
-                        <div className="flex flex-col space-y-2">
-                          <button 
-                            onClick={() => handleViewMoreInfo(skill)}
-                            className="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200"
-                          >
-                            View More Info
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
@@ -609,7 +602,11 @@ const Dashboard = React.memo(() => {
                             <div className="flex-1">
                               <p className="font-semibold text-gray-800">{booking.student?.name || 'Unknown Student'}</p>
                               <p className="text-sm text-gray-600">{booking.skill?.name || 'Unknown Skill'}</p>
-                              <div className="flex items-center space-x-2 mt-2">
+                              <button
+                                onClick={() => handleViewStudentProgress(booking.student, booking.skill)}
+                                className="flex items-center space-x-2 mt-2 w-full text-left"
+                                title="View student progress"
+                              >
                                 <div className="w-24 bg-gray-200 rounded-full h-2">
                                   <div 
                                     className={`h-2 rounded-full ${getProgressColor(progressPercentage)}`}
@@ -617,7 +614,7 @@ const Dashboard = React.memo(() => {
                                   ></div>
                                 </div>
                                 <span className="text-xs text-gray-500">{progressPercentage}%</span>
-                              </div>
+                              </button>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
