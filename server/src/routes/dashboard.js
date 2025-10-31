@@ -92,7 +92,8 @@ router.get('/stats', auth, async (req, res) => {
           rating: user.rating,
           totalSessions: user.totalSessions,
           badges: user.badges,
-          joinDate: user.createdAt
+          joinDate: user.createdAt,
+          isPremium: user.isPremium || false
         },
         stats: {
           totalSessions: user.totalSessions,

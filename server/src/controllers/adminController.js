@@ -126,6 +126,7 @@ const adminController = {
             role: instructorIds.has(user._id.toString()) ? 'Instructor' : 'Learner',
             registered: user.createdAt,
             status: user.isActive ? 'Active' : 'Blocked',
+            isPremium: user.isPremium || false,
         }));
 
         res.json({ success: true, data: formattedUsers });
@@ -151,6 +152,45 @@ const adminController = {
         res.json({ success: true, message: 'User unblocked' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to unblock user' });
+    }
+  },
+
+  updateUserSubscription: async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { isPremium } = req.body;
+
+        if (typeof isPremium !== 'boolean') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'isPremium must be a boolean value' 
+            });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            userId, 
+            { isPremium },
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found' 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            message: `User subscription updated to ${isPremium ? 'Premium' : 'Free'}`,
+            data: user
+        });
+    } catch (error) {
+        console.error('Update subscription error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to update user subscription' 
+        });
     }
   },
   

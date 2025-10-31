@@ -12,6 +12,12 @@ router.get('/stats', auth, adminController.getStats);
 router.get('/users', auth, adminController.getAllUsers);
 router.put('/users/:userId/block', auth, adminController.blockUser);
 router.put('/users/:userId/unblock', auth, adminController.unblockUser);
+router.put('/users/:userId/subscription', auth, (req, res, next) => {
+    console.log('🔔 Subscription route hit!');
+    console.log('User ID:', req.params.userId);
+    console.log('Request body:', req.body);
+    next();
+}, adminController.updateUserSubscription);
 
 // --- Post Management Routes (Correctly Defined) ---
 router.get('/posts', auth, adminController.getAllPosts);

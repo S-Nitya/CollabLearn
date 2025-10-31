@@ -118,8 +118,8 @@ export default function AdminNavbar() {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-dropdown">
                   
-                  {/* User Info Header */}
-                  <div className="px-4 py-3 border-b border-gray-200">
+                  
+                  {/* <div className="px-4 py-3 border-b border-gray-200">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
                         <User size={20} className="text-gray-600" />
@@ -129,12 +129,12 @@ export default function AdminNavbar() {
                         <p className="text-sm text-gray-500">{email}</p>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Admin Menu Items */}
                     <div className="p-2">
                     {/* Link back to regular dashboard (Optional for quick switching) */}
-                    {userRole === 'admin' && (
+                    {/* {userRole === 'admin' && (
                         <button
                           onClick={() => handleMenuClick('/dashboard')}
                           className={getMenuButtonClass()}
@@ -157,11 +157,11 @@ export default function AdminNavbar() {
                     >
                       <Settings size={18} className="text-gray-500 group-hover:text-white transition-colors" />
                       <span className="font-medium">Settings</span>
-                    </button>
+                    </button> */}
                   </div>
 
                   {/* Sign Out Button */}
-                  <div className="px-4 pb-2 pt-1 border-t border-gray-200">
+                  {/* <div className="px-4 pb-2 pt-1 border-t border-gray-200">
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-lg font-medium transition-all transform hover:scale-105"
@@ -169,7 +169,7 @@ export default function AdminNavbar() {
                       <LogOut size={18} />
                       <span>Sign Out</span>
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               )}
             </div>

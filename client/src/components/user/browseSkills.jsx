@@ -25,6 +25,7 @@ export default function SkillSwapBrowse() {
   const [successMessage, setSuccessMessage] = useState('');
   const [skillCounts, setSkillCounts] = useState({});
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const isPremiumUser = typeof window !== 'undefined' ? localStorage.getItem('isPremium') === 'true' : false;
 
   // Predefined skills mapping to categories
   const skillCategoryMapping = {
@@ -561,10 +562,17 @@ export default function SkillSwapBrowse() {
               />
             </div>
             {/* category select removed to simplify UI */}
-            <Link to="/skill-recommendations" className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg font-medium cursor-pointer">
-              <Sparkles size={18} className="text-white" />
-              <span className="font-medium">Recommendations</span>
-            </Link>
+            {isPremiumUser ? (
+              <Link to="/skill-recommendations" className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg font-medium cursor-pointer">
+                <Sparkles size={18} className="text-white" />
+                <span className="font-medium">Recommendations</span>
+              </Link>
+            ) : (
+              <button onClick={() => window.location.assign('/get-premium')} className="flex items-center gap-2 px-4 py-3 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-50 transition-all font-medium cursor-pointer">
+                <Sparkles size={18} className="text-indigo-600" />
+                <span className="font-medium">Recommendations (Premium)</span>
+              </button>
+            )}
             <button 
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all hover:shadow-lg font-semibold cursor-pointer"
               onClick={() => setShowPostSkillModal(true)}

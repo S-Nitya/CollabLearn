@@ -15,6 +15,7 @@ import {
   Mail,
   BookOpen,
   Edit,
+  Crown,
 } from "lucide-react";
 import MainNavbar from "../../navbar/mainNavbar";
 import EditProfile from "./EditProfile";
@@ -51,6 +52,7 @@ export default function ProfilePage() {
     email: "",
     totalSessions: 0,
     avatar: "",
+    isPremium: false,
     skillsOffering: [],
     skillsSeeking: [],
   });
@@ -106,6 +108,7 @@ export default function ProfilePage() {
 
         if (profileData.success) {
           const user = profileData.user;
+          console.log('User data received:', user); // Debug log
           setProfileData({
             name: user.name || "",
             joinDate: user.joinDate
@@ -118,12 +121,14 @@ export default function ProfilePage() {
             bio: user.bio || "",
             email: user.email || "",
             totalSessions: user.totalSessions || 0,
+            isPremium: user.isPremium || false,
             avatar:
               user.avatar ||
               "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop",
             skillsOffering: userSkills.skillsOffering || [],
             skillsSeeking: userSkills.skillsSeeking || [],
           });
+          console.log('isPremium set to:', user.isPremium); // Debug log
         } else {
           setError(profileData.message || "Failed to load profile");
         }
@@ -447,9 +452,22 @@ export default function ProfilePage() {
 
               {/* Profile Info */}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3 animate-fade-in">
-                  {profileData.name}
-                </h1>
+                <div className="flex items-center gap-3 mb-3">
+                  <h1 className="text-3xl font-bold text-gray-900 animate-fade-in">
+                    {profileData.name}
+                  </h1>
+                  {/* Premium Badge */}
+                  {profileData.isPremium ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-yellow-400 to-amber-500 text-white text-sm font-semibold rounded-full shadow-md animate-fade-in">
+                      <Crown size={16} className="fill-white" />
+                      Premium
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full">
+                      Free
+                    </span>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-4 mb-3 text-gray-600">
                   {profileData.joinDate && (
@@ -648,45 +666,55 @@ export default function ProfilePage() {
                       className="border border-gray-200 rounded-xl p-4 bg-gray-50 transition-all duration-300 hover:shadow-md hover:border-cyan-200 animate-slide-in min-w-[280px] flex-shrink-0"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-base font-bold text-gray-900">
-                          {skill.name}
-                        </h3>
-                        <span className="text-sm font-semibold text-gray-900">
-                          {skill.seeking?.progress || 0}%
-                        </span>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            {skill.name}
+                          </h3>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteSkill(skill)}
+                          className="p-1.5 hover:bg-red-100 rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                          <Trash2 size={14} className="text-red-600" />
+                        </button>
                       </div>
 
-                      <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
-                        <div
-                          className="absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out"
-                          style={{
-                            width: `${skill.seeking?.progress || 0}%`,
-                            background: `linear-gradient(to right, ${
-                              (skill.seeking?.progress || 0) >= 70
-                                ? "#6366f1, #06b6d4"
-                                : (skill.seeking?.progress || 0) >= 40
-                                ? "#3b82f6, #06b6d4"
-                                : "#6366f1, #8b5cf6"
-                            })`,
-                          }}
-                        />
-                      </div>
+                      <div className="space-y-2">
+                        {skill.seeking?.currentInstructor && (
+                          <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <div className="w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center">
+                              <span className="text-cyan-600 font-semibold text-xs">
+                                {typeof skill.seeking.currentInstructor === 'string' 
+                                  ? skill.seeking.currentInstructor.charAt(0).toUpperCase()
+                                  : skill.seeking.currentInstructor.name?.charAt(0).toUpperCase() || 'I'
+                                }
+                              </span>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500">Instructor</p>
+                              <p className="font-medium">
+                                {typeof skill.seeking.currentInstructor === 'string'
+                                  ? skill.seeking.currentInstructor
+                                  : skill.seeking.currentInstructor.name || 'Unknown Instructor'
+                                }
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!skill.seeking?.currentInstructor && (
+                          <div className="text-sm text-gray-500 italic">
+                            No instructor assigned yet
+                          </div>
+                        )}
 
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                        {skill.seeking?.description ||
-                          "No description provided"}
-                      </p>
-
-                      <div className="text-xs text-gray-600 space-y-1">
-                        <div>
-                          Instructor:{" "}
-                          {skill.seeking?.currentInstructor || "Not assigned"}
-                        </div>
-                        <div>
-                          Next session:{" "}
-                          {skill.seeking?.preferredSchedule || "Not scheduled"}
-                        </div>
+                        {skill.seeking?.preferredSchedule && (
+                          <div className="text-xs text-gray-600 mt-2 flex items-center gap-1">
+                            <Calendar size={12} className="text-gray-400" />
+                            <span>{skill.seeking.preferredSchedule}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

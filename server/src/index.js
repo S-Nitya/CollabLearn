@@ -150,6 +150,8 @@ app.use('/api/booking', require('./routes/booking'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/admin', require('./routes/admin'));
 
+console.log('✅ All routes loaded, including /api/admin routes');
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ message: 'CollabLearn API Running!' });

@@ -10,6 +10,7 @@ export default function MainNavbar() {
   const navigate = useNavigate();
   const [username, setUsername] = useState('Guest');
   const [email, setEmail] = useState('');
+  const [isPremium, setIsPremium] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -28,9 +29,16 @@ export default function MainNavbar() {
         // Fallback to localStorage if no token
         const storedUsername = localStorage.getItem('username');
         const storedEmail = localStorage.getItem('email');
+        const storedIsPremium = localStorage.getItem('isPremium');
         if (storedUsername) {
           setUsername(storedUsername);
           setEmail(storedEmail || '');
+        }
+        if (storedIsPremium !== null) {
+          setIsPremium(storedIsPremium === 'true');
+        } else {
+          // assume guest is not premium
+          setIsPremium(false);
         }
         setLoading(false);
         return;
@@ -55,6 +63,7 @@ export default function MainNavbar() {
           console.log('MainNavbar: Setting username to:', data.user.name);
           setUsername(data.user.name || 'Guest');
           setEmail(data.user.email || '');
+          setIsPremium(Boolean(data.user.isPremium));
           
           // Update localStorage for future fallback
           if (data.user.name) {
@@ -63,15 +72,20 @@ export default function MainNavbar() {
           if (data.user.email) {
             localStorage.setItem('email', data.user.email);
           }
+          if (typeof data.user.isPremium !== 'undefined') {
+            localStorage.setItem('isPremium', String(Boolean(data.user.isPremium)));
+          }
         } else {
           console.log('MainNavbar: API returned success=false or no user data, using localStorage fallback');
           // Fallback to localStorage
           const storedUsername = localStorage.getItem('username');
           const storedEmail = localStorage.getItem('email');
+          const storedIsPremium = localStorage.getItem('isPremium');
           if (storedUsername) {
             setUsername(storedUsername);
             setEmail(storedEmail || '');
           }
+          if (storedIsPremium !== null) setIsPremium(storedIsPremium === 'true');
         }
       } else {
         console.log('MainNavbar: API request failed with status:', response.status);
@@ -81,10 +95,12 @@ export default function MainNavbar() {
         // Fallback to localStorage
         const storedUsername = localStorage.getItem('username');
         const storedEmail = localStorage.getItem('email');
+        const storedIsPremium = localStorage.getItem('isPremium');
         if (storedUsername) {
           setUsername(storedUsername);
           setEmail(storedEmail || '');
         }
+        if (storedIsPremium !== null) setIsPremium(storedIsPremium === 'true');
       }
     } catch (error) {
       console.error('MainNavbar: Error fetching user data:', error);
@@ -92,10 +108,12 @@ export default function MainNavbar() {
       // Fallback to localStorage
       const storedUsername = localStorage.getItem('username');
       const storedEmail = localStorage.getItem('email');
+      const storedIsPremium = localStorage.getItem('isPremium');
       if (storedUsername) {
         setUsername(storedUsername);
         setEmail(storedEmail || '');
       }
+      if (storedIsPremium !== null) setIsPremium(storedIsPremium === 'true');
     } finally {
       setLoading(false);
     }
@@ -177,6 +195,10 @@ export default function MainNavbar() {
       if (event.detail.email) {
         setEmail(event.detail.email);
       }
+      if (typeof event.detail.isPremium !== 'undefined') {
+        setIsPremium(Boolean(event.detail.isPremium));
+        localStorage.setItem('isPremium', String(Boolean(event.detail.isPremium)));
+      }
     };
 
     function handleClickOutside(event) {
@@ -204,6 +226,7 @@ export default function MainNavbar() {
     localStorage.removeItem('userId');
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('email');
+    localStorage.removeItem('isPremium');
     setUsername('Guest');
     setIsDropdownOpen(false);
     navigate('/');
@@ -258,6 +281,12 @@ export default function MainNavbar() {
               <Users size={20} />
               <span className="font-medium">Community</span>
             </Link>
+            {isPremium === false && (
+              <Link to="/get-premium" className={location.pathname === '/get-premium' ? 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform bg-gradient-to-r from-amber-500 to-yellow-400 text-white shadow-xl' : 'nav-item flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 transform text-amber-700 hover:text-amber-900 hover:bg-amber-50'}>
+                <Trophy size={20} />
+                <span className="font-medium">Get Premium</span>
+              </Link>
+            )}
             {/* <Link to="/achievements" className={getLinkClass('/achievements')}>
               <Trophy size={20} />
               <span className="font-medium">Achievements</span>

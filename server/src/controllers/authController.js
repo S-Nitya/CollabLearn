@@ -215,6 +215,7 @@ const authController = {
           avatar: user.getAvatarUrl(),
           avatarType: user.avatar?.type,
           bio: user.bio,
+          isPremium: user.isPremium || false,
           skillsOffering: user.skillsOffering,
           skillsSeeking: user.skillsSeeking,
           availability: availability,
@@ -239,7 +240,7 @@ const authController = {
   updateProfile: async (req, res) => {
     try {
       const userId = req.userId;
-      const { name, bio, avatar } = req.body;
+      const { name, bio, avatar, isPremium } = req.body;
 
       const user = await User.findById(userId);
       if (!user) {
@@ -252,6 +253,10 @@ const authController = {
       // Update basic fields
       if (name) user.name = name.trim();
       if (bio !== undefined) user.bio = bio.trim();
+      // Allow toggling premium flag when provided (admin or payment flow)
+      if (typeof isPremium !== 'undefined') {
+        user.isPremium = Boolean(isPremium);
+      }
       
       // Update avatar using the new helper method
       if (avatar !== undefined) {
@@ -273,6 +278,7 @@ const authController = {
           rating: user.rating,
           totalSessions: user.totalSessions,
           badges: user.badges,
+          isPremium: user.isPremium || false,
           isActive: user.isActive,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt
@@ -360,6 +366,7 @@ const authController = {
           avatarUrl: user.getAvatarUrl(),
           avatarType: user.avatar?.type,
           bio: user.bio,
+          isPremium: user.isPremium || false,
           skillsOffering: user.skillsOffering,
           skillsSeeking: user.skillsSeeking,
           rating: user.rating,

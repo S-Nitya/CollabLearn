@@ -73,6 +73,12 @@ const userSchema = new mongoose.Schema({
   },
   badges: [String],
 
+  // ===== SUBSCRIPTION =====
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
+
   // ===== STATUS =====
   isActive: {
     type: Boolean,

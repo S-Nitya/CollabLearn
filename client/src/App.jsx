@@ -23,6 +23,8 @@ import AdminSettings from './components/admin/AdminSettings';
 import SkillRecommendations from './components/user/SkillRecommandation';
 import VideoCall from './components/user/Videocall';
 import SkillSessions from './components/user/SkillSessions';
+import GetPremium from './components/user/GetPremium';
+import GooglePayExample from './components/user/GooglePayExample';
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
         <Route path="/admin/manage-posts" element={<ProtectedRoute><ManagePosts /></ProtectedRoute>} />            
         <Route path="/admin/analytics" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />            
         <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />            
+  <Route path="/get-premium" element={<ProtectedRoute><GetPremium /></ProtectedRoute>} />
+  <Route path="/payment" element={<ProtectedRoute><GooglePayExample /></ProtectedRoute>} />
         </Routes> 
       {/* <SettingsPage /> */}
     </div>

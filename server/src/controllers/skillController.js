@@ -338,7 +338,9 @@ const getUserSkills = async (req, res) => {
     const userId = req.userId;
     
     // Get ALL user skills regardless of isActive status for ProfilePage display
+    // Populate currentInstructor to get instructor's name instead of just ID
     const skills = await Skill.find({ user: userId })
+      .populate('seeking.currentInstructor', 'name email avatar')
       .sort({ createdAt: -1 });
 
     const skillsOffering = skills.filter(skill => skill.isOffering);

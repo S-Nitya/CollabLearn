@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, Star, Users, Trophy, BookOpen, Clock, MessageSquare, Settings } from 'lucide-react';
+import { Calendar, Star, Users, Trophy, BookOpen, Clock, MessageSquare, Settings, Lock } from 'lucide-react';
 import MainNavbar from '../../navbar/mainNavbar';
 
 // Lazy load the StudentInfoModal for better initial load performance
@@ -111,7 +111,8 @@ const Dashboard = React.memo(() => {
             id: dashboardData.data.user?.id,
             name: dashboardData.data.user?.name,
             email: dashboardData.data.user?.email,
-            avatar: dashboardData.data.user?.avatar
+            avatar: dashboardData.data.user?.avatar,
+            isPremium: !!dashboardData.data.user?.isPremium
           },
           stats: dashboardData.data.stats,
           skills: {
@@ -217,6 +218,10 @@ const Dashboard = React.memo(() => {
       allUpcomingSessions: [...upcomingBookings, ...studentBookings].sort((a, b) => new Date(a.date) - new Date(b.date))
     };
   }, [dashboardData]);
+
+  // Whether current user can join meetings (premium users only)
+  // Coerce to boolean to avoid undefined/truthy issues from cached data
+  const allowJoin = !!derivedData?.user?.isPremium;
 
   const handleViewStudentProgress = useCallback((student, skill) => {
     setSelectedStudent(student);
@@ -469,13 +474,28 @@ const Dashboard = React.memo(() => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <button onClick={() => navigate('/video-call', { state: { userName: derivedData?.user?.name } })} className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${
-                            isTeaching 
-                              ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
-                              : 'bg-purple-600 text-white hover:bg-purple-700'
-                          }`}>
-                            Join
-                          </button>
+                          <div className="relative group">
+                            <button
+                              onClick={() => { if (!allowJoin) return; navigate('/video-call', { state: { userName: derivedData?.user?.name } }); }}
+                              disabled={!allowJoin}
+                              className={`px-3 py-1 text-sm rounded-md font-medium transition-colors ${
+                                isTeaching 
+                                  ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+                                  : 'bg-purple-600 text-white hover:bg-purple-700'
+                              } ${!allowJoin ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            >
+                              Join
+                            </button>
+                            {!allowJoin && (
+                              <div className="absolute right-0 -top-12 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none">
+                                <div className="flex items-center space-x-2 bg-gray-900 text-white text-sm px-3 py-2 rounded-md shadow-lg">
+                                  <Lock className="w-5 h-5" />
+                                  <span>Need Premium to use this feature</span>
+                                </div>
+                                <div className="w-3 h-3 bg-gray-900 transform rotate-45 -mt-1 mr-3"></div>
+                              </div>
+                            )}
+                          </div>
                           <button className="text-gray-400 hover:text-gray-600 p-1">
                             <span className="text-lg">⋮</span>
                           </button>
