@@ -340,7 +340,7 @@ const getUserSkills = async (req, res) => {
     // Get ALL user skills regardless of isActive status for ProfilePage display
     // Populate currentInstructor to get instructor's name instead of just ID
     const skills = await Skill.find({ user: userId })
-      .populate('seeking.currentInstructor', 'name email avatar')
+      .populate('seeking.currentInstructor', 'name email')
       .sort({ createdAt: -1 });
 
     const skillsOffering = skills.filter(skill => skill.isOffering);
@@ -394,7 +394,7 @@ const searchSkills = async (req, res) => {
     }
 
     const skills = await Skill.find(query)
-      .populate('user', 'name avatar rating')
+      .populate('user', 'name rating')
       .sort({ createdAt: -1 })
       .limit(50);
 

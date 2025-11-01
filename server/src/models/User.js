@@ -131,7 +131,8 @@ userSchema.methods.getAvatarUrl = function() {
     case 'url':
       return this.avatar.url;
     case 'base64':
-      return this.avatar.url;
+      // Do not expose base64 avatar data via the backend. Treat as if no avatar.
+      return null;
     case 'default':
     default:
       return null;
@@ -140,7 +141,8 @@ userSchema.methods.getAvatarUrl = function() {
 
 // Helper method to set avatar
 userSchema.methods.setAvatar = function(avatarData) {
-  if (!avatarData) {
+  // If no avatar data or explicit default, clear avatar
+  if (!avatarData || avatarData === 'default' || avatarData === '') {
     this.avatar = {
       type: 'default',
       url: '',
@@ -149,24 +151,21 @@ userSchema.methods.setAvatar = function(avatarData) {
     };
     return;
   }
-  
+
+  // If a base64 string is provided, do NOT store it. Replace with default.
+  if (typeof avatarData === 'string' && avatarData.startsWith('data:image/')) {
+    // Intentionally drop base64 payloads from the backend to avoid large data storage
+    this.avatar = {
+      type: 'default',
+      url: '',
+      filename: '',
+      uploadDate: null
+    };
+    return;
+  }
+
   if (typeof avatarData === 'string') {
-    if (avatarData === 'default' || avatarData === '') {
-      this.avatar = {
-        type: 'default',
-        url: '',
-        filename: '',
-        uploadDate: null
-      };
-    } else if (avatarData.startsWith('data:image/')) {
-      // Base64 image
-      this.avatar = {
-        type: 'base64',
-        url: avatarData,
-        filename: '',
-        uploadDate: new Date()
-      };
-    } else if (avatarData.startsWith('http://') || avatarData.startsWith('https://')) {
+    if (avatarData.startsWith('http://') || avatarData.startsWith('https://')) {
       // External URL
       this.avatar = {
         type: 'url',
@@ -184,15 +183,77 @@ userSchema.methods.setAvatar = function(avatarData) {
       };
     }
   } else if (typeof avatarData === 'object') {
-    // Full avatar object
-    this.avatar = {
-      type: avatarData.type || 'default',
-      url: avatarData.url || '',
-      filename: avatarData.filename || '',
-      uploadDate: avatarData.uploadDate || new Date()
-    };
+    // Full avatar object: sanitize base64 if present
+    const type = avatarData.type || 'default';
+    if (type === 'base64' && avatarData.url && String(avatarData.url).startsWith('data:image/')) {
+      // Drop base64 payload
+      this.avatar = {
+        type: 'default',
+        url: '',
+        filename: '',
+        uploadDate: null
+      };
+    } else {
+      this.avatar = {
+        type: type,
+        url: avatarData.url || '',
+        filename: avatarData.filename || '',
+        uploadDate: avatarData.uploadDate || new Date()
+      };
+    }
   }
 };
+
+// ============= SANITIZE BASE64 AVATARS BEFORE PERSISTING =============
+// Prevent storing base64 avatar payloads in DB for both save and findOneAndUpdate flows.
+userSchema.pre('save', function(next) {
+  try {
+    if (this.avatar && this.avatar.type === 'base64' && this.avatar.url && String(this.avatar.url).startsWith('data:image/')) {
+      this.avatar = {
+        type: 'default',
+        url: '',
+        filename: '',
+        uploadDate: null
+      };
+    }
+  } catch (e) {
+    // Non-fatal; continue
+  }
+  next();
+});
+
+// Handle updates performed with findOneAndUpdate / findByIdAndUpdate
+userSchema.pre('findOneAndUpdate', function(next) {
+  try {
+    const update = this.getUpdate() || {};
+
+    // Check direct avatar replacement in $set or top-level
+    const applySanitize = (avatarVal) => {
+      if (!avatarVal) return avatarVal;
+      if (typeof avatarVal === 'string' && String(avatarVal).startsWith('data:image/')) {
+        return { type: 'default', url: '', filename: '', uploadDate: null };
+      }
+      if (typeof avatarVal === 'object') {
+        if (avatarVal.type === 'base64' && avatarVal.url && String(avatarVal.url).startsWith('data:image/')) {
+          return { type: 'default', url: '', filename: '', uploadDate: null };
+        }
+      }
+      return avatarVal;
+    };
+
+    if (update.$set && update.$set.avatar) {
+      update.$set.avatar = applySanitize(update.$set.avatar);
+    }
+    if (update.avatar) {
+      update.avatar = applySanitize(update.avatar);
+    }
+
+    this.setUpdate(update);
+  } catch (e) {
+    // continue even if sanitation fails
+  }
+  next();
+});
 
 // Virtual for backward compatibility
 userSchema.virtual('avatarUrl').get(function() {

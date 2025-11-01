@@ -8,11 +8,14 @@ exports.getPosts = async (req, res) => {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
     const skip = (page - 1) * limit;
 
+    console.log(`Fetching posts - Page: ${page}, Limit: ${limit}, Skip: ${skip}`);
+
+    // Fetch posts and total count
     const [posts, total] = await Promise.all([
       Post.find()
         .populate({
           path: 'userId',
-          select: 'name email avatar',
+          select: 'name email',
           model: 'User'
         })
         .sort({ timestamp: -1 })
@@ -22,48 +25,19 @@ exports.getPosts = async (req, res) => {
       Post.countDocuments({})
     ]);
 
-    // Transform posts to include user avatar data
-    const transformedPosts = posts.map(post => {
-      let userAvatar = null;
-      
-      // Get avatar from populated user data
-      if (post.userId && post.userId.avatar) {
-        if (typeof post.userId.avatar === 'string') {
-          if (post.userId.avatar.startsWith('http://') || post.userId.avatar.startsWith('https://')) {
-            userAvatar = post.userId.avatar;
-          } else if (post.userId.avatar.startsWith('data:image/')) {
-            userAvatar = post.userId.avatar;
-          } else {
-            userAvatar = `/uploads/avatars/${post.userId.avatar}`;
+    // Simply include user info — no avatar processing
+    const transformedPosts = posts.map(post => ({
+      ...post,
+      userInfo: post.userId
+        ? {
+            id: post.userId._id,
+            name: post.userId.name,
+            email: post.userId.email
           }
-        } else if (typeof post.userId.avatar === 'object') {
-          switch (post.userId.avatar.type) {
-            case 'upload':
-              userAvatar = post.userId.avatar.filename ? `/uploads/avatars/${post.userId.avatar.filename}` : null;
-              break;
-            case 'url':
-              userAvatar = post.userId.avatar.url || null;
-              break;
-            case 'base64':
-              userAvatar = post.userId.avatar.url || null;
-              break;
-            default:
-              userAvatar = null;
-          }
-        }
-      }
-      
-      return {
-        ...post,
-        authorAvatar: userAvatar || post.avatar || `https://i.pravatar.cc/150?u=${encodeURIComponent(post.author)}`,
-        userInfo: post.userId ? {
-          id: post.userId._id,
-          name: post.userId.name,
-          avatar: post.userId.avatar
-        } : null
-      };
-    });
-    
+        : null
+    }));
+
+    // Send response
     res.json({
       success: true,
       page,
@@ -72,9 +46,11 @@ exports.getPosts = async (req, res) => {
       posts: transformedPosts
     });
   } catch (error) {
+    console.error('Error fetching posts:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get Top Contributors (users with most posts)
 exports.getTopContributors = async (req, res) => {
@@ -113,7 +89,7 @@ exports.getTopContributors = async (req, res) => {
           userId: '$_id',
           totalPosts: 1,
           name: '$user.name',
-          avatar: '$user.avatar'
+          avatar: ''
         }
       },
       { $limit: limit }
@@ -223,7 +199,7 @@ exports.createPost = async (req, res) => {
 
     const newPost = new Post({
       author,
-      avatar: finalAvatar,
+      avatar:"",
       title,
       excerpt,
       tags,

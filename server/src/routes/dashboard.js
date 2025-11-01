@@ -36,7 +36,7 @@ router.get('/stats', auth, async (req, res) => {
       instructor: userId,
       status: { $in: ['confirmed', 'pending'] }
     })
-    .populate('student', 'name email avatar')
+    .populate('student', 'name email')
     .populate('skill')
     .sort({ date: 1 });
 
@@ -45,7 +45,7 @@ router.get('/stats', auth, async (req, res) => {
       student: userId,
       status: { $in: ['confirmed', 'pending'] }
     })
-    .populate('instructor', 'name email avatar')
+    .populate('instructor', 'name email')
     .populate('skill')
     .sort({ date: 1 });
 

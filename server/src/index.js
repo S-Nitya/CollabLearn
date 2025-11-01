@@ -126,7 +126,7 @@ mongoose.connection.on('disconnected', () => console.log('📴 MongoDB disconnec
 // Chat-specific routes
 app.get('/api/users', async (req, res) => {
   try {
-    const users = await User.find({}, '_id name avatar email');
+    const users = await User.find({}, '_id name email');
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users' });

@@ -68,7 +68,7 @@ router.post("/", async (req, res) => {
 router.get("/student/:id", async (req, res) => {
   try {
     const bookings = await Booking.find({ student: req.params.id })
-      .populate("instructor", "name email avatar")
+      .populate("instructor", 'name email')
       .populate("skill", "name description");
     
     // Filter out bookings with null populated fields
@@ -86,7 +86,7 @@ router.get("/student/:id", async (req, res) => {
 router.get("/instructor/:id", async (req, res) => {
   try {
     const bookings = await Booking.find({ instructor: req.params.id })
-      .populate("student", "name email avatar")
+      .populate("student", "name email")
       .populate("skill", "name description");
     
     // Filter out bookings with null populated fields
@@ -119,8 +119,8 @@ router.patch("/:id", async (req, res) => {
 router.get("/session/:id", async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
-      .populate("instructor", "name email avatar")
-      .populate("student", "name email avatar")
+      .populate("instructor", 'name email')
+      .populate("student", 'name email')
       .populate("skill", "name description");
     
     if (!booking) {
